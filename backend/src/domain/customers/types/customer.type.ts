@@ -1,6 +1,8 @@
 // Use only within the domain, internal typing..
 import { Entity } from '@shared/interfaces/entity.interface';
 
+export type CustomerRole = 'customer' | 'supplier';
+
 export interface CustomerAddress {
   street: string;
   city: string;
@@ -14,6 +16,7 @@ export interface CustomerModel extends Entity {
   firstName: string;
   lastName: string;
   isActive: boolean;
+  roles: CustomerRole[];
   phone?: string;
   address?: CustomerAddress;
 }

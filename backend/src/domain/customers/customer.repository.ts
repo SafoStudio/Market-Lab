@@ -1,11 +1,11 @@
 import { BaseRepository } from '@shared/interfaces/repository.interface';
-import { Customer } from './customer.entity';
+import { CustomerEntity } from './customer.entity';
 
-export abstract class CustomerRepository implements BaseRepository<Customer> {
-  abstract findAll(): Promise<Customer[]>;
-  abstract findById(id: string): Promise<Customer | null>;
-  abstract findByEmail(email: string): Promise<Customer | null>;
-  abstract create(customer: Customer): Promise<Customer>;
-  abstract update(id: string, customer: Customer): Promise<Customer>;
+export abstract class CustomerRepository implements BaseRepository<CustomerEntity> {
+  abstract findAll(): Promise<CustomerEntity[]>;
+  abstract findById(id: string): Promise<CustomerEntity | null>;
+  abstract findByEmail(email: string): Promise<CustomerEntity | null>;
+  abstract create(customer: CustomerEntity): Promise<CustomerEntity>;
+  abstract update(id: string, customer: CustomerEntity): Promise<CustomerEntity>;
   abstract delete(id: string): Promise<void>;
 }

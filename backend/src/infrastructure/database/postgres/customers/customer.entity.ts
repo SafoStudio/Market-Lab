@@ -9,17 +9,29 @@ export class CustomerEntity {
   @Index('idx_customers_email')
   email: string;
 
-  @Column({ name: 'first_name', type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 255 })
+  password: string;
+
+  @Column({ name: 'first_name', type: 'varchar', length: 100, nullable: true })
   firstName: string;
 
-  @Column({ name: 'last_name', type: 'varchar', length: 100 })
+  @Column({ name: 'last_name', type: 'varchar', length: 100, nullable: true })
   lastName: string;
+
+  @Column({ type: 'jsonb', default: ['customer'] })
+  roles: string[];
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone?: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  address: any;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

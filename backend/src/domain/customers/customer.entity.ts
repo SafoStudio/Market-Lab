@@ -1,26 +1,29 @@
-import { CustomerModel, CustomerAddress } from './types/customer.type';
-import { CreateCustomerDto, UpdateCustomerDto } from './types/customer.dto'
+import { CreateCustomerDto, UpdateCustomerDto, CustomerRole, CustomerModel, CustomerAddress, CUSTOMER_DEFAULTS } from './types';
 
-export class Customer implements CustomerModel {
+export class CustomerEntity implements CustomerModel {
   constructor(
     public id: string,
     public email: string,
+    public password: string,
     public firstName: string,
     public lastName: string,
+    public roles: CustomerRole[] = CUSTOMER_DEFAULTS.ROLES,
     public phone?: string,
     public address?: CustomerAddress,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
-    public isActive: boolean = true
+    public isActive: boolean = CUSTOMER_DEFAULTS.IS_ACTIVE
   ) { }
 
   // Business methods
-  static create(createDto: CreateCustomerDto): Customer {
-    return new Customer(
+  static create(createDto: CreateCustomerDto): CustomerEntity {
+    return new CustomerEntity(
       '', // ID autogenerate in DB 
       createDto.email,
+      createDto.password,
       createDto.firstName,
       createDto.lastName,
+      CUSTOMER_DEFAULTS.ROLES,
       createDto.phone,
       createDto.address
     );
@@ -44,5 +47,25 @@ export class Customer implements CustomerModel {
   deactivate(): void {
     this.isActive = false;
     this.updatedAt = new Date();
+  }
+
+  // for ROLES
+  addRole(role: CustomerRole): void {
+    if (!this.roles.includes(role)) {
+      this.roles.push(role);
+      this.updatedAt = new Date();
+    }
+  }
+
+  removeRole(role: CustomerRole): void {
+    const index = this.roles.indexOf(role);
+    if (index > -1) {
+      this.roles.splice(index, 1);
+      this.updatedAt = new Date();
+    }
+  }
+
+  hasRole(role: CustomerRole): boolean {
+    return this.roles.includes(role);
   }
 }

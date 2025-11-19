@@ -3,6 +3,7 @@ import { CustomerAddress } from "./customer.type";
 
 export interface CreateCustomerDto {
   email: string;
+  password: string,
   firstName: string;
   lastName: string;
 
