@@ -36,6 +36,11 @@ export class Customer implements CustomerModel {
     this.updatedAt = new Date();
   }
 
+  activate(): void {
+    this.isActive = true;
+    this.updatedAt = new Date();
+  }
+
   deactivate(): void {
     this.isActive = false;
     this.updatedAt = new Date();

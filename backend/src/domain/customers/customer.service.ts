@@ -47,16 +47,10 @@ export class CustomerService {
   }
 
   async activate(id: string): Promise<Customer> {
-    const customer = await this.findById(id);
-    customer.isActive = true;
-    customer.updatedAt = new Date();
-    return this.customerRepository.update(id, customer);
+    return this.update(id, { isActive: true });
   }
 
   async deactivate(id: string): Promise<Customer> {
-    const customer = await this.findById(id);
-    customer.isActive = false;
-    customer.updatedAt = new Date();
-    return this.customerRepository.update(id, customer);
+    return this.update(id, { isActive: false });
   }
 }
