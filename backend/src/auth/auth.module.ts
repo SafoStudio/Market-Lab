@@ -10,8 +10,8 @@ import { AuthLocalStrategy } from './strategy/auth-local.strategy';
 import { AuthJwtStrategy } from './strategy/auth-jwt.strategy';
 import { EncryptModule } from './encrypt/encrypt.module';
 
-import { CustomerEntity } from '@domain/customers/customer.entity';
-import { SupplierEntity } from '@domain/suppliers/supplier.entity';
+import { CustomerEntity } from '@infrastructure/database/postgres/customers/customer.entity';
+import { SupplierEntity } from '@infrastructure/database/postgres/suppliers/supplier.entity';
 
 @Module({
   imports: [

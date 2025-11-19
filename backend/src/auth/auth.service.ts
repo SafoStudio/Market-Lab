@@ -76,10 +76,7 @@ export class AuthService {
 
   // BECOME A SUPPLIER
   async requestSupplier(customerId: string, dto: RequestSupplierDto): Promise<SupplierEntity> {
-    const customer = await this.customerRepo.findOne({
-      where: { id: customerId },
-    });
-
+    const customer = await this.customerRepo.findOne({ where: { id: customerId } });
     if (!customer) throw new NotFoundException('Customer not found');
 
     let supplier = await this.supplierRepo.findOne({
@@ -105,9 +102,15 @@ export class AuthService {
       await this.supplierRepo.save(supplier);
     }
 
-    customer.addRole(ROLES.SUPPLIER);
-    await this.customerRepo.save(customer);
+    const updatedRoles = [...customer.roles];
+    if (!updatedRoles.includes(ROLES.SUPPLIER)) updatedRoles.push(ROLES.SUPPLIER);
 
+    await this.customerRepo.update(customerId, {
+      roles: updatedRoles,
+      updatedAt: new Date()
+    });
+
+    supplier.customer.roles = updatedRoles;
     return supplier;
   }
 

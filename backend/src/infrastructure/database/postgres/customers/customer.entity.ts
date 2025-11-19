@@ -12,10 +12,10 @@ export class CustomerEntity {
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
-  @Column({ name: 'first_name', type: 'varchar', length: 100 })
+  @Column({ name: 'first_name', type: 'varchar', length: 100, nullable: true })
   firstName: string;
 
-  @Column({ name: 'last_name', type: 'varchar', length: 100 })
+  @Column({ name: 'last_name', type: 'varchar', length: 100, nullable: true })
   lastName: string;
 
   @Column({ type: 'jsonb', default: ['customer'] })
