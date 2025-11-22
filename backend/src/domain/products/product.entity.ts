@@ -1,7 +1,7 @@
 import { ProductModel } from './types/product.type'
 import { CreateProductDto, UpdateProductDto } from './types/product.dto'
 
-export class ProductEntity implements ProductModel{
+export class ProductDomainEntity implements ProductModel{
     constructor(
         public id: string,
         public name: string,
@@ -11,9 +11,9 @@ export class ProductEntity implements ProductModel{
         public updatedAt: Date = new Date()
     ){}
 
-    static create(dto: CreateProductDto): ProductEntity{
-        return new ProductEntity(
-            '',
+    static create(dto: CreateProductDto): ProductDomainEntity{
+        return new ProductDomainEntity(
+            '', // ID autogenerate in DB 
             dto.name,
             dto.description,
             dto.price

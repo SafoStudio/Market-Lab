@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException} from "@nestjs/common";
 import { ProductRepository } from "./product.repository";
 import { CreateProductDto, UpdateProductDto } from "./types/product.dto";
-import { ProductEntity } from "./product.entity";
+import { ProductDomainEntity } from "./product.entity";
 
 @Injectable()
 export class ProductService {
@@ -9,22 +9,22 @@ export class ProductService {
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository) {}
 
-  async create(dto: CreateProductDto): Promise<ProductEntity>{
-    const product = ProductEntity.create(dto)
+  async create(dto: CreateProductDto): Promise<ProductDomainEntity>{
+    const product = ProductDomainEntity.create(dto)
     return this.productRepository.create(product);
   }
 
-  async findAll(): Promise<ProductEntity[]>{
+  async findAll(): Promise<ProductDomainEntity[]>{
     return this.productRepository.findAll();
   }
 
-  async findById(id: string): Promise<ProductEntity | null>{
+  async findById(id: string): Promise<ProductDomainEntity | null>{
     const product = await this.productRepository.findById(id);
     if (!product) throw new NotFoundException(`Product ${id} not found`);
     return product;
    }
 
-  async update(id: string, dto: UpdateProductDto): Promise<ProductEntity>{
+  async update(id: string, dto: UpdateProductDto): Promise<ProductDomainEntity>{
     const product = await this.productRepository.findById(id);
     if (!product) throw new NotFoundException(`Product ${id} not found`);
     product.update(dto)
