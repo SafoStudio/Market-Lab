@@ -87,3 +87,11 @@ src/
     ├── customers.controller.ts            # REST API for Customers
     └── health.controller.ts               # Health check controller
 ```
+
+controllers/ products.controller.ts
+modules/products.module.ts
+domain/products/product.entity.ts 
+domain/products/product.repository.ts
+domain/products/product.service.ts
+domain/products/types/product.dto.ts
+domain/products/types/product.type.ts
