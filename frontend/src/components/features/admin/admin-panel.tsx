@@ -3,7 +3,7 @@
 import { useAuthStore } from '@/core/store/auth-store';
 import { useAdmins, useDeleteAdmin } from '@/core/hooks/use-admin.hooks';
 import { AdminCreateForm } from '@/components/forms/admin-create-form';
-import { Button } from '@/components/ui/Button/Button';
+import { Button } from '@/components/ui/button/button';
 
 
 export function AdminPanel() {
