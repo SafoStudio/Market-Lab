@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { geistSans, geistMono } from "@/shared/assets/fonts/fonts";
-import { ReactQueryProvider } from '@/core/providers/react-query-provider';
+import { ReactQueryProvider } from '@/core/providers/reactQueryProvider';
 import "../shared/styles/globals.css";
 
-import { Header } from '@/components/layout/header/header'
-// import { Footer } from '@/components/layout/Footer'
+import { Header } from '@/components/layout/header/Header'
+// import { Footer } from '@/components/layout/footer'
 
 export const metadata: Metadata = {
   title: "Create Next App", 

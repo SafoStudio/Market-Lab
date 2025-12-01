@@ -1,10 +1,10 @@
 'use client';
 
-import { useAuthStore } from '@/core/store/auth-store';
-import { useSession } from '@/core/hooks/use-auth';
+import { useAuthStore } from '@/core/store/authStore';
+import { useSession } from '@/core/hooks/useAuth';
 import { useState } from 'react';
-import { UserProfile } from './user-profile';
-import { UserOrders } from './user-orders';
+import { UserProfile } from './Profile';
+import { UserOrders } from './Orders';
 
 type ActiveTab = 'dashboard' | 'profile' | 'orders';
 

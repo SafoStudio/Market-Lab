@@ -1,9 +1,9 @@
 'use client';
 
-import { useAuthStore } from '@/core/store/auth-store';
-import { useAdmins, useDeleteAdmin } from '@/core/hooks/use-admin.hooks';
-import { AdminCreateForm } from '@/components/forms/admin-create-form';
-import { Button } from '@/components/ui/button/button';
+import { useAuthStore } from '@/core/store/authStore';
+import { useAdmins, useDeleteAdmin } from '@/core/hooks/useAdmin';
+import { AdminCreateForm } from '@/components/forms/AdminCreateForm';
+import { Button } from '@/components/ui/button/Button';
 
 
 export function AdminPanel() {

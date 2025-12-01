@@ -1,7 +1,7 @@
 'use client';
 
-import { useSession } from '@/core/hooks/use-auth';
-import { useAuthStore } from '@/core/store/auth-store';
+import { useSession } from '@/core/hooks/useAuth';
+import { useAuthStore } from '@/core/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 

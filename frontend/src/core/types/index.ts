@@ -1,2 +1,2 @@
-export * from './admin.types';
-export * from './auth-type';
+export * from './adminTypes';
+export * from './authType';

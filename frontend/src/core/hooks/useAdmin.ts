@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { adminApi } from '@/core/api/admin.api';
-import { CreateAdminDto, AdminPermissions } from '@/core/types/admin.types';
-import { useAuthStore } from '@/core/store/auth-store';
+import { adminApi } from '@/core/api/adminApi';
+import { CreateAdminDto, AdminPermissions } from '@/core/types/adminTypes';
+import { useAuthStore } from '@/core/store/authStore';
 
 
 // Hook for get Admins list

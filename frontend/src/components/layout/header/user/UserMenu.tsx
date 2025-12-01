@@ -1,7 +1,7 @@
 'use client';
 
-import { useAuthStore } from '@/core/store/auth-store';
-import { useLogout } from '@/core/hooks/use-auth';
+import { useAuthStore } from '@/core/store/authStore';
+import { useLogout } from '@/core/hooks/useAuth';
 import { Button } from '@/components/ui';
 
 export function UserMenu() {

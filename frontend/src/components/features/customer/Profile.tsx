@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthStore } from '@/core/store/auth-store';
+import { useAuthStore } from '@/core/store/authStore';
 
 export function UserProfile() {
   const { user } = useAuthStore();

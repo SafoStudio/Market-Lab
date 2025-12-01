@@ -1,4 +1,4 @@
-import { LoginFormData, RegisterFormData, AuthResponse, User, RequestSupplierDto } from '../types/auth-type';
+import { LoginFormData, RegisterFormData, AuthResponse, User, RequestSupplierDto } from '../types/authType';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

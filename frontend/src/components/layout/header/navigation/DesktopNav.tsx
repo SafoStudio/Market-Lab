@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Dropdown, DropdownItem } from '@/components/ui'
-import { useSession } from '@/core/hooks/use-auth'
+import { useSession } from '@/core/hooks/useAuth'
 
 interface NavDropdownItem {
   href: string
@@ -24,43 +24,45 @@ export function DesktopNav() {
 
   const navItems: NavItem[] = [
     { 
-      href: '/our-plans', 
-      label: 'Our Plans',
+      href: '/catalog', 
+      label: 'catalog',
       dropdown: []
     },
     { 
-      label: 'About Us',
+      href: '/map', 
+      label: 'map',
       dropdown: [
-        { href: '/about-us/menu-item-1', label: 'Пункт меню 1' },
-        { href: '/about-us/menu-item-2', label: 'Пункт меню 2' }
+        // { href: '/about-us/menu-item-1', label: 'Пункт меню 1' },
+        // { href: '/about-us/menu-item-2', label: 'Пункт меню 2' }
       ]
     },
     { 
-      label: 'Our Menus',
+      href: '/sellers', 
+      label: 'sellers',
       dropdown: [
-        { href: '/our-menus/menu', label: 'Menu' },
-        { href: '/our-menus/menu-item-2', label: 'Пункт меню 2' }
+        // { href: '/our-menus/menu', label: 'Menu' },
+        // { href: '/our-menus/menu-item-2', label: 'Пункт меню 2' }
       ]
     },
     { 
-      href: '/gift-cards', 
-      label: 'Gift Cards',
+      href: '/about', 
+      label: 'about',
       dropdown: []
     },
-    { 
-      label: 'Sustainability',
-      dropdown: [
-        { href: '/sustainability/menu-item-1', label: 'Пункт меню 1' },
-        { href: '/sustainability/menu-item-2', label: 'Пункт меню 2' }
-      ]
-    },
-    { 
-      label: 'Partnerships',
-      dropdown: [
-        { href: '/partnerships/menu-item-1', label: 'Пункт меню 1' },
-        { href: '/partnerships/menu-item-2', label: 'Пункт меню 2' }
-      ]
-    },
+    // { 
+    //   label: 'Sustainability',
+    //   dropdown: [
+    //     { href: '/sustainability/menu-item-1', label: 'Пункт меню 1' },
+    //     { href: '/sustainability/menu-item-2', label: 'Пункт меню 2' }
+    //   ]
+    // },
+    // { 
+    //   label: 'Partnerships',
+    //   dropdown: [
+    //     { href: '/partnerships/menu-item-1', label: 'Пункт меню 1' },
+    //     { href: '/partnerships/menu-item-2', label: 'Пункт меню 2' }
+    //   ]
+    // },
   ]
 
   const isNavItemActive = (item: NavItem): boolean => {

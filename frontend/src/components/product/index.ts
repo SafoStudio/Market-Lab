@@ -1,3 +1,4 @@
-export { MenuCard } from './MenuCard/MenuCard'
-export { MenuGrid } from './MenuGrid/MenuGrid'
-// export { MenuFilters } from './MenuFilters/MenuFilters'
+export { ProductCard } from './card/ProductCard'
+export { ProductList } from './ProductList'
+export { ProductDetails } from './ProductDetails'
+// export { ProductFilters } from './ProductFilters'

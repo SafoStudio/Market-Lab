@@ -1,4 +1,4 @@
-import { Admin, CreateAdminDto, AdminResponse, AdminPermissions } from '../types/admin.types';
+import { Admin, CreateAdminDto, AdminResponse, AdminPermissions } from '../types/adminTypes';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const ADMIN_MANAGEMENT = API_BASE + '/admin/management/admins';

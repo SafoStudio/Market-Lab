@@ -1,4 +1,4 @@
-import { RouteGuard } from '@/components/features/auth/route-guard';
+import { RouteGuard } from '@/components/features/auth/RouteGuard';
 
 export default function CabinetLayout({
   children,

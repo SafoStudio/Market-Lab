@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ADMIN_ROLES } from '@/core/types/admin.types';
+import { ADMIN_ROLES } from '@/core/types/adminTypes';
 
 export const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').pipe(z.email('Enter a valid email address')),
