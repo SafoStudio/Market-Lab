@@ -1,10 +1,6 @@
 import { RouteGuard } from '@/components/features/auth/RouteGuard';
 
-export default function CabinetLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <RouteGuard>
       <div className="min-h-screen bg-gray-50">

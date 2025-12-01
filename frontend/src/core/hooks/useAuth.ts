@@ -19,9 +19,11 @@ export const useLogin = () => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
 
       if (data.user.roles.includes('admin')) {
-        router.push('/admin');
+        router.push('/admin-dashboard');
+      } else if (data.user.roles.includes('customer')) {
+        router.push('/customer-dashboard');
       } else {
-        router.push('/cabinet');
+        router.push('/supplier-dashboard');
       }
     },
   });
@@ -39,7 +41,12 @@ export const useRegister = () => {
       setUser(data.user);
       setIsAuthenticated(true);
       queryClient.invalidateQueries({ queryKey: ['session'] });
-      router.push('/cabinet');
+
+      if (data.user.roles.includes('customer')) {
+        router.push('/customer-dashboard');
+      } else {
+        router.push('/supplier-dashboard');
+      }
     },
   });
 };

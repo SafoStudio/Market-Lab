@@ -10,7 +10,7 @@ interface Order {
   items: number;
 }
 
-export function UserOrders() {
+export function CustomerOrders() {
   //! mock data
   const [orders, setOrders] = useState<Order[]>([
     {

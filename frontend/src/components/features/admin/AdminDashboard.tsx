@@ -6,13 +6,13 @@ import { AdminCreateForm } from '@/components/features/admin/forms/AdminCreateFo
 import { Button } from '@/components/ui/button/Button';
 
 
-export function AdminPanel() {
+export function AdminDashboard() {
   const user = useAuthStore((state) => state.user);
   const canManageAdmins = useAuthStore((state) => state.canManageAdmins);
   const { data: admins, isLoading } = useAdmins();
   const { mutate: deleteAdmin } = useDeleteAdmin();
 
-  if (!user || !user.roles.includes('admin'))  return null;
+  if (!user || !user.roles.includes('admin')) return null;
 
   const handleDeleteAdmin = (adminId: string) => {
     if (confirm('Are you sure you want to delete this admin?')) {
@@ -38,7 +38,7 @@ export function AdminPanel() {
       {/* Admin list */}
       <section>
         <h2 className="text-xl font-semibold mb-4">Administrators</h2>
-        
+
         {isLoading ? (
           <div>Loading admins...</div>
         ) : (

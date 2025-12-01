@@ -3,17 +3,17 @@
 import { useAuthStore } from '@/core/store/authStore';
 import { useSession } from '@/core/hooks/useAuth';
 import { useState } from 'react';
-import { UserProfile } from './Profile';
-import { UserOrders } from './Orders';
+import { CustomerProfile } from './CustomerProfile';
+import { CustomerOrders } from './CustomerOrders';
 
 type ActiveTab = 'dashboard' | 'profile' | 'orders';
 
-export function Cabinet() {
+export function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore();
   const { data: sessionUser } = useSession();
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
 
-  //   //!! Автоматически синхронизируется через useSession hook
+  //!! Автоматически синхронизируется через useSession hook
   const currentUser = user || sessionUser;
 
   if (!isAuthenticated && !currentUser) {
@@ -27,9 +27,9 @@ export function Cabinet() {
   const renderContent = () => {
     switch (activeTab) {
       case 'profile':
-        return <UserProfile />;
+        return <CustomerProfile />;
       case 'orders':
-        return <UserOrders />;
+        return <CustomerOrders />;
       default:
         return <DashboardContent user={currentUser} />;
     }
@@ -43,31 +43,28 @@ export function Cabinet() {
           <nav className="flex space-x-8 px-6">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'dashboard'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'dashboard'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               Dashboard
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'profile'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'profile'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               My Profile
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'orders'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'orders'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               My Orders
             </button>
@@ -88,7 +85,7 @@ function DashboardContent({ user }: { user: any }) {
       <h1 className="text-2xl font-bold text-gray-900 mb-4">
         Welcome to your Cabinet, {user?.email}!
       </h1>
-      
+
       <div className="space-y-6">
         <div>
           <h2 className="text-lg font-semibold text-gray-700">User Information</h2>
@@ -98,7 +95,7 @@ function DashboardContent({ user }: { user: any }) {
             <p><strong>Roles:</strong> {user?.roles?.join(', ')}</p>
           </div>
         </div>
-        
+
         <div className="pt-4 border-t">
           <h2 className="text-lg font-semibold text-gray-700">Quick Actions</h2>
           <div className="mt-2 flex gap-4">

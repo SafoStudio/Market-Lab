@@ -2,14 +2,14 @@
 
 import { useAuthStore } from '@/core/store/authStore';
 
-export function UserProfile() {
+export function SupplierProfile() {
   const { user } = useAuthStore();
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
-        
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile</h1>
+
         <div className="space-y-6">
           {/* MAIN INFO */}
           <div className="border-b pb-6">

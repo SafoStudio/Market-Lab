@@ -9,13 +9,13 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Logo href="/" size="lg" />
-          
+
           <DesktopNav />
-          
+
           <div className="flex items-center gap-4">
-            <CartIcon />
-            <span className="text-gray-300">|</span>
             <UserMenu />
+            <span className="text-gray-300">⟶</span>
+            <CartIcon />
           </div>
         </div>
       </div>

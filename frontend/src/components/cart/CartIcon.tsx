@@ -6,7 +6,7 @@ export function CartIcon() {
   return (
     <Link href="/cart">
       <div>
-        <span>🛒</span>
+        <span>cart 🛒</span>
         {cartItemsCount > 0 && (<span>{cartItemsCount}</span>)}
       </div>
     </Link>
