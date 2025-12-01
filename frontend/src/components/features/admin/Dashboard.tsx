@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/core/store/authStore';
 import { useAdmins, useDeleteAdmin } from '@/core/hooks/useAdmin';
-import { AdminCreateForm } from '@/components/forms/AdminCreateForm';
+import { AdminCreateForm } from '@/components/features/admin/forms/AdminCreateForm';
 import { Button } from '@/components/ui/button/Button';
 
 

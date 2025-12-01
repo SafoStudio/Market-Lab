@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateAdmin } from '@/core/hooks/useAdmin';
 import { ADMIN_ROLES } from '@/core/types/adminTypes';
-import { Button } from '../ui/button/Button';
-import { Input } from '../ui/input/Input';
-import { Select } from '../ui/select/Select';
+import { Button } from '../../../ui/button/Button';
+import { Input } from '../../../ui/input/Input';
+import { Select } from '../../../ui/select/Select';
 import { AdminCreateFormData, adminCreateSchema } from '@/core/utils/validations';
 
 
