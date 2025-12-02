@@ -144,6 +144,7 @@ export class PostgresUserRepository extends DomainUserRepository {
       ormEntity.roles as UserRole[],
       ormEntity.status as UserStatus,
       ormEntity.emailVerified,
+      ormEntity.regComplete,
       ormEntity.lastLoginAt || undefined,
       ormEntity.createdAt,
       ormEntity.updatedAt
@@ -159,6 +160,7 @@ export class PostgresUserRepository extends DomainUserRepository {
     if (domainEntity.roles) ormEntity.roles = domainEntity.roles;
     if (domainEntity.status) ormEntity.status = domainEntity.status;
     if (domainEntity.emailVerified !== undefined) ormEntity.emailVerified = domainEntity.emailVerified;
+    if (domainEntity.regComplete !== undefined) ormEntity.regComplete = domainEntity.regComplete;
     if (domainEntity.lastLoginAt) ormEntity.lastLoginAt = domainEntity.lastLoginAt;
     if (domainEntity.createdAt) ormEntity.createdAt = domainEntity.createdAt;
     if (domainEntity.updatedAt) ormEntity.updatedAt = domainEntity.updatedAt;

@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { SessionUser, Role } from '../types';
 
@@ -17,6 +17,9 @@ export class AuthLocalStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
+    // checking the user`s status
+    if (user.status !== 'active') throw new ForbiddenException('Account is not active');
+
     const roles = user.roles as Role[];
     let name: string | undefined;
 
@@ -28,11 +31,15 @@ export class AuthLocalStrategy extends PassportStrategy(Strategy) {
       name = 'Administrator';
     }
 
+    // If registration is not complete, name will be undefined
+    // The frontend will check regComplete and redirect to complete the registration.
+
     return {
       id: user.id,
       email: user.email,
       roles: roles,
       name: name,
+      regComplete: user.regComplete,
     };
   }
 }

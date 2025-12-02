@@ -19,10 +19,11 @@ export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
 
 export interface UserModel extends Entity {
   email: string;
-  passwordHash: string;
+  passwordHash: string | null;
   roles: UserRole[];
   status: UserStatus;
   emailVerified: boolean;
+  regComplete: boolean;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;

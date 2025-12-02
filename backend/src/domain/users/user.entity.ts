@@ -12,10 +12,11 @@ import {
 export class UserDomainEntity implements UserModel {
   public id: string;
   public email: string;
-  public passwordHash: string;
+  public passwordHash: string | null;
   public roles: UserRole[];
   public status: UserStatus;
   public emailVerified: boolean;
+  public regComplete: boolean;
   public lastLoginAt?: Date;
   public createdAt: Date;
   public updatedAt: Date;
@@ -23,10 +24,11 @@ export class UserDomainEntity implements UserModel {
   constructor(
     id: string,
     email: string,
-    passwordHash: string,
+    passwordHash: string | null,
     roles: UserRole[] = [USER_ROLES.CUSTOMER],
     status: UserStatus = USER_STATUS.ACTIVE,
     emailVerified: boolean = false,
+    regComplete: boolean = false,
     lastLoginAt?: Date,
     createdAt: Date = new Date(),
     updatedAt: Date = new Date()
@@ -37,6 +39,7 @@ export class UserDomainEntity implements UserModel {
     this.roles = roles;
     this.status = status;
     this.emailVerified = emailVerified;
+    this.regComplete = regComplete;
     this.lastLoginAt = lastLoginAt;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -53,6 +56,7 @@ export class UserDomainEntity implements UserModel {
     );
   }
 
+  // STEP 1 email + password
   static register(registerDto: RegisterUserDto): UserDomainEntity {
     return new UserDomainEntity(
       crypto.randomUUID(),
@@ -62,6 +66,15 @@ export class UserDomainEntity implements UserModel {
       USER_STATUS.ACTIVE,
       false
     );
+  }
+
+  // STEP 2 role + profile data
+  completeRegistration(roles: UserRole[] = []): void {
+    this.regComplete = true;
+    if (roles.length > 0) {
+      this.roles = roles;
+    }
+    this.updatedAt = new Date();
   }
 
   update(updateDto: UpdateUserDto): void {

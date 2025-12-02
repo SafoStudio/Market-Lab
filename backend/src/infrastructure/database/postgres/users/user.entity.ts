@@ -11,8 +11,8 @@ export class UserOrmEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ nullable: true, type: 'varchar' })
+  password: string | null;
 
   @Column('simple-array')
   roles: string[];
@@ -22,6 +22,9 @@ export class UserOrmEntity {
 
   @Column({ default: false })
   emailVerified: boolean;
+
+  @Column({ default: false })
+  regComplete: boolean;
 
   @Column({ nullable: true })
   lastLoginAt: Date;

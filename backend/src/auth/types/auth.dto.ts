@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsIn, ValidateNested, IsOptional, IsObject } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsIn, ValidateNested, IsOptional, IsObject, IsNotEmpty, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ROLES } from './auth.type';
 import type { Role } from './auth.type';
@@ -63,4 +63,64 @@ export class LoginDto {
 
   @IsString()
   password: string;
+}
+
+export class RegisterInitialDto {
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  googleId?: string;
+
+  @IsOptional()
+  @IsString()
+  facebookId?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+}
+
+export class RegCompleteDto {
+  @IsIn([ROLES.CUSTOMER, ROLES.SUPPLIER])
+  role: Role;
+
+  @ValidateNested()
+  @Type((obj) =>
+    obj?.object?.role === ROLES.SUPPLIER
+      ? RegSupplierProfileDto
+      : RegCustomerProfileDto
+  )
+  profile: RegCustomerProfileDto | RegSupplierProfileDto;
+}
+
+export class CheckRegStatusDto {
+  @IsEmail()
+  email: string;
+}
+
+export class AuthResponseDto {
+  @IsString()
+  access_token: string;
+
+  @IsObject()
+  user: {
+    id: string;
+    email: string;
+    roles: Role[];
+    regComplete: boolean;
+    emailVerified: boolean;
+    firstName?: string;
+    lastName?: string;
+  };
 }

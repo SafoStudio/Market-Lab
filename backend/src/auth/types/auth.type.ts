@@ -6,10 +6,19 @@ export const ROLES = {
 
 export type Role = typeof ROLES[keyof typeof ROLES];
 
+export const AUTH_PROVIDERS = {
+  EMAIL: 'email',
+  GOOGLE: 'google',
+  FACEBOOK: 'facebook'
+} as const;
+
+export type AuthProvider = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
+
 export interface UserPayload {
   id: string;
   email: string;
   roles: Role[];
+  regComplete: boolean;
 }
 
 export interface SessionUser extends UserPayload {
