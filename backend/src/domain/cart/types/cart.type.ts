@@ -20,7 +20,6 @@ export interface CartItemModel {
 }
 
 export interface CartModel extends Entity {
-  id: string;
   userId: string;
   items: CartItemModel[];
   totalAmount: number;
@@ -29,6 +28,4 @@ export interface CartModel extends Entity {
   currency: string;
   status: CartStatus;
   expiresAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
 }
