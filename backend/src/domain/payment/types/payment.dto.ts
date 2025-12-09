@@ -48,3 +48,31 @@ export interface PaymentWebhookDto {
   signature?: string;
   timestamp: number;
 }
+
+// provider response
+export type ProviderResponse = Record<string, unknown>;
+
+// for statistics
+export interface PaymentStatsDto {
+  totalRevenue: number;
+  successfulPayments: number;
+  failedPayments: number;
+  averagePaymentValue: number;
+  refundedAmount: number;
+
+  totalPayments?: number;
+  totalAmount?: number;
+  pendingPayments?: number;
+  refundedPayments?: number;
+  averagePaymentAmount?: number;
+  [key: string]: number | undefined;
+}
+
+// for webhook data
+export interface PaymentWebhookData {
+  eventType: string;
+  data?: {
+    object?: Record<string, unknown>;
+  };
+  [key: string]: unknown;
+}
