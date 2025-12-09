@@ -33,7 +33,7 @@ export interface RefundPaymentDto {
 export interface UpdatePaymentStatusDto {
   status: string;
   transactionId?: string;
-  providerResponse?: Record<string, any>;
+  providerResponse?: Record<string, unknown>;
   failureReason?: string;
 }
 
@@ -44,7 +44,7 @@ export interface CapturePaymentDto {
 
 export interface PaymentWebhookDto {
   eventType: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   signature?: string;
   timestamp: number;
 }
