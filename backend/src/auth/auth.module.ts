@@ -9,8 +9,11 @@ import { AuthJwtConfig } from './config/auth-jwt.config';
 import { AuthLocalStrategy } from './strategy/auth-local.strategy';
 import { AuthJwtStrategy } from './strategy/auth-jwt.strategy';
 import { EncryptModule } from './encrypt/encrypt.module';
+import { MailModule } from '@infrastructure/mail/mail.module';
+import { TokensModule } from './tokens/tokens.module';
 
 import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
+import { AuthTokenOrmEntity } from '../infrastructure/database/postgres/users/token.entity';
 import { CustomerProfileOrmEntity } from '@infrastructure/database/postgres/customers/customer.entity';
 import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/suppliers/supplier.entity';
 
@@ -19,12 +22,15 @@ import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/supp
     ConfigModule,
     PassportModule,
     EncryptModule,
+    MailModule,
+    TokensModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useClass: AuthJwtConfig,
     }),
     TypeOrmModule.forFeature([
       UserOrmEntity,
+      AuthTokenOrmEntity,
       CustomerProfileOrmEntity,
       SupplierProfileOrmEntity
     ]),

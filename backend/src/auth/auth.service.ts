@@ -9,11 +9,20 @@ import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.enti
 import { CustomerProfileOrmEntity } from '@infrastructure/database/postgres/customers/customer.entity';
 import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/suppliers/supplier.entity';
 
+import { ConfigService } from '@nestjs/config';
+import { TokenService } from './tokens/token.service';
+import { MailService } from '@infrastructure/mail/mail.service';
+
 @Injectable()
 export class AuthService {
+  private readonly frontendUrl: string;
+
   constructor(
     private readonly encrypt: EncryptService,
     private readonly jwt: JwtService,
+    private readonly mailService: MailService,
+    private readonly tokenService: TokenService,
+    private readonly config: ConfigService,
 
     @InjectRepository(UserOrmEntity)
     private readonly userRepo: Repository<UserOrmEntity>,
@@ -23,7 +32,9 @@ export class AuthService {
 
     @InjectRepository(SupplierProfileOrmEntity)
     private readonly supplierRepo: Repository<SupplierProfileOrmEntity>,
-  ) { }
+  ) {
+    this.frontendUrl = this.config.get<string>('FRONTEND_URL')!;
+  }
 
   // INITIAL REGISTRATION (for all types)
   async registerInitial(dto: RegisterInitialDto) {
@@ -47,9 +58,19 @@ export class AuthService {
       ...(facebookId && { facebookId }),
     });
 
-    await this.userRepo.save(user);
+    const savedUser = await this.userRepo.save(user);
 
-    return this._authResponse(user);
+    // send a verification email if not through Google
+    if (!googleId) {
+      const token = await this.tokenService.createToken(user.id, 'email_verification', 24);
+      const verificationLink = `${this.frontendUrl}/auth/verify-email?token=${token}`;
+
+      this.mailService.sendVerificationEmail(email, verificationLink)
+        .catch(err => console.error('Failed to send verification email:', err));
+    }
+
+
+    return this._authResponse(savedUser);
   }
 
   // COMPLETION OF REGISTRATION
@@ -211,5 +232,89 @@ export class AuthService {
       access_token: token,
       user: safe,
     };
+  }
+
+  // Email verification
+  async sendVerificationEmail(email: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user || user.emailVerified) return;
+
+    const token = await this.tokenService.createToken(user.id, 'email_verification', 24);
+    const verificationLink = `${this.frontendUrl}/auth/verify-email?token=${token}`;
+
+    await this.mailService.sendVerificationEmail(email, verificationLink);
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; message?: string }> {
+    const validation = await this.tokenService.validateToken(token, 'email_verification');
+
+    if (!validation.valid) {
+      return {
+        success: false,
+        message: validation.error || 'Invalid token'
+      };
+    }
+
+    // update user
+    await this.userRepo.update(validation.userId!, { emailVerified: true });
+
+    // mark the token as used
+    await this.tokenService.markTokenAsUsed(token);
+
+    // delete all user verification tokens
+    await this.tokenService.deleteUserTokens(validation.userId!, 'email_verification');
+
+    return { success: true };
+  }
+
+  // Password recovery
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) return;
+
+    // Generate a password reset token (valid for 1 hour)
+    const token = await this.tokenService.createToken(user.id, 'password_reset', 1);
+    const resetLink = `${this.frontendUrl}/auth/reset-password?token=${token}`;
+
+    await this.mailService.sendPasswordResetEmail(email, resetLink);
+  }
+
+  async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message?: string }> {
+    const validation = await this.tokenService.validateToken(token, 'password_reset');
+
+    if (!validation.valid) {
+      return {
+        success: false,
+        message: validation.error || 'Invalid token'
+      };
+    }
+
+    // hash password
+    const passwordHash = await this.encrypt.hash(newPassword);
+
+    // update password
+    await this.userRepo.update(validation.userId!, { password: passwordHash });
+
+    // mark the token as used
+    await this.tokenService.markTokenAsUsed(token);
+
+    // delete all user password reset tokens
+    await this.tokenService.deleteUserTokens(validation.userId!, 'password_reset');
+
+    //! Разлогиниваем пользователя на всех устройствах
+    //! (если есть система сессий/токенов - инвалидируйте их здесь)
+
+    return { success: true };
+  }
+
+  // checking verification status
+  async checkEmailVerification(userId: string): Promise<{ verified: boolean }> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    return { verified: user.emailVerified };
   }
 }
