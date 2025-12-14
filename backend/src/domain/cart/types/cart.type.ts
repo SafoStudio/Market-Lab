@@ -1,6 +1,6 @@
 // Use only within the domain, internal typing..
 import { Entity } from '@shared/interfaces/entity.interface';
-import { ProductItemModel } from '@shared/interfaces/product-item.type';
+import { ProductItemModel } from '@shared/interfaces/product-item.interface';
 
 
 export const CART_STATUS = {

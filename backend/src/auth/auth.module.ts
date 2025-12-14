@@ -11,7 +11,7 @@ import { AuthJwtConfig } from './config/auth-jwt.config';
 import { AuthLocalStrategy } from './strategy/auth-local.strategy';
 import { AuthJwtStrategy } from './strategy/auth-jwt.strategy';
 import { EncryptModule } from './encrypt/encrypt.module';
-import { TokensModule } from './tokens/tokens.module';
+import { TokensModule } from './tokens/token.module';
 
 // Infrastructure modules
 import { MailModule } from '@infrastructure/mail/mail.module';

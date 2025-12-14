@@ -9,8 +9,8 @@ import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.enti
 
 
 @Injectable()
-export class SuperAdminInitializerService {
-  private readonly logger = new Logger(SuperAdminInitializerService.name);
+export class SuperAdminInitService {
+  private readonly logger = new Logger(SuperAdminInitService.name);
 
   constructor(
     @InjectRepository(UserOrmEntity)

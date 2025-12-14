@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Script initial first user (super admin)
-import { SuperAdminInitializerService } from './system/scripts/super-admin-initializer.service';
+import { SuperAdminInitService } from './system/scripts/super-admin.init.js';
 
 // System Modules
 import { DatabaseModule } from '@system/database.module';
@@ -63,11 +63,11 @@ import { PaymentOrmEntity } from '@infrastructure/database/postgres/payment/paym
       PaymentOrmEntity
     ]),
   ],
-  providers: [SuperAdminInitializerService],
+  providers: [SuperAdminInitService],
 })
 export class AppModule implements OnModuleInit {
   constructor(
-    private readonly superAdminInitializer: SuperAdminInitializerService,
+    private readonly superAdminInitializer: SuperAdminInitService,
   ) { }
 
   async onModuleInit() {
