@@ -1,12 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterFormData } from '@/core/utils/zod-schemas';
 import { useRegisterInitial } from '@/core/hooks/useAuth';
-import { Input } from '@/components/ui/input/Input';
-import { Button } from '@/components/ui/button/Button';
-import Link from 'next/link';
+import { Input, Button } from '@/components/ui';
+import { GoogleOAuthButton } from '../GoogleOAuthButton';
 
 
 export function RegisterForm() {
@@ -37,6 +37,20 @@ export function RegisterForm() {
             log into an existing one
           </Link>
         </p>
+      </div>
+
+      {/* Google OAuth Button */}
+      <div className="space-y-4">
+        <GoogleOAuthButton />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">Or register with email</span>
+          </div>
+        </div>
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>

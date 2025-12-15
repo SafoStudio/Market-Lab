@@ -48,7 +48,17 @@ export const supplierProfileSchema = z.object({
   documents: z.array(z.instanceof(File)).min(1, 'At least one document is required'),
 });
 
+// OAuth Google
+export const googleAuthSchema = z.object({
+  idToken: z.string().min(1, 'ID token is required'),
+});
 
+export const googleCallbackSchema = z.object({
+  code: z.string().min(1, 'Authorization code is required'),
+});
+
+export type GoogleAuthDto = z.infer<typeof googleAuthSchema>;
+export type GoogleCallbackDto = z.infer<typeof googleCallbackSchema>;
 export type AdminCreateFormData = z.infer<typeof adminCreateSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;

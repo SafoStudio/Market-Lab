@@ -146,3 +146,25 @@ export const useLogout = () => {
     },
   });
 };
+
+// Hook for Google OAuth
+export const useGoogleAuth = () => {
+  const queryClient = useQueryClient();
+  const { setAuth } = useAuthStore();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: authApi.googleAuth,
+    onSuccess: (data) => {
+      setAuth(data.user, data.access_token);
+      queryClient.invalidateQueries({ queryKey: ['session'] });
+
+      if (!data.user.regComplete) {
+        router.push('/register/role');
+      } else {
+        const role = data.user.roles[0];
+        router.push(role === 'customer' ? '/customer-dashboard' : '/supplier-dashboard');
+      }
+    },
+  });
+};
