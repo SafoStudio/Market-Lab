@@ -1,11 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormData } from '@/core/utils/zod-schemas';
 import { useLogin } from '@/core/hooks/useAuth';
-import { Input, Button } from '@/components/ui/';
-import Link from 'next/link';
+import { Input, Button } from '@/components/ui';
+import { GoogleOAuthButton } from '../GoogleOAuthButton';
 
 
 export function LoginForm() {
@@ -36,6 +37,20 @@ export function LoginForm() {
             create a new account
           </Link>
         </p>
+      </div>
+
+      {/* Google OAuth Button */}
+      <div className="space-y-4">
+        <GoogleOAuthButton />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          </div>
+        </div>
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -82,6 +97,18 @@ export function LoginForm() {
             </p>
           </div>
         )}
+
+        {/* Forgot password */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm">
+            <Link
+              href="/forgot-password"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+        </div>
 
         <Button
           type="submit"

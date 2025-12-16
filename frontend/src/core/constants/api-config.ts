@@ -38,6 +38,12 @@ export const AUTH_ENDPOINTS = {
   REFRESH_TOKEN: '/auth/refresh',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
+  // for google
+  GOOGLE_URL: '/auth/google/url',
+  GOOGLE_AUTH: '/auth/google',
+  GOOGLE_CALLBACK: '/auth/google/callback',
+  GOOGLE_LINK: '/auth/google/link',
+  GOOGLE_UNLINK: '/auth/google/unlink',
 } as const;
 
 /**

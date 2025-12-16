@@ -292,7 +292,7 @@ export class AuthService {
 
     // Generate a password reset token (valid for 1 hour)
     const token = await this.tokenService.createToken(user.id, 'password_reset', 1);
-    const resetLink = `${this.frontendUrl}/auth/reset-password?token=${token}`;
+    const resetLink = `${this.frontendUrl}/reset-password?token=${token}`;
 
     await this.mailService.sendPasswordResetEmail(email, resetLink);
   }

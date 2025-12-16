@@ -155,4 +155,58 @@ export const authApi = {
       body: JSON.stringify({ token, newPassword }),
     });
   },
+
+
+  /**
+    * Get Google OAuth URL for frontend redirection
+    * @returns Object containing Google OAuth URL
+    */
+  async getGoogleAuthUrl(): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>(AUTH_ENDPOINTS.GOOGLE_URL, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * Handle Google OAuth callback with authorization code
+   * @param code Authorization code from Google
+   * @returns Authentication response
+   */
+  async googleCallback(code: string): Promise<AuthResponse> {
+    return apiFetch<AuthResponse>(`${AUTH_ENDPOINTS.GOOGLE_CALLBACK}?code=${encodeURIComponent(code)}`, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * Authenticate with Google ID token (for mobile apps)
+   * @param idToken Google ID token
+   * @returns Authentication response
+   */
+  async googleAuth(idToken: string): Promise<AuthResponse> {
+    return apiFetch<AuthResponse>(AUTH_ENDPOINTS.GOOGLE_AUTH, {
+      method: 'POST',
+      body: JSON.stringify({ idToken }),
+    });
+  },
+
+  /**
+   * Link Google account to existing user
+   * @param idToken Google ID token
+   */
+  async linkGoogleAccount(idToken: string): Promise<void> {
+    return apiFetch<void>(AUTH_ENDPOINTS.GOOGLE_LINK, {
+      method: 'POST',
+      body: JSON.stringify({ idToken }),
+    });
+  },
+
+  /**
+   * Unlink Google account from user
+   */
+  async unlinkGoogleAccount(): Promise<void> {
+    return apiFetch<void>(AUTH_ENDPOINTS.GOOGLE_UNLINK, {
+      method: 'POST',
+    });
+  }
 } as const;
