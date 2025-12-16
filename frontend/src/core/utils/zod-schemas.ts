@@ -48,20 +48,29 @@ export const supplierProfileSchema = z.object({
   documents: z.array(z.instanceof(File)).min(1, 'At least one document is required'),
 });
 
-// OAuth Google
-export const googleAuthSchema = z.object({
-  idToken: z.string().min(1, 'ID token is required'),
+// Forgot Password
+export const forgotPasswordSchema = z.object({
+  email: z.string().pipe(z.email('Enter a valid email address')),
 });
 
-export const googleCallbackSchema = z.object({
-  code: z.string().min(1, 'Authorization code is required'),
+// Reset Password
+export const resetPasswordSchema = z.object({
+  newPassword: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-export type GoogleAuthDto = z.infer<typeof googleAuthSchema>;
-export type GoogleCallbackDto = z.infer<typeof googleCallbackSchema>;
 export type AdminCreateFormData = z.infer<typeof adminCreateSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type RequestSupplierFormData = z.infer<typeof requestSupplierSchema>;
 export type CustomerProfileFormData = z.infer<typeof customerProfileSchema>;
 export type SupplierProfileFormData = z.infer<typeof supplierProfileSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

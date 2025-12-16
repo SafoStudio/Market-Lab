@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { GoogleCallbackHandler } from '@/components/features/auth/GoogleCallbackHandler';
 
 export const metadata: Metadata = {
-  title: 'Google Authentication | Market-Lab',
+  title: 'Google Authentication | Greenly',
   description: 'Completing Google authentication process',
 };
 
