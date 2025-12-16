@@ -132,58 +132,65 @@ frontend/
 ## Features Components
 ```
 📁 features/
-├──📁 auth/                           # Authentication & authorization
-│   ├──📁 forms/                      # All authentication-related forms
-│   │   ├──📁 LoginForm/              # User login form component
-│   │   └──📁 RegisterForm/           # User registration form component
-│   └──📄 RouteGuard.tsx              # Route protection & access control
-├──📁 customer/                       # Customer functionality
-│   ├──📁 forms/                      # Customer-specific forms
-│   │   ├──📁 ProfileForm/            # Edit customer profile
-│   │   ├──📁 OrderForm/              # Create/edit customer orders
-│   │   └──📁 SubscriptionForm/       # Manage subscriptions
-│   ├──📁 dashboard/                  # Customer dashboard components
-│   └──📁 orders/                     # Order history & management
-├──📁 supplier/                       # Supplier functionality
-│   ├──📁 forms/                      # Supplier-specific forms
-│   │   ├──📁 ProductForm/            # Add/edit products
-│   │   ├──📁 InventoryForm/          # Manage inventory levels
-│   │   └──📁 SupplierProfileForm/    # Supplier company profile
-│   ├──📁 products/                   # Product management UI
-│   └──📁 analytics/                  # Supplier performance metrics
-└──📁 checkout/                       # Checkout process
-    ├──📁 forms/                      # Checkout step forms
-    │   ├──📁 DeliveryForm/           # Delivery address & method
-    │   ├──📁 PaymentForm/            # Payment information
-    │   └──📁 OrderReview/            # Order summary & confirmation
-    └──📄 Checkout.tsx                # Main checkout flow controller
+├──📁 auth/                               # Authentication & authorization
+│   ├──📁 forms/                          # All authentication-related forms
+│   │   ├──📄 CustomerProfileForm.tsx     # Customer profile form component
+│   │   ├──📄 SupplierProfileForm.tsx     # Supplier profile form component
+│   │   ├──📄 RoleSelectionForm.tsx       # Role selection form component
+│   │   ├──📄 ResetPasswordForm.tsx       # Reset password form component
+│   │   ├──📄 ForgotPasswordForm.tsx      # Forgot password form component
+│   │   ├──📄 LoginForm.tsx               # User login form component
+│   │   └──📄 RegisterForm.tsx            # User registration form component
+│   ├──📄 GoogleCallbackHandler.tsx       # Google callback handler
+│   ├──📄 GoogleOAuthButton.tsx           # Google registration button
+│   └──📄 RouteGuard.tsx                  # Route protection & access control
+├──📁 customer/                           # Customer functionality
+│   ├──📁 forms/                          # Customer-specific forms
+│   │   ├──📁 ProfileForm/                # Edit customer profile
+│   │   ├──📁 OrderForm/                  # Create/edit customer orders
+│   │   └──📁 SubscriptionForm/           # Manage subscriptions
+│   ├──📁 dashboard/                      # Customer dashboard components
+│   └──📁 orders/                         # Order history & management
+├──📁 supplier/                           # Supplier functionality
+│   ├──📁 forms/                          # Supplier-specific forms
+│   │   ├──📁 ProductForm/                # Add/edit products
+│   │   ├──📁 InventoryForm/              # Manage inventory levels
+│   │   └──📁 SupplierProfileForm/        # Supplier company profile
+│   ├──📁 products/                       # Product management UI
+│   └──📁 analytics/                      # Supplier performance metrics
+└──📁 checkout/                           # Checkout process
+    ├──📁 forms/                          # Checkout step forms
+    │   ├──📁 DeliveryForm/               # Delivery address & method
+    │   ├──📁 PaymentForm/                # Payment information
+    │   └──📁 OrderReview/                # Order summary & confirmation
+    └──📄 Checkout.tsx                    # Main checkout flow controller
 ```
 
 
 ## Product Components
 ```
 📁 product/
-├──📁 ProductCard/            # Product card for listings
+├──📁 ProductCard/                # Product card for listings
 │   ├──📁 ProductCard.tsx
-│   ├──📁 ProductImage/       # Product image display
-│   ├──📁 ProductPrice/       # Price display block
-│   └──📁 ProductActions/     # Action buttons
-├──📁 ProductGrid/            # Products grid layout
-├──📁 ProductList/            # Products list layout
-├──📁 ProductGallery/         # Product image gallery
-├──📁 ProductInfo/            # Product information
+│   ├──📁 ProductImage/           # Product image display
+│   ├──📁 ProductPrice/           # Price display block
+│   └──📁 ProductActions/         # Action buttons
+├──📁 ProductGrid/                # Products grid layout
+├──📁 ProductList/                # Products list layout
+├──📁 ProductGallery/             # Product image gallery
+├──📁 ProductInfo/                # Product information
 │   ├──📁 ProductTitle/
 │   ├──📁 ProductDescription/
-│   ├──📁 ProductAttributes/  # Product specifications
-│   └──📁 ProductRating/      # Ratings and reviews
-├──📁 ProductVariants/        # Product variants (size, color)
-├──📁 ProductRecommendations/ # Product recommendations
-├──📁 ProductFilters/         # Product filters
+│   ├──📁 ProductAttributes/      # Product specifications
+│   └──📁 ProductRating/          # Ratings and reviews
+├──📁 ProductVariants/            # Product variants (size, color)
+├──📁 ProductRecommendations/     # Product recommendations
+├──📁 ProductFilters/             # Product filters
 │   ├──📁 PriceFilter/
 │   ├──📁 CategoryFilter/
 │   └──📁 BrandFilter/
-├──📁 ProductSort/            # Product sorting
-└──📁 hooks/                  # Product hooks
+├──📁 ProductSort/                # Product sorting
+└──📁 hooks/                      # Product hooks
     ├──📁 useProduct.ts
     ├──📁 useProductList.ts
     └──📁 useProductSearch.ts
@@ -193,24 +200,24 @@ frontend/
 ## Cart Components
 ```
 📁 cart/
-├──📁 CartItem/              # Cart item component
+├──📁 CartItem/                  # Cart item component
 │   ├──📁 CartItem.tsx
-│   ├──📁 CartItemImage/     # Item image in cart
-│   ├──📁 CartItemInfo/      # Item information in cart
-│   └──📁 CartItemActions/   # Quantity management
-├──📁 CartList/              # Cart items list
-├──📁 CartSummary/           # Cart summary information
-│   ├──📁 CartTotals/        # Total calculations
-│   ├──📁 DiscountCode/      # Discount code input
-│   └──📁 CheckoutButton/    # Checkout action button
-├──📁 CartSidebar/           # Cart sidebar panel
-├──📁 CartEmpty/             # Empty cart state
-├──📁 CartPreview/           # Cart preview (in header)
-├──📁 AddToCart/             # Add to cart functionality
+│   ├──📁 CartItemImage/         # Item image in cart
+│   ├──📁 CartItemInfo/          # Item information in cart
+│   └──📁 CartItemActions/       # Quantity management
+├──📁 CartList/                  # Cart items list
+├──📁 CartSummary/               # Cart summary information
+│   ├──📁 CartTotals/            # Total calculations
+│   ├──📁 DiscountCode/          # Discount code input
+│   └──📁 CheckoutButton/        # Checkout action button
+├──📁 CartSidebar/               # Cart sidebar panel
+├──📁 CartEmpty/                 # Empty cart state
+├──📁 CartPreview/               # Cart preview (in header)
+├──📁 AddToCart/                 # Add to cart functionality
 │   ├──📁 AddToCartButton/
-│   ├──📁 QuantitySelector/  # Quantity selection
+│   ├──📁 QuantitySelector/      # Quantity selection
 │   └──📁 AddToCartForm/
-└──📁 hooks/                 # Cart hooks
+└──📁 hooks/                     # Cart hooks
     ├──📁 useCart.ts
     ├──📁 useCartActions.ts
     └──📁 useCartTotals.ts
