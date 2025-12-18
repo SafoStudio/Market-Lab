@@ -22,6 +22,9 @@ export class CustomerProfileOrmEntity {
   @Column()
   phone: string;
 
+  @Column({ type: 'date', nullable: true })
+  birthday: Date | null;
+
   @Column({
     type: 'varchar',
     default: 'active'

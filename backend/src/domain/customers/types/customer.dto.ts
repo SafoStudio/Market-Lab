@@ -6,6 +6,7 @@ export interface CreateCustomerDto {
   firstName: string;
   lastName: string;
   phone: string;
+  birthday: string | null;
   address?: CustomerAddress;
 }
 

@@ -1,10 +1,11 @@
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomerRepository as DomainCustomerRepository } from '@domain/customers/customer.repository';
 import { CustomerDomainEntity } from '@domain/customers/customer.entity';
 import { CustomerProfileOrmEntity } from './customer.entity';
 import { CustomerStatus } from '@domain/customers/types';
+
 
 @Injectable()
 export class PostgresCustomerRepository extends DomainCustomerRepository {
@@ -73,19 +74,56 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
 
   // QueryableRepository methods
   async findOne(filter: Partial<CustomerDomainEntity>): Promise<CustomerDomainEntity | null> {
-    const ormEntity = await this.repository.findOne({
-      where: filter,
-      relations: ['user']
-    });
+    const queryBuilder = this.repository
+      .createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.user', 'user');
+
+    this.applyFilters(queryBuilder, filter);
+
+    const ormEntity = await queryBuilder.getOne();
     return ormEntity ? this.toDomainEntity(ormEntity) : null;
   }
 
   async findMany(filter: Partial<CustomerDomainEntity>): Promise<CustomerDomainEntity[]> {
-    const ormEntities = await this.repository.find({
-      where: filter,
-      relations: ['user']
-    });
+    const queryBuilder = this.repository
+      .createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.user', 'user');
+
+    this.applyFilters(queryBuilder, filter);
+
+    const ormEntities = await queryBuilder.getMany();
     return ormEntities.map(this.toDomainEntity);
+  }
+
+  private applyFilters(queryBuilder: SelectQueryBuilder<CustomerProfileOrmEntity>, filter: Partial<CustomerDomainEntity>) {
+    if (filter.id) queryBuilder.andWhere('customer.id = :id', { id: filter.id });
+    if (filter.userId) queryBuilder.andWhere('customer.user_id = :userId', { userId: filter.userId });
+    if (filter.firstName) queryBuilder.andWhere('customer.firstName = :firstName', { firstName: filter.firstName });
+    // if (filter.firstName) queryBuilder.andWhere('customer.firstName ILIKE :firstName', { firstName: `%${filter.firstName}%` }); //!
+    if (filter.lastName) queryBuilder.andWhere('customer.lastName = :lastName', { lastName: filter.lastName });
+    if (filter.phone) queryBuilder.andWhere('customer.phone = :phone', { phone: filter.phone });
+
+    if (filter.birthday !== undefined) {
+      if (filter.birthday === null) {
+        queryBuilder.andWhere('customer.birthday IS NULL');
+      } else {
+        queryBuilder.andWhere('customer.birthday = :birthday', { birthday: filter.birthday });
+      }
+    }
+
+    if (filter.status) queryBuilder.andWhere('customer.status = :status', { status: filter.status });
+
+    // Search group by address
+    if (filter.address && typeof filter.address === 'object') {
+      // Search by city
+      if (filter.address.city) {
+        queryBuilder.andWhere('customer.address->>\'city\' = :city', { city: filter.address.city });
+      }
+      // Search by country
+      if (filter.address.country) {
+        queryBuilder.andWhere('customer.address->>\'country\' = :country', { country: filter.address.country });
+      }
+    }
   }
 
   private toDomainEntity(ormEntity: CustomerProfileOrmEntity): CustomerDomainEntity {
@@ -95,6 +133,7 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
       ormEntity.firstName,
       ormEntity.lastName,
       ormEntity.phone,
+      ormEntity.birthday,
       ormEntity.status as CustomerStatus,
       ormEntity.address || undefined,
       ormEntity.createdAt,
@@ -110,6 +149,7 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
     if (domainEntity.firstName) ormEntity.firstName = domainEntity.firstName;
     if (domainEntity.lastName) ormEntity.lastName = domainEntity.lastName;
     if (domainEntity.phone) ormEntity.phone = domainEntity.phone;
+    if (domainEntity.birthday !== undefined) ormEntity.birthday = domainEntity.birthday;
     if (domainEntity.status) ormEntity.status = domainEntity.status;
     if (domainEntity.address) ormEntity.address = domainEntity.address;
     if (domainEntity.createdAt) ormEntity.createdAt = domainEntity.createdAt;

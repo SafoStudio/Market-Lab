@@ -23,9 +23,8 @@ export interface CustomerModel extends Entity {
   firstName: string;
   lastName: string;
   phone: string;
+  birthday: Date | null;
   status: CustomerStatus;
   address?: CustomerAddress;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
