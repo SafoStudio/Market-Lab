@@ -47,6 +47,19 @@ export enum Permission {
   CART_ADMIN_READ = 'cart:admin-read',
   CART_ADMIN_CLEANUP = 'cart:admin-cleanup',
 
+  // Order permissions
+  ORDER_READ = 'order:read',
+  ORDER_CREATE = 'order:create',
+  ORDER_UPDATE = 'order:update',
+  ORDER_READ_ALL = 'order:read-all',
+  ORDER_MANAGE = 'order:manage',
+  ORDER_REFUND = 'order:refund',
+  ORDER_STATS_READ = 'order:stats-read',
+
+  // Payment permissions
+  PAYMENT_PROCESS = 'payment:process',
+  PAYMENT_REFUND = 'payment:refund',
+
   // Admin permissions
   ADMIN_ACCESS = 'admin:access',
 

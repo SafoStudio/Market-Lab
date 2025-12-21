@@ -37,6 +37,16 @@ export class PermissionsService {
       Permission.CART_ADMIN_READ,
       Permission.CART_ADMIN_CLEANUP,
 
+      Permission.ORDER_READ,
+      Permission.ORDER_CREATE,
+      Permission.ORDER_UPDATE,
+      Permission.ORDER_READ_ALL,
+      Permission.ORDER_MANAGE,
+      Permission.ORDER_REFUND,
+      Permission.ORDER_STATS_READ,
+      Permission.PAYMENT_PROCESS,
+      Permission.PAYMENT_REFUND,
+
       Permission.ADMIN_ACCESS,
 
       Permission.USER_MANAGE
@@ -60,6 +70,7 @@ export class PermissionsService {
       Permission.SUPPLIER_VIEW_CUSTOMER_ORDERS,
 
       Permission.CUSTOMER_READ, // Suppliers can see customers (clients)
+      Permission.ORDER_READ_ALL, // Can see orders for their products
     ],
     [Role.CUSTOMER]: [
       // Product permissions
@@ -86,6 +97,10 @@ export class PermissionsService {
       Permission.CART_APPLY_DISCOUNT,
       Permission.CART_CLEAR,
       Permission.CART_CHECKOUT,
+
+      Permission.ORDER_READ,
+      Permission.ORDER_CREATE,
+      Permission.ORDER_UPDATE,
     ],
     [Role.GUEST]: [
       Permission.PRODUCT_READ,
