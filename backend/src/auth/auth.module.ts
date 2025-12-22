@@ -59,8 +59,12 @@ import { TestOAuthController } from '@infrastructure/oauth/google/test-oauth.con
     PermissionsService,
     RolesGuard,
     PermissionsGuard,
+    PermissionsService,
   ],
   controllers: [AuthController, TestOAuthController],
-  exports: [AuthService],
+  exports: [
+    AuthService,
+    PermissionsService,
+  ],
 })
 export class AuthModule { }

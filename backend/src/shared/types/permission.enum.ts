@@ -59,6 +59,18 @@ export enum Permission {
   // Payment permissions
   PAYMENT_PROCESS = 'payment:process',
   PAYMENT_REFUND = 'payment:refund',
+  PAYMENT_READ = 'payment:read',
+  PAYMENT_READ_ALL = 'payment:read-all',
+  PAYMENT_CREATE = 'payment:create',
+  PAYMENT_UPDATE = 'payment:update',
+  PAYMENT_CANCEL = 'payment:cancel',
+  PAYMENT_MANAGE = 'payment:manage',
+  PAYMENT_STATS_READ = 'payment:stats-read',
+  PAYMENT_ADMIN_ACCESS = 'payment:admin-access',
+  // Webhook permissions
+  PAYMENT_WEBHOOK_STRIPE = 'payment:webhook-stripe',
+  PAYMENT_WEBHOOK_PAYPAL = 'payment:webhook-paypal',
+  PAYMENT_WEBHOOK_SIMULATE = 'payment:webhook-simulate',
 
   // Admin permissions
   ADMIN_ACCESS = 'admin:access',
