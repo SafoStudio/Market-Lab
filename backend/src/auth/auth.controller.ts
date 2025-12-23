@@ -1,15 +1,10 @@
 import {
   Controller,
-  Post,
-  Body,
-  HttpCode,
-  Req,
-  Res,
-  UseGuards,
-  Get,
+  Post, Body,
+  HttpCode, Req, Res,
+  UseGuards, Get,
   UnauthorizedException,
   Query,
-  Redirect
 } from '@nestjs/common';
 
 import type {

@@ -95,19 +95,13 @@ export class PermissionsService {
     [Role.MODERATOR]: [
       Permission.ADMIN_ACCESS,
       Permission.ADMIN_DASHBOARD_VIEW,
-
       Permission.PRODUCT_READ,
       Permission.PRODUCT_UPDATE,
-
       Permission.CUSTOMER_READ,
-
       Permission.SUPPLIER_READ,
-
       Permission.ORDER_READ_ALL,
       Permission.ORDER_UPDATE,
-
       Permission.PAYMENT_READ,
-
       Permission.USER_MANAGE
     ],
     [Role.SUPPORT]: [

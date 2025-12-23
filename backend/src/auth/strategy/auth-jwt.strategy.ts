@@ -29,7 +29,7 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
 
   // Validate method to verify the JWT payload
   async validate(payload: JwtPayload): Promise<SessionUser> {
-    if (!payload.sub || !payload.email || !payload.roles) {
+    if (!payload.id || !payload.email || !payload.roles) {
       throw new Error('Invalid JWT payload');
     }
 
@@ -37,7 +37,7 @@ export class AuthJwtStrategy extends PassportStrategy(Strategy) {
     const permissions = this.permissionsService.getPermissionsByRoles(roles);
 
     return {
-      id: payload.sub,
+      id: payload.id,
       email: payload.email,
       roles: roles,
       permissions: permissions,

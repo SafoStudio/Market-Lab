@@ -9,7 +9,7 @@ export const AUTH_PROVIDERS = {
 export type AuthProvider = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
 
 export interface JwtPayload {
-  sub: string;          // User ID
+  id: string;          // User ID
   email: string;
   roles: Role[];
   regComplete?: boolean;
@@ -18,8 +18,8 @@ export interface JwtPayload {
   exp?: number;        // expiration
 }
 
-export interface SessionUser extends Omit<JwtPayload, 'sub' | 'iat' | 'exp'> {
-  id: string;          // sub -> id
+export interface SessionUser extends Omit<JwtPayload, 'id' | 'iat' | 'exp'> {
+  id: string;
   permissions: Permission[];
 }
 
