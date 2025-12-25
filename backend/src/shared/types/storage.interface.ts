@@ -15,8 +15,8 @@ export interface UploadOptions {
 export interface UploadResult {
   url: string;
   key: string;
-  size: number;
-  mimetype: string;
+  // size: number;
+  // mimetype: string;
 }
 
 export interface FileStorage {
@@ -36,4 +36,19 @@ export interface ProductImageMetadata {
   order?: number;
   alt?: string;
   uploadedAt: Date;
+}
+
+export interface UploadFileDto {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+}
+
+export interface ProductImageUrls {
+  main: string | null;
+  gallery: string[];
+}
+
+export interface SupplierDocuments {
+  [documentType: string]: string[];
 }

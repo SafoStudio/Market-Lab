@@ -5,31 +5,23 @@ import {
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
 
+import {
+  UploadFileDto,
+  UploadResult,
+  ProductImageUrls,
+  SupplierDocuments
+} from '@shared/types';
+
 import { Injectable, Logger } from '@nestjs/common';
 import { S3Config } from './s3.config';
 
-export interface UploadFileDto {
-  buffer: Buffer;
-  originalname: string;
-  mimetype: string;
-}
-
-export interface UploadResult {
-  url: string;
-  key: string;
-}
-
-export interface ProductImageUrls {
-  main: string | null;
-  gallery: string[];
-}
 
 @Injectable()
 export class S3StorageService {
   private readonly logger = new Logger(S3StorageService.name);
-  private s3Client: S3Client;
+  private readonly s3Client: S3Client;
 
-  constructor(private s3Config: S3Config) {
+  constructor(private readonly s3Config: S3Config) {
     this.s3Client = new S3Client({
       region: this.s3Config.region,
       endpoint: this.s3Config.endpoint,
@@ -40,6 +32,7 @@ export class S3StorageService {
     });
   }
 
+  // ========== PUBLIC GETTERS ==========
   private get bucket(): string {
     return this.s3Config.bucket;
   }
@@ -48,35 +41,146 @@ export class S3StorageService {
     return this.s3Config.publicUrl;
   }
 
+  // ========== HELPER METHODS ==========
   /**
-   * Generates a path to S3 based on data from the database
+   * Sanitize string for use in S3 paths and metadata
    */
-  private buildPath(
+  private sanitizeString(text: string): string {
+    return text
+      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+  }
+
+  /**
+   * Sanitize filename for S3
+   */
+  private sanitizeFileName(filename: string): string {
+    return filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+  }
+
+  /**
+   * Generate S3 key for supplier documents
+   */
+  private generateDocumentKey(
+    supplierCompanyName: string,
+    documentType: string,
+    fileName: string
+  ): string {
+    const cleanName = this.sanitizeString(supplierCompanyName);
+    const timestamp = Date.now();
+    const sanitizedFileName = this.sanitizeFileName(fileName);
+
+    return `suppliers/${cleanName}/documents/${timestamp}_${sanitizedFileName}`;
+  }
+
+  /**
+   * Generate S3 key for supplier logo
+   */
+  private generateLogoKey(
+    supplierCompanyName: string,
+    fileName: string
+  ): string {
+    const cleanName = this.sanitizeString(supplierCompanyName);
+    const timestamp = Date.now();
+    const sanitizedFileName = this.sanitizeFileName(fileName);
+
+    return `suppliers/${cleanName}/logo/${timestamp}_${sanitizedFileName}`;
+  }
+
+  /**
+   * Generate S3 key for product images
+   */
+  private generateProductImageKey(
     supplierCompanyName: string,
     productName: string,
     fileName: string,
     isMain: boolean = false
   ): string {
-    // Clearing names of special characters
-    const cleanSupplierName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
-    const cleanProductName = productName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
+    const cleanSupplierName = this.sanitizeString(supplierCompanyName);
+    const cleanProductName = this.sanitizeString(productName);
     const timestamp = Date.now();
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const sanitizedFileName = this.sanitizeFileName(fileName);
     const folder = isMain ? 'main' : 'gallery';
 
-    return `suppliers/${cleanSupplierName}/${cleanProductName}/${folder}/${timestamp}_${sanitizedFileName}`;
+    return `suppliers/${cleanSupplierName}/products/${cleanProductName}/${folder}/${timestamp}_${sanitizedFileName}`;
   }
 
   /**
-   * Loads product image
+   * Generic S3 upload method
+   */
+  private async uploadToS3(
+    key: string,
+    buffer: Buffer,
+    mimetype: string,
+    metadata: Record<string, string> = {}
+  ): Promise<UploadResult> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      Body: buffer,
+      ContentType: mimetype,
+      Metadata: metadata,
+    });
+
+    try {
+      await this.s3Client.send(command);
+      this.logger.log(`File uploaded to S3: ${key}`);
+
+      return {
+        url: `${this.publicUrl}/${key}`,
+        key,
+      };
+    } catch (error) {
+      this.logger.error(`S3 upload failed for key ${key}:`, error.message);
+      throw new Error(`S3 upload failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Generic method to list files by prefix
+   */
+  private async listFilesByPrefix(prefix: string): Promise<string[]> {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        Prefix: prefix,
+      });
+
+      const response = await this.s3Client.send(command);
+      return response.Contents?.map(item => item.Key || '') || [];
+    } catch (error) {
+      this.logger.error(`Failed to list files with prefix ${prefix}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Generic method to delete files by prefix
+   */
+  private async deleteFilesByPrefix(prefix: string): Promise<void> {
+    try {
+      const files = await this.listFilesByPrefix(prefix);
+
+      const deletePromises = files.map(fileKey =>
+        this.s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: this.bucket,
+            Key: fileKey,
+          })
+        )
+      );
+
+      await Promise.all(deletePromises);
+      this.logger.log(`Deleted ${files.length} files with prefix: ${prefix}`);
+    } catch (error) {
+      this.logger.error(`Failed to delete files with prefix ${prefix}:`, error.message);
+    }
+  }
+
+  // ========== PRODUCT IMAGES ==========
+  /**
+   * Upload product image
    */
   async uploadProductImage(
     file: UploadFileDto,
@@ -84,37 +188,25 @@ export class S3StorageService {
     productName: string,
     isMain: boolean = false
   ): Promise<UploadResult> {
-    const key = this.buildPath(supplierCompanyName, productName, file.originalname, isMain);
+    const key = this.generateProductImageKey(
+      supplierCompanyName,
+      productName,
+      file.originalname,
+      isMain
+    );
 
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      Metadata: {
-        supplierCompanyName,
-        productName,
-        isMain: isMain.toString(),
-        uploadedAt: new Date().toISOString(),
-      },
-    });
+    const metadata = {
+      supplierCompanyName: this.sanitizeString(supplierCompanyName),
+      productName: this.sanitizeString(productName),
+      isMain: isMain.toString(),
+      uploadedAt: new Date().toISOString(),
+    };
 
-    try {
-      await this.s3Client.send(command);
-      this.logger.log(`Product image uploaded: ${key}`);
-
-      return {
-        url: `${this.publicUrl}/${key}`,
-        key,
-      };
-    } catch (error) {
-      this.logger.error(`Failed to upload product image: ${error.message}`);
-      throw new Error(`S3 upload failed: ${error.message}`);
-    }
+    return this.uploadToS3(key, file.buffer, file.mimetype, metadata);
   }
 
   /**
-   * Uploads multiple product images
+   * Upload multiple product images
    */
   async uploadProductImages(
     files: UploadFileDto[],
@@ -129,178 +221,90 @@ export class S3StorageService {
   }
 
   /**
-   * Removes all product images
-   */
-  async deleteProductImages(
-    supplierCompanyName: string,
-    productName: string
-  ): Promise<void> {
-    const prefix = `suppliers/${supplierCompanyName}/${productName}/`;
-
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucket,
-        Prefix: prefix,
-      });
-
-      const response = await this.s3Client.send(command);
-      const files = response.Contents?.map(item => item.Key || '') || [];
-
-      // delete all product files
-      for (const fileKey of files) {
-        await this.s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: this.bucket,
-            Key: fileKey,
-          })
-        );
-      }
-
-      this.logger.log(`Deleted ${files.length} files for product: ${productName}`);
-    } catch (error) {
-      this.logger.error(`Failed to delete product images: ${error.message}`);
-    }
-  }
-
-  /**
-   * Gets the URLs of all product images
+   * Get product image URLs
    */
   async getProductImageUrls(
     supplierCompanyName: string,
     productName: string
   ): Promise<ProductImageUrls> {
-    const prefix = `suppliers/${supplierCompanyName}/${productName}/`;
+    const cleanSupplierName = this.sanitizeString(supplierCompanyName);
+    const cleanProductName = this.sanitizeString(productName);
 
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucket,
-        Prefix: prefix,
-      });
+    const prefix = `suppliers/${cleanSupplierName}/products/${cleanProductName}/`;
+    const files = await this.listFilesByPrefix(prefix);
 
-      const response = await this.s3Client.send(command);
-      const files = response.Contents?.map(item => item.Key || '') || [];
+    const mainImage = files.find(f => f.includes('/main/'));
+    const galleryImages = files.filter(f => f.includes('/gallery/'));
 
-      const mainImage = files.find(f => f.includes('/main/'));
-      const galleryImages = files.filter(f => f.includes('/gallery/'));
-
-      return {
-        main: mainImage ? `${this.publicUrl}/${mainImage}` : null,
-        gallery: galleryImages.map(f => `${this.publicUrl}/${f}`),
-      };
-    } catch (error) {
-      this.logger.error(`Failed to list product images: ${error.message}`);
-      return { main: null, gallery: [] };
-    }
+    return {
+      main: mainImage ? `${this.publicUrl}/${mainImage}` : null,
+      gallery: galleryImages.map(f => `${this.publicUrl}/${f}`),
+    };
   }
 
   /**
-   * Loads the supplier's logo
-  */
+   * Delete all product images
+   */
+  async deleteProductImages(
+    supplierCompanyName: string,
+    productName: string
+  ): Promise<void> {
+    const cleanSupplierName = this.sanitizeString(supplierCompanyName);
+    const cleanProductName = this.sanitizeString(productName);
+
+    const prefix = `suppliers/${cleanSupplierName}/products/${cleanProductName}/`;
+    await this.deleteFilesByPrefix(prefix);
+  }
+
+  // ========== SUPPLIER LOGO ==========
+  /**
+   * Upload supplier logo
+   */
   async uploadSupplierLogo(
     file: UploadFileDto,
     supplierCompanyName: string
   ): Promise<UploadResult> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
+    const key = this.generateLogoKey(supplierCompanyName, file.originalname);
 
-    const timestamp = Date.now();
-    const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const key = `suppliers/${cleanName}/logo/${timestamp}_${sanitizedFileName}`;
+    const metadata = {
+      supplierCompanyName: this.sanitizeString(supplierCompanyName),
+      uploadedAt: new Date().toISOString(),
+    };
 
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      Metadata: {
-        supplierCompanyName,
-        uploadedAt: new Date().toISOString(),
-      },
-    });
-
-    try {
-      await this.s3Client.send(command);
-      this.logger.log(`Supplier logo uploaded: ${key}`);
-
-      return {
-        url: `${this.publicUrl}/${key}`,
-        key,
-      };
-    } catch (error) {
-      this.logger.error(`Failed to upload supplier logo: ${error.message}`);
-      throw new Error(`S3 upload failed: ${error.message}`);
-    }
+    return this.uploadToS3(key, file.buffer, file.mimetype, metadata);
   }
 
   /**
-   * Removes the supplier logo
-  */
+   * Delete supplier logo
+   */
   async deleteSupplierLogo(supplierCompanyName: string): Promise<void> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
+    const cleanName = this.sanitizeString(supplierCompanyName);
     const prefix = `suppliers/${cleanName}/logo/`;
-    const files = await this.listFiles(prefix);
-
-    for (const file of files) {
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucket,
-          Key: file,
-        })
-      );
-    }
+    await this.deleteFilesByPrefix(prefix);
   }
 
+  // ========== SUPPLIER DOCUMENTS ==========
   /**
-   * Uploads supplier document
+   * Upload supplier document
    */
   async uploadSupplierDocument(
     file: UploadFileDto,
     supplierCompanyName: string,
     documentType: string
   ): Promise<UploadResult> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
+    const key = this.generateDocumentKey(supplierCompanyName, documentType, file.originalname);
 
-    const timestamp = Date.now();
-    const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const key = `suppliers/${cleanName}/documents/${documentType}/${timestamp}_${sanitizedFileName}`;
+    const metadata = {
+      supplierCompanyName: this.sanitizeString(supplierCompanyName),
+      documentType,
+      uploadedAt: new Date().toISOString(),
+    };
 
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      Metadata: {
-        supplierCompanyName,
-        documentType,
-        uploadedAt: new Date().toISOString(),
-      },
-    });
-
-    try {
-      await this.s3Client.send(command);
-      this.logger.log(`Supplier document uploaded: ${key}`);
-
-      return {
-        url: `${this.publicUrl}/${key}`,
-        key,
-      };
-    } catch (error) {
-      this.logger.error(`Failed to upload supplier document: ${error.message}`);
-      throw new Error(`S3 upload failed: ${error.message}`);
-    }
+    return this.uploadToS3(key, file.buffer, file.mimetype, metadata);
   }
 
   /**
-   * Uploads multiple supplier documents
+   * Upload multiple supplier documents
    */
   async uploadSupplierDocuments(
     files: UploadFileDto[],
@@ -315,60 +319,35 @@ export class S3StorageService {
   }
 
   /**
-   * Gets all supplier documents URLs
+   * Get all supplier documents URLs
    */
-  async getSupplierDocumentUrls(supplierCompanyName: string): Promise<{ [key: string]: string[] }> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
+  async getSupplierDocumentUrls(supplierCompanyName: string): Promise<SupplierDocuments> {
+    const cleanName = this.sanitizeString(supplierCompanyName);
     const prefix = `suppliers/${cleanName}/documents/`;
+    const files = await this.listFilesByPrefix(prefix);
 
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucket,
-        Prefix: prefix,
-      });
+    const documentsByType: SupplierDocuments = {};
 
-      const response = await this.s3Client.send(command);
-      const files = response.Contents?.map(item => ({
-        key: item.Key || '',
-        url: `${this.publicUrl}/${item.Key}`
-      })) || [];
+    files.forEach(fileKey => {
+      // Extract document type from metadata or filename if needed
+      // For now, we'll group all documents under 'general'
+      if (!documentsByType['general']) {
+        documentsByType['general'] = [];
+      }
+      documentsByType['general'].push(`${this.publicUrl}/${fileKey}`);
+    });
 
-      const documentsByType: { [key: string]: string[] } = {};
-
-      files.forEach(file => {
-        const parts = file.key.split('/');
-        if (parts.length >= 4) {
-          const type = parts[3]; // suppliers/{cleanName}/documents/{type}/{file}
-          if (!documentsByType[type]) {
-            documentsByType[type] = [];
-          }
-          documentsByType[type].push(file.url);
-        }
-      });
-
-      return documentsByType;
-    } catch (error) {
-      this.logger.error(`Failed to list supplier documents: ${error.message}`);
-      return {};
-    }
+    return documentsByType;
   }
 
   /**
-   * Deletes specific supplier document
+   * Delete specific supplier document
    */
   async deleteSupplierDocument(
     supplierCompanyName: string,
     documentKey: string
   ): Promise<void> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
+    const cleanName = this.sanitizeString(supplierCompanyName);
     const fullKey = `suppliers/${cleanName}/documents/${documentKey}`;
 
     try {
@@ -386,40 +365,42 @@ export class S3StorageService {
   }
 
   /**
-   * Deletes all supplier documents
+   * Delete all supplier documents
    */
   async deleteAllSupplierDocuments(supplierCompanyName: string): Promise<void> {
-    const cleanName = supplierCompanyName
-      .replace(/[^a-zA-Z0-9а-яА-Я\s-]/g, '')
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
+    const cleanName = this.sanitizeString(supplierCompanyName);
     const prefix = `suppliers/${cleanName}/documents/`;
-    const files = await this.listFiles(prefix);
-
-    for (const file of files) {
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucket,
-          Key: file,
-        })
-      );
-    }
-    this.logger.log(`Deleted all documents for supplier: ${supplierCompanyName}`);
+    await this.deleteFilesByPrefix(prefix);
   }
 
-  // Helper method for getting a list of files
-  private async listFiles(prefix: string): Promise<string[]> {
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucket,
-        Prefix: prefix,
-      });
+  // ========== GENERIC METHODS ==========
+  /**
+   * Get all supplier files (for cleanup)
+   */
+  async getSupplierFiles(supplierCompanyName: string): Promise<string[]> {
+    const cleanName = this.sanitizeString(supplierCompanyName);
+    const prefix = `suppliers/${cleanName}/`;
+    return this.listFilesByPrefix(prefix);
+  }
 
-      const response = await this.s3Client.send(command);
-      return response.Contents?.map(item => item.Key || '') || [];
-    } catch (error) {
-      return [];
-    }
+  /**
+   * Delete all supplier files (for account deletion)
+   */
+  async deleteAllSupplierFiles(supplierCompanyName: string): Promise<void> {
+    const cleanName = this.sanitizeString(supplierCompanyName);
+    const prefix = `suppliers/${cleanName}/`;
+    await this.deleteFilesByPrefix(prefix);
+  }
+
+  /**
+   * List all files for a supplier by category
+   */
+  async listSupplierFilesByCategory(
+    supplierCompanyName: string,
+    category: 'documents' | 'logo' | 'products'
+  ): Promise<string[]> {
+    const cleanName = this.sanitizeString(supplierCompanyName);
+    const prefix = `suppliers/${cleanName}/${category}/`;
+    return this.listFilesByPrefix(prefix);
   }
 }
