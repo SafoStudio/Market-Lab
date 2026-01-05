@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 
 import {
+  SupplierPublicDto,
+  SupplierProfileDto,
   CreateSupplierDto,
   UpdateSupplierDto,
   SUPPLIER_STATUS,
@@ -17,6 +19,7 @@ import { Role, Permission } from '@shared/types';
 import { SupplierDomainEntity } from './supplier.entity';
 import { SupplierRepository } from './supplier.repository';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
+import { UserRepository } from '@domain/users/user.repository';
 
 
 @Injectable()
@@ -24,6 +27,10 @@ export class SupplierService {
   constructor(
     @Inject('SupplierRepository')
     private readonly supplierRepository: SupplierRepository,
+
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
+
     private readonly s3StorageService: S3StorageService,
   ) { }
 
@@ -57,13 +64,17 @@ export class SupplierService {
     userId: string,
     requestUserId?: string,
     userRoles?: string[]
-  ): Promise<SupplierDomainEntity> {
+  ): Promise<SupplierProfileDto> {
     const supplier = await this.supplierRepository.findByUserId(userId);
-    if (!supplier) throw new NotFoundException('Supplier not found');
+    const user = await this.userRepository.findById(userId);
+    if (!supplier || !user) throw new NotFoundException('Supplier not found');
     // Check access
     this._checkSupplierAccess(supplier, requestUserId, userRoles, 'view');
 
-    return supplier;
+    return {
+      ...supplier,
+      email: user.email,
+    };
   }
 
   async create(createDto: CreateSupplierDto): Promise<SupplierDomainEntity> {
@@ -99,7 +110,6 @@ export class SupplierService {
       companyName: supplier.companyName,
       registrationNumber: supplier.registrationNumber,
       address: supplier.address,
-      email: supplier.email,
       phone: supplier.phone,
       documents: supplier.documents,
       status: supplier.status,
@@ -317,38 +327,18 @@ export class SupplierService {
   }
 
   // Public information about the supplier
-  async getPublicSupplierInfo(id: string): Promise<any> {
-    const supplier = await this.supplierRepository.findById(id);
-    if (!supplier) throw new NotFoundException('Supplier not found');
+  async getPublicSupplierInfo(userId: string): Promise<SupplierPublicDto> {
+    const supplier = await this.supplierRepository.findById(userId);
+    const user = await this.userRepository.findById(userId)
+    if (!supplier || !user) throw new NotFoundException('Supplier not found');
 
     return {
       id: supplier.id,
       companyName: supplier.companyName,
       address: supplier.address,
-      email: supplier.email,
+      email: user.email,
       phone: supplier.phone,
-      status: supplier.status,
-      createdAt: supplier.createdAt,
-      isActive: supplier.isActive(),
-      canSupply: supplier.canSupply(),
-    };
-  }
-
-  // Limited information for buyers
-  async getLimitedSupplierInfo(id: string): Promise<any> {
-    const supplier = await this.supplierRepository.findById(id);
-    if (!supplier) throw new NotFoundException('Supplier not found');
-
-    return {
-      id: supplier.id,
-      companyName: supplier.companyName,
-      // address: maskAddress(supplier.address),
-      // email: maskEmail(supplier.email),      
-      // phone: maskPhone(supplier.phone),      
-      status: supplier.status,
-      isActive: supplier.isActive(),
-      canSupply: supplier.canSupply(),
-      // You can add rating, number of reviews, etc.
+      // rating, number of reviews, etc.
     };
   }
 

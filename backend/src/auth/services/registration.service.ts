@@ -249,8 +249,8 @@ export class RegistrationService {
       firstName: profile.firstName,
       lastName: profile.lastName,
       address: profile.address,
-      email: email,
-      phone: profile.phone || '',
+      phone: profile.phone,
+      description: profile.description,
       documents: allDocuments,
     });
 

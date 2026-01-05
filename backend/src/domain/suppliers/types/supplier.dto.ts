@@ -1,7 +1,8 @@
 // Use it to type the incoming data
-import { SupplierStatus } from './supplier.type';
+import { SupplierStatus, SupplierModel } from './supplier.type';
 import { Address } from '@shared/types';
 
+// incoming DTO
 export interface CreateSupplierDto {
   userId: string;
   companyName: string;
@@ -10,7 +11,6 @@ export interface CreateSupplierDto {
   lastName: string;
   description: string;
   address: Address;
-  email: string;
   phone: string;
   documents: string[];
 }
@@ -18,3 +18,17 @@ export interface CreateSupplierDto {
 export interface UpdateSupplierDto extends Partial<Omit<CreateSupplierDto, 'userId'>> {
   status?: SupplierStatus;
 }
+
+// Outgoing DTO for a profile with email
+export type SupplierProfileDto = SupplierModel & {
+  email: string;
+};
+
+export type SupplierPublicDto = {
+  id: string;
+  companyName: string;
+  address: Address;
+  email: string;
+  phone: string;
+  // rating, number of reviews, etc.
+};

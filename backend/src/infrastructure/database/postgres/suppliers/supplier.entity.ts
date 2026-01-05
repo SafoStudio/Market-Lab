@@ -30,9 +30,6 @@ export class SupplierProfileOrmEntity {
   address: Address;
 
   @Column()
-  email: string;
-
-  @Column()
   phone: string;
 
   @Column({ nullable: true })

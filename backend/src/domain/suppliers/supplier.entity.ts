@@ -14,7 +14,6 @@ export class SupplierDomainEntity implements SupplierModel {
   public companyName: string;
   public registrationNumber: string;
   public address: Address;
-  public email: string;
   public phone: string;
   public firstName: string;
   public lastName: string;
@@ -30,7 +29,6 @@ export class SupplierDomainEntity implements SupplierModel {
     companyName: string,
     registrationNumber: string,
     address: Address,
-    email: string,
     phone: string,
     firstName: string,
     lastName: string,
@@ -45,7 +43,6 @@ export class SupplierDomainEntity implements SupplierModel {
     this.companyName = companyName;
     this.registrationNumber = registrationNumber;
     this.address = address;
-    this.email = email;
     this.phone = phone;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -63,7 +60,6 @@ export class SupplierDomainEntity implements SupplierModel {
       createDto.companyName,
       createDto.registrationNumber,
       createDto.address,
-      createDto.email,
       createDto.phone,
       createDto.firstName,
       createDto.lastName,
@@ -77,7 +73,6 @@ export class SupplierDomainEntity implements SupplierModel {
     if (updateDto.companyName !== undefined) this.companyName = updateDto.companyName;
     if (updateDto.registrationNumber !== undefined) this.registrationNumber = updateDto.registrationNumber;
     if (updateDto.address !== undefined) this.address = updateDto.address;
-    if (updateDto.email !== undefined) this.email = updateDto.email;
     if (updateDto.phone !== undefined) this.phone = updateDto.phone;
     if (updateDto.firstName !== undefined) this.firstName = updateDto.firstName;
     if (updateDto.lastName !== undefined) this.lastName = updateDto.lastName;

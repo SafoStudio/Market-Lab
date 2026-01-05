@@ -15,12 +15,15 @@ import { PostgresSupplierRepository } from '@infrastructure/database/postgres/su
 // S3 Storage
 import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
+import { UsersModule } from './users.module';
+
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SupplierProfileOrmEntity]),
     ConfigModule.forRoot(),
     S3StorageModule,
+    UsersModule,
   ],
   controllers: [SuppliersController],
   providers: [
