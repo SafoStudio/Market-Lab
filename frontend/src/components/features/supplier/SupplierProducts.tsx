@@ -300,7 +300,7 @@ function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <div className="text-gray-400 mb-2">📷</div>
                 <p className="text-gray-600">Drag & drop images here or click to browse</p>
-                <p className="text-gray-500 text-sm mt-1">Supports JPG, PNG up to 5MB</p>
+                <p className="text-gray-500 text-sm mt-1">Supports JPG, PNG, WEBP up to 5MB</p>
               </div>
             </div>
 

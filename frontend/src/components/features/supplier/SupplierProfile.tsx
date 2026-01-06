@@ -44,8 +44,6 @@ export function SupplierProfile() {
   const supplierProfile = useSupplierStore(state => state.supplierProfile);
   const documents = useSupplierStore(state => state.documents);
 
-  const displaySupplier = currentSupplier || supplierData;
-  console.log('Display supplier:', displaySupplier);
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -137,9 +135,9 @@ export function SupplierProfile() {
     if (!file) return;
 
     // Check file
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      setFileError('Only PDF, JPEG, and PNG files are allowed');
+      setFileError('Only PDF, JPEG, WEBP, and PNG files are allowed');
       return;
     }
 
@@ -443,7 +441,7 @@ export function SupplierProfile() {
                   type="file"
                   className="hidden"
                   onChange={handleFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
                 />
                 <label htmlFor="document-upload" className="cursor-pointer block">
                   <div className="text-center">
@@ -452,7 +450,7 @@ export function SupplierProfile() {
                       Click to upload business documents
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      PDF, JPG, PNG up to 5MB
+                      PDF, JPG, PNG, WEBP up to 5MB
                     </p>
                   </div>
                 </label>
@@ -489,12 +487,11 @@ export function SupplierProfile() {
             <div>
               <h3 className="text-md font-medium text-gray-700 mb-3">Uploaded Documents</h3>
 
-
-              {(!documents || documents.length === 0) && supplierData?.documents ? (
+              {supplierData?.documents && supplierData.documents.length > 0 ? (
                 <div className="space-y-3">
                   {supplierData.documents.map((docUrl, index) => {
-
                     const fileName = docUrl.split('/').pop() || `document-${index + 1}`;
+                    const docKey = docUrl.split('/').pop();
 
                     return (
                       <div
@@ -504,7 +501,7 @@ export function SupplierProfile() {
                         <div>
                           <p className="font-medium">{fileName}</p>
                           <p className="text-sm text-gray-500">
-                            Document URL
+                            Business document
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -517,7 +514,7 @@ export function SupplierProfile() {
                             View
                           </a>
                           <button
-                            onClick={() => console.log('Delete not implemented for string documents')}
+                            onClick={() => { if (currentSupplier && docKey) handleDeleteDocument(docKey, fileName) }}
                             className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-sm"
                           >
                             Delete
@@ -526,38 +523,6 @@ export function SupplierProfile() {
                       </div>
                     );
                   })}
-                </div>
-              ) : documents && documents.length > 0 ? (
-                <div className="space-y-3">
-                  {documents.map((doc) => (
-                    <div
-                      key={doc.key}
-                      className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
-                    >
-                      <div>
-                        <p className="font-medium">{doc.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {(doc.size / 1024 / 1024).toFixed(2)} MB • {new Date(doc.uploadedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <a
-                          href={doc.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm"
-                        >
-                          View
-                        </a>
-                        <button
-                          onClick={() => handleDeleteDocument(doc.key, doc.name)}
-                          className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               ) : (
                 <p className="text-gray-500 text-center py-4">No documents uploaded yet</p>
