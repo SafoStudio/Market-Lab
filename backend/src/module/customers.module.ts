@@ -4,9 +4,13 @@ import { CustomerService } from '@domain/customers/customer.service';
 import { CustomersController } from '@controller/customers.controller';
 import { CustomerProfileOrmEntity } from '@infrastructure/database/postgres/customers/customer.entity';
 import { PostgresCustomerRepository } from '@infrastructure/database/postgres/customers/customer.repository';
+import { AddressModule } from './address.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CustomerProfileOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([CustomerProfileOrmEntity]),
+    AddressModule,
+  ],
   controllers: [CustomersController],
   providers: [
     CustomerService,

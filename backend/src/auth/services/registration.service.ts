@@ -16,6 +16,7 @@ import {
   RegSupplierProfileDto,
   RegCustomerProfileDto,
 } from '../types';
+import { Role } from '@shared/types';
 
 // Entities
 import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
@@ -27,7 +28,7 @@ import { EncryptService } from '../encrypt/encrypt.service';
 import { TokenService } from '../tokens/token.service';
 import { MailService } from '@infrastructure/mail/mail.service';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
-import { Role } from '@shared/types';
+import { AddressService } from '@domain/addresses/address.service';
 
 
 @Injectable()
@@ -39,6 +40,7 @@ export class RegistrationService {
     private readonly tokenService: TokenService,
     private readonly mailService: MailService,
     private readonly s3StorageService: S3StorageService,
+    private readonly addressService: AddressService,
     private readonly config: ConfigService,
 
     @InjectRepository(UserOrmEntity)
@@ -198,9 +200,27 @@ export class RegistrationService {
       firstName: profile.firstName,
       lastName: profile.lastName,
       phone: profile.phone,
-      address: profile.address,
     });
-    await this.customerRepo.save(customer);
+
+    const savedCustomer = await this.customerRepo.save(customer);
+
+    if (profile.address) {
+      await this.addressService.createAddress({
+        entityId: savedCustomer.id,
+        entityType: 'customer',
+        country: profile.address.country,
+        city: profile.address.city,
+        street: profile.address.street,
+        building: profile.address.building,
+        postalCode: profile.address.postalCode,
+        state: profile.address.state,
+        lat: profile.address.lat,
+        lng: profile.address.lng,
+        isPrimary: true,
+      });
+    }
+
+    return savedCustomer;
   }
 
   /**
@@ -248,13 +268,31 @@ export class RegistrationService {
       registrationNumber: profile.registrationNumber,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      address: profile.address,
       email: email,
       phone: profile.phone || '',
       documents: allDocuments,
+      status: 'pending',
     });
 
-    await this.supplierRepo.save(supplier);
+    const savedSupplier = await this.supplierRepo.save(supplier);
+
+    if (profile.address) {
+      await this.addressService.createAddress({
+        entityId: savedSupplier.id,
+        entityType: 'supplier',
+        country: profile.address.country,
+        city: profile.address.city,
+        street: profile.address.street,
+        building: profile.address.building,
+        postalCode: profile.address.postalCode,
+        state: profile.address.state,
+        lat: profile.address.lat,
+        lng: profile.address.lng,
+        isPrimary: true,
+      });
+    }
+
+    return savedSupplier;
   }
 
   /**

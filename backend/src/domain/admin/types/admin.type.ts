@@ -18,8 +18,6 @@ export interface AdminModel extends Entity {
   status: AdminStatus;
   department?: string;
   lastActiveAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // System Stats

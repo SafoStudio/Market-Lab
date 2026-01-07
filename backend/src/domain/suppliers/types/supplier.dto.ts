@@ -1,6 +1,5 @@
 // Use it to type the incoming data
 import { SupplierStatus } from './supplier.type';
-import { Address } from '@shared/types';
 
 export interface CreateSupplierDto {
   userId: string;
@@ -9,10 +8,18 @@ export interface CreateSupplierDto {
   firstName: string;
   lastName: string;
   description: string;
-  address: Address;
-  email: string;
   phone: string;
   documents: string[];
+  address?: {
+    country: string;
+    city: string;
+    street: string;
+    building: string;
+    postalCode?: string;
+    state?: string;
+    lat?: number;
+    lng?: number;
+  };
 }
 
 export interface UpdateSupplierDto extends Partial<Omit<CreateSupplierDto, 'userId'>> {

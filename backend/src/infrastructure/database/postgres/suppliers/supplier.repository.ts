@@ -107,10 +107,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       });
     }
 
-    if (filter.email) {
-      queryBuilder.andWhere('supplier.email = :email', { email: filter.email });
-    }
-
     if (filter.phone) {
       queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
     }
@@ -158,10 +154,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       });
     }
 
-    if (filter.email) {
-      queryBuilder.andWhere('supplier.email = :email', { email: filter.email });
-    }
-
     if (filter.phone) {
       queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
     }
@@ -192,8 +184,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       ormEntity.user_id,
       ormEntity.companyName,
       ormEntity.registrationNumber,
-      ormEntity.address,
-      ormEntity.email,
       ormEntity.phone,
       ormEntity.firstName,
       ormEntity.lastName,
@@ -212,8 +202,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
     if (domainEntity.userId) ormEntity.user_id = domainEntity.userId;
     if (domainEntity.companyName) ormEntity.companyName = domainEntity.companyName;
     if (domainEntity.registrationNumber) ormEntity.registrationNumber = domainEntity.registrationNumber;
-    if (domainEntity.address) ormEntity.address = domainEntity.address;
-    if (domainEntity.email) ormEntity.email = domainEntity.email;
     if (domainEntity.phone) ormEntity.phone = domainEntity.phone;
     if (domainEntity.firstName !== undefined) ormEntity.firstName = domainEntity.firstName;
     if (domainEntity.lastName !== undefined) ormEntity.lastName = domainEntity.lastName;

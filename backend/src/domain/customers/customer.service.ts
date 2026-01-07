@@ -10,6 +10,7 @@ import { CustomerDomainEntity } from './customer.entity';
 import { CustomerRepository } from './customer.repository';
 import { CreateCustomerDto, UpdateCustomerDto } from './types';
 import { Role, Permission } from '@shared/types';
+import { AddressService } from '@domain/addresses/address.service';
 
 
 @Injectable()
@@ -17,6 +18,7 @@ export class CustomerService {
   constructor(
     @Inject('CustomerRepository')
     private readonly customerRepository: CustomerRepository,
+    private readonly addressService: AddressService,
   ) { }
 
   async findAll(userId: string, userRoles: string[]): Promise<CustomerDomainEntity[]> {
@@ -55,7 +57,16 @@ export class CustomerService {
     if (existingCustomer) throw new ConflictException('Customer profile already exists for this user');
 
     const customer = CustomerDomainEntity.create(createDto);
-    return this.customerRepository.create(customer);
+    const savedCustomer = await this.customerRepository.create(customer);
+    if (createDto.address) {
+      await this.addressService.createAddress({
+        entityId: savedCustomer.id,
+        entityType: 'customer',
+        ...createDto.address,
+        isPrimary: true,
+      });
+    }
+    return savedCustomer;
   }
 
   async update(
@@ -77,7 +88,6 @@ export class CustomerService {
       phone: customer.phone,
       birthday: customer.birthday,
       status: customer.status,
-      address: customer.address,
       updatedAt: customer.updatedAt
     });
 

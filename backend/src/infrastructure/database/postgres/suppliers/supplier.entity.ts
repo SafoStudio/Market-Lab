@@ -6,7 +6,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { UserOrmEntity } from '../users/user.entity';
-import type { Address } from '@shared/types';
+
 
 @Entity('suppliers')
 export class SupplierProfileOrmEntity {
@@ -25,9 +25,6 @@ export class SupplierProfileOrmEntity {
 
   @Column({ unique: true })
   registrationNumber: string;
-
-  @Column({ type: 'jsonb' })
-  address: Address;
 
   @Column()
   email: string;
