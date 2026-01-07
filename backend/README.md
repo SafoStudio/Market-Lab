@@ -45,11 +45,6 @@ BACKEND
 │   │   │   ├── 📄 auth.swagger.dto.ts            # Authentication swagger DTO
 │   │   │   ├── 📄 auth.type.ts                   # Authentication types
 │   │   │   └── 📄 index.ts                       # Export of types
-│   │   ├── 📁 types/
-│   │   │   ├── 📄 auth.dto.ts                    # Authentication DTO
-│   │   │   ├── 📄 auth.swagger.dto.ts            # Authentication swagger DTO
-│   │   │   ├── 📄 auth.type.ts                   # Authentication types
-│   │   │   └── 📄 index.ts                       # Export of types
 │   │   ├── 📁 services/
 │   │   │   ├── 📄 auth.service.ts                # Main authentication coordination service
 │   │   │   ├── 📄 email-verification.service.ts  # Email verification and confirmation logic

@@ -2,13 +2,52 @@ import {
   IsEmail, IsString,
   MinLength, IsEnum,
   ValidateNested, IsOptional,
-  IsObject, IsArray
+  IsObject, IsArray,
+  IsNumber, IsDateString,
+  IsNotEmpty, IsBoolean
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
 
 import { Role } from '@shared/types';
-import type { Address } from '@shared/types';
+
+export class AddressDto {
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @IsString()
+  @IsNotEmpty()
+  street: string;
+
+  @IsString()
+  @IsNotEmpty()
+  building: string;
+
+  @IsOptional()
+  @IsString()
+  postalCode?: string;
+
+  @IsOptional()
+  @IsString()
+  state?: string;
+
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isPrimary?: boolean;
+}
 
 
 export class RegCustomerProfileDto {
@@ -21,8 +60,10 @@ export class RegCustomerProfileDto {
   @IsString()
   phone: string;
 
-  @IsString()
-  address: Address;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AddressDto)
+  address?: AddressDto;
 }
 
 export class RegSupplierProfileDto {
@@ -41,8 +82,10 @@ export class RegSupplierProfileDto {
   @IsString()
   phone: string;
 
-  @IsString()
-  address: Address;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AddressDto)
+  address?: AddressDto;
 
   @IsString()
   description: string;

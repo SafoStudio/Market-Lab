@@ -184,7 +184,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       ormEntity.user_id,
       ormEntity.companyName,
       ormEntity.registrationNumber,
-      ormEntity.address,
       ormEntity.phone,
       ormEntity.firstName,
       ormEntity.lastName,
@@ -203,7 +202,6 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
     if (domainEntity.userId) ormEntity.user_id = domainEntity.userId;
     if (domainEntity.companyName) ormEntity.companyName = domainEntity.companyName;
     if (domainEntity.registrationNumber) ormEntity.registrationNumber = domainEntity.registrationNumber;
-    if (domainEntity.address) ormEntity.address = domainEntity.address;
     if (domainEntity.phone) ormEntity.phone = domainEntity.phone;
     if (domainEntity.firstName !== undefined) ormEntity.firstName = domainEntity.firstName;
     if (domainEntity.lastName !== undefined) ormEntity.lastName = domainEntity.lastName;

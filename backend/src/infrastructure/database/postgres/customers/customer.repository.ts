@@ -109,18 +109,6 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
     }
 
     if (filter.status) queryBuilder.andWhere('customer.status = :status', { status: filter.status });
-
-    // Search group by address
-    if (filter.address && typeof filter.address === 'object') {
-      // Search by city
-      if (filter.address.city) {
-        queryBuilder.andWhere('customer.address->>\'city\' = :city', { city: filter.address.city });
-      }
-      // Search by country
-      if (filter.address.country) {
-        queryBuilder.andWhere('customer.address->>\'country\' = :country', { country: filter.address.country });
-      }
-    }
   }
 
   private toDomainEntity(ormEntity: CustomerProfileOrmEntity): CustomerDomainEntity {
@@ -132,7 +120,6 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
       ormEntity.phone,
       ormEntity.birthday,
       ormEntity.status as CustomerStatus,
-      ormEntity.address || undefined,
       ormEntity.createdAt,
       ormEntity.updatedAt
     );
@@ -148,7 +135,6 @@ export class PostgresCustomerRepository extends DomainCustomerRepository {
     if (domainEntity.phone) ormEntity.phone = domainEntity.phone;
     if (domainEntity.birthday !== undefined) ormEntity.birthday = domainEntity.birthday;
     if (domainEntity.status) ormEntity.status = domainEntity.status;
-    if (domainEntity.address) ormEntity.address = domainEntity.address;
     if (domainEntity.createdAt) ormEntity.createdAt = domainEntity.createdAt;
     if (domainEntity.updatedAt) ormEntity.updatedAt = domainEntity.updatedAt;
 

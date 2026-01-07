@@ -1,5 +1,5 @@
 // Use only within the domain, internal typing..
-import { Entity, Address } from '@shared/types';
+import { Entity } from '@shared/types';
 
 export const SUPPLIER_STATUS = {
   PENDING: 'pending',
@@ -16,7 +16,6 @@ export interface SupplierModel extends Entity {
   firstName: string;
   lastName: string;
   registrationNumber: string;
-  address: Address;
   phone: string;
   documents: string[];
   status: SupplierStatus;

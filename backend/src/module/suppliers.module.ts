@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { AddressModule } from './address.module';
+import { AuthModule } from '@auth/auth.module';
 
 // Domain services
 import { SupplierService } from '@domain/suppliers/supplier.service';
@@ -18,10 +20,13 @@ import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
 import { UsersModule } from './users.module';
 
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([SupplierProfileOrmEntity]),
     ConfigModule.forRoot(),
+    AuthModule,
+    AddressModule,
     S3StorageModule,
     UsersModule,
   ],

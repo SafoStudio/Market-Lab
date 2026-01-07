@@ -10,10 +10,14 @@ import { CustomersController } from '@controller/customers.controller';
 // Database infrastructure
 import { CustomerProfileOrmEntity } from '@infrastructure/database/postgres/customers/customer.entity';
 import { PostgresCustomerRepository } from '@infrastructure/database/postgres/customers/customer.repository';
+import { AddressModule } from './address.module';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CustomerProfileOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([CustomerProfileOrmEntity]),
+    AddressModule,
+  ],
   controllers: [CustomersController],
   providers: [
     // Main customer service

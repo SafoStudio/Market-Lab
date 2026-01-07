@@ -5,9 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn
 } from 'typeorm';
-
 import { UserOrmEntity } from '../users/user.entity';
-import { Address } from '@shared/types';
+
 
 @Entity('customers')
 export class CustomerProfileOrmEntity {
@@ -38,9 +37,6 @@ export class CustomerProfileOrmEntity {
     default: 'active'
   })
   status: string;
-
-  @Column({ type: 'jsonb', nullable: true })
-  address: Address | null;
 
   @CreateDateColumn()
   createdAt: Date;
