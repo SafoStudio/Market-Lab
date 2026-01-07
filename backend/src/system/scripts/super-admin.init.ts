@@ -58,8 +58,9 @@ export class SuperAdminInitService {
             street: 'System Street',
             city: 'System City',
             state: 'System State',
-            zipCode: '00000',
-            country: 'System Country'
+            postalCode: '00000',
+            country: 'System Country',
+            building: 'System Building'
           }
         },
       });

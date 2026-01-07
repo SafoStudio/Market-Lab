@@ -17,6 +17,7 @@ import { Role, Permission } from '@shared/types';
 import { SupplierDomainEntity } from './supplier.entity';
 import { SupplierRepository } from './supplier.repository';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
+import { AddressService } from '@domain/addresses/address.service';
 
 
 @Injectable()
@@ -25,6 +26,7 @@ export class SupplierService {
     @Inject('SupplierRepository')
     private readonly supplierRepository: SupplierRepository,
     private readonly s3StorageService: S3StorageService,
+    private readonly addressService: AddressService,
   ) { }
 
   async findAllActive(): Promise<SupplierDomainEntity[]> {
@@ -79,7 +81,23 @@ export class SupplierService {
     }
 
     const supplier = SupplierDomainEntity.create(createDto);
-    return this.supplierRepository.create(supplier);
+    const savedSupplier = await this.supplierRepository.create(supplier);
+    if (createDto.address) {
+      await this.addressService.createAddress({
+        entityId: savedSupplier.id,
+        entityType: 'supplier',
+        country: createDto.address.country,
+        city: createDto.address.city,
+        street: createDto.address.street,
+        building: createDto.address.building,
+        postalCode: createDto.address.postalCode,
+        state: createDto.address.state,
+        lat: createDto.address.lat,
+        lng: createDto.address.lng,
+        isPrimary: true,
+      });
+    }
+    return savedSupplier;
   }
 
   async update(
@@ -98,9 +116,10 @@ export class SupplierService {
     const updated = await this.supplierRepository.update(id, {
       companyName: supplier.companyName,
       registrationNumber: supplier.registrationNumber,
-      address: supplier.address,
-      email: supplier.email,
       phone: supplier.phone,
+      firstName: supplier.firstName,
+      lastName: supplier.lastName,
+      description: supplier.description,
       documents: supplier.documents,
       status: supplier.status,
       updatedAt: supplier.updatedAt
@@ -321,11 +340,20 @@ export class SupplierService {
     const supplier = await this.supplierRepository.findById(id);
     if (!supplier) throw new NotFoundException('Supplier not found');
 
+    const primaryAddress = await this.addressService.getPrimaryAddress(id, 'supplier');
+
     return {
       id: supplier.id,
       companyName: supplier.companyName,
-      address: supplier.address,
-      email: supplier.email,
+      address: primaryAddress ? {
+        country: primaryAddress.country,
+        city: primaryAddress.city,
+        street: primaryAddress.street,
+        building: primaryAddress.building,
+        postalCode: primaryAddress.postalCode,
+        state: primaryAddress.state,
+        fullAddress: primaryAddress.fullAddress,
+      } : null,
       phone: supplier.phone,
       status: supplier.status,
       createdAt: supplier.createdAt,
@@ -342,9 +370,6 @@ export class SupplierService {
     return {
       id: supplier.id,
       companyName: supplier.companyName,
-      // address: maskAddress(supplier.address),
-      // email: maskEmail(supplier.email),      
-      // phone: maskPhone(supplier.phone),      
       status: supplier.status,
       isActive: supplier.isActive(),
       canSupply: supplier.canSupply(),

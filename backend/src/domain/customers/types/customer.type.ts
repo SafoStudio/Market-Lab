@@ -1,5 +1,5 @@
 // Use only within the domain, internal typing..
-import { Entity, Address } from '@shared/types';
+import { Entity } from '@shared/types';
 
 export const CUSTOMER_STATUS = {
   ACTIVE: 'active',
@@ -17,6 +17,5 @@ export interface CustomerModel extends Entity {
   phone: string;
   birthday: Date | null;
   status: CustomerStatus;
-  address?: Address;
 }
 

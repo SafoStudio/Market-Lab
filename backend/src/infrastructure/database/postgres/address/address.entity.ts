@@ -1,10 +1,10 @@
 import {
-  Entity, Column,
+  Entity, Column, Index,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Index
 } from 'typeorm';
+
 
 @Entity('addresses')
 @Index(['entityId', 'entityType'])

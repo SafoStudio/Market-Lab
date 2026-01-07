@@ -39,6 +39,8 @@ import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/supp
 // Test controller (for development only)
 import { TestOAuthController } from '@infrastructure/oauth/google/test-oauth.controller';
 
+import { AddressModule } from '@module/address.module';
+
 @Module({
   imports: [
     ConfigModule,
@@ -48,6 +50,7 @@ import { TestOAuthController } from '@infrastructure/oauth/google/test-oauth.con
     TokensModule,
     GoogleOAuthModule,
     S3StorageModule,
+    AddressModule,
 
     // Configure JWT module asynchronously
     JwtModule.registerAsync({

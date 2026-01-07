@@ -62,8 +62,9 @@ export class AdminManagementService {
           street: createDto.address?.street || 'System Street',
           city: createDto.address?.city || 'System City',
           state: createDto.address?.state || 'System State',
-          zipCode: createDto.address?.zipCode || '00000',
-          country: createDto.address?.country || 'System Country'
+          postalCode: createDto.address?.postalCode || '00000',
+          country: createDto.address?.country || 'System Country',
+          building: createDto.address?.building || 'Not specified'
         }
       },
     });
