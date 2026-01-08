@@ -1,6 +1,5 @@
 import {
-  Injectable,
-  Inject,
+  Injectable, Inject,
   ConflictException,
   NotFoundException,
   ForbiddenException,
@@ -14,13 +13,16 @@ import {
   SUPPLIER_STATUS,
   SupplierStatus
 } from './types';
+import { AddressResponseDto } from '@domain/addresses/types/address.dto';
 
 import { Role, Permission } from '@shared/types';
 import { SupplierDomainEntity } from './supplier.entity';
 import { SupplierRepository } from './supplier.repository';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
 import { UserRepository } from '@domain/users/user.repository';
+
 import { AddressService } from '@domain/addresses/address.service';
+import { Address } from '@domain/addresses/address.entity';
 
 
 @Injectable()
@@ -73,10 +75,16 @@ export class SupplierService {
     // Check access
     this._checkSupplierAccess(supplier, requestUserId, userRoles, 'view');
 
+    const primaryAddress = await this.addressService.getPrimaryAddress(supplier.id, 'supplier');
+    const addresses = await this.addressService.getEntityAddresses(supplier.id, 'supplier');
+
     return {
       ...supplier,
       email: user.email,
+      primaryAddress: primaryAddress ? this._mapAddressToResponse(primaryAddress) : null,
+      addresses: addresses.map(addr => this._mapAddressToResponse(addr)),
     };
+
   }
 
   async create(createDto: CreateSupplierDto): Promise<SupplierDomainEntity> {
@@ -214,7 +222,6 @@ export class SupplierService {
     });
   }
 
-
   async updateStatus(
     id: string,
     status: SupplierStatus,
@@ -271,45 +278,24 @@ export class SupplierService {
   }
 
   // Public information about the supplier
-  async getPublicSupplierInfo(userId: string): Promise<SupplierPublicDto> {
-    const supplier = await this.supplierRepository.findById(userId);
-    const user = await this.userRepository.findById(userId)
-    if (!supplier || !user) throw new NotFoundException('Supplier not found');
+  async getPublicSupplierInfo(supplierId: string): Promise<SupplierPublicDto> {
+    const supplier = await this.supplierRepository.findById(supplierId);
+    if (!supplier) throw new NotFoundException('Supplier not found');
 
-    const primaryAddress = await this.addressService.getPrimaryAddress(id, 'supplier');
+    const user = await this.userRepository.findById(supplier.userId);
+    const primaryAddress = await this.addressService.getPrimaryAddress(supplierId, 'supplier');
 
     return {
       id: supplier.id,
       companyName: supplier.companyName,
+      email: user?.email || '',
+      phone: supplier.phone,
+      status: supplier.status,
       address: primaryAddress ? {
         country: primaryAddress.country,
         city: primaryAddress.city,
-        street: primaryAddress.street,
-        building: primaryAddress.building,
-        postalCode: primaryAddress.postalCode,
-        state: primaryAddress.state,
         fullAddress: primaryAddress.fullAddress,
-      } : null,
-      phone: supplier.phone,
-      status: supplier.status,
-      createdAt: supplier.createdAt,
-      isActive: supplier.isActive(),
-      canSupply: supplier.canSupply(),
-    };
-  }
-
-  // Limited information for buyers
-  async getLimitedSupplierInfo(id: string): Promise<any> {
-    const supplier = await this.supplierRepository.findById(id);
-    if (!supplier) throw new NotFoundException('Supplier not found');
-
-    return {
-      id: supplier.id,
-      companyName: supplier.companyName,
-      status: supplier.status,
-      isActive: supplier.isActive(),
-      canSupply: supplier.canSupply(),
-      // You can add rating, number of reviews, etc.
+      } : undefined,
     };
   }
 
@@ -369,5 +355,24 @@ export class SupplierService {
     if (requiredPermission) {
       this._checkSupplierPermission(userRoles, requiredPermission, `change status to ${status}`);
     }
+  }
+
+  //address mapping
+  private _mapAddressToResponse(address: Address): AddressResponseDto {
+    return {
+      id: address.id,
+      country: address.country,
+      city: address.city,
+      street: address.street,
+      building: address.building,
+      postalCode: address.postalCode,
+      state: address.state,
+      lat: address.lat,
+      lng: address.lng,
+      isPrimary: address.isPrimary,
+      fullAddress: address.fullAddress,
+      createdAt: address.createdAt,
+      updatedAt: address.updatedAt,
+    };
   }
 }

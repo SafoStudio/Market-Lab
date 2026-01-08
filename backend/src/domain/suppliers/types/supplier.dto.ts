@@ -1,5 +1,6 @@
 // Use it to type the incoming data
 import { SupplierStatus, SupplierModel } from './supplier.type';
+import { AddressResponseDto } from '@domain/addresses/types/address.dto';
 
 // incoming DTO
 export interface CreateSupplierDto {
@@ -30,13 +31,19 @@ export interface UpdateSupplierDto extends Partial<Omit<CreateSupplierDto, 'user
 // Outgoing DTO for a profile with email
 export type SupplierProfileDto = SupplierModel & {
   email: string;
+  primaryAddress?: AddressResponseDto | null;
+  addresses: AddressResponseDto[];
 };
 
 export type SupplierPublicDto = {
   id: string;
   companyName: string;
-  address: Address;
   email: string;
   phone: string;
-  // rating, number of reviews, etc.
+  status: string;
+  address?: {
+    country: string;
+    city: string;
+    fullAddress: string;
+  };
 };
