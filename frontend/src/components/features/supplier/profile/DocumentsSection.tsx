@@ -1,12 +1,15 @@
+'use client'
+
 import { useState } from 'react';
 
 interface DocumentsSectionProps {
   supplierId: string;
   documents: string[];
   isUploading: boolean;
-  onUpload: (file: File) => void;
-  onDelete: (documentKey: string, documentName: string) => void;
+  onUpload: (files: File[]) => void;
+  onDelete: (documentUrl: string, documentName: string) => void;
 }
+
 
 export function DocumentsSection({
   supplierId,
@@ -15,34 +18,39 @@ export function DocumentsSection({
   onUpload,
   onDelete
 }: DocumentsSectionProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
     const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      setFileError('Only PDF, JPEG, WEBP, and PNG files are allowed');
-      return;
-    }
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
-    if (file.size > 5 * 1024 * 1024) {
-      setFileError('File size must be less than 5MB');
+    const invalidFiles = files.filter(file =>
+      !validTypes.includes(file.type) || file.size > maxSize
+    );
+
+    if (invalidFiles.length > 0) {
+      setFileError('Only PDF, JPEG, WEBP, and PNG files up to 5MB are allowed');
       return;
     }
 
     setFileError('');
-    setSelectedFile(file);
+    setSelectedFiles(files);
   };
 
   const handleUpload = () => {
-    if (!selectedFile) return;
-    onUpload(selectedFile);
-    setSelectedFile(null);
+    if (selectedFiles.length === 0) return;
+    onUpload(selectedFiles);
+    setSelectedFiles([]);
     const fileInput = document.getElementById('document-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -58,6 +66,7 @@ export function DocumentsSection({
             className="hidden"
             onChange={handleFileChange}
             accept=".pdf,.jpg,.jpeg,.png,.webp"
+            multiple
           />
           <label htmlFor="document-upload" className="cursor-pointer block">
             <div className="text-center">
@@ -68,19 +77,29 @@ export function DocumentsSection({
               <p className="text-xs text-gray-500 mt-1">
                 PDF, JPG, PNG, WEBP up to 5MB
               </p>
+              <p className="text-xs text-gray-400 mt-1">
+                You can select multiple files
+              </p>
             </div>
           </label>
         </div>
 
-        {selectedFile && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center">
-            <span className="text-sm truncate">{selectedFile.name}</span>
-            <button
-              onClick={() => setSelectedFile(null)}
-              className="text-red-600 hover:text-red-800 text-sm ml-2"
-            >
-              Remove
-            </button>
+        {selectedFiles.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={`${file.name}-${index}`}
+                className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center"
+              >
+                <span className="text-sm truncate">{file.name}</span>
+                <button
+                  onClick={() => removeFile(index)}
+                  className="text-red-600 hover:text-red-800 text-sm ml-2"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
@@ -92,10 +111,10 @@ export function DocumentsSection({
 
         <button
           onClick={handleUpload}
-          disabled={!selectedFile || isUploading}
+          disabled={selectedFiles.length === 0 || isUploading}
           className="mt-4 w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
         >
-          {isUploading ? 'Uploading...' : 'Upload Document'}
+          {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} Document${selectedFiles.length !== 1 ? 's' : ''}`}
         </button>
       </div>
 
@@ -107,7 +126,6 @@ export function DocumentsSection({
           <div className="space-y-3">
             {documents.map((docUrl, index) => {
               const fileName = docUrl.split('/').pop() || `document-${index + 1}`;
-              const docKey = docUrl.split('/').pop();
 
               return (
                 <div
@@ -130,7 +148,7 @@ export function DocumentsSection({
                       View
                     </a>
                     <button
-                      onClick={() => { if (supplierId && docKey) onDelete(docKey, fileName) }}
+                      onClick={() => onDelete(docUrl, fileName)}
                       className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs md:text-sm"
                     >
                       Delete

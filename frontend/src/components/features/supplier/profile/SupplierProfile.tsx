@@ -11,7 +11,7 @@ import {
   useMySupplierProfile,
   useUpdateSupplierProfile,
   useSupplierDocuments,
-  useUploadSupplierDocument,
+  useUploadSupplierDocuments,
   useDeleteSupplierDocument
 } from '@/core/hooks/useSupplier';
 
@@ -31,19 +31,23 @@ import { DocumentsSection } from './DocumentsSection';
 export function SupplierProfile() {
   const { user } = useAuthStore();
 
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateSupplierProfile();
+  const { mutate: uploadDocument, isPending: isUploading } = useUploadSupplierDocuments();
+  const { mutate: deleteDocument } = useDeleteSupplierDocument();
+
+  const currentSupplier = useSupplierStore(state => state.currentSupplier);
+  const documents = useSupplierStore(state => state.documents);
+
   const {
-    data: supplierData,
     isLoading: profileLoading,
     error: profileError,
     refetch: refetchProfile
   } = useMySupplierProfile();
 
-  const { mutate: updateProfile, isPending: isUpdating } = useUpdateSupplierProfile();
-  const { mutate: uploadDocument, isPending: isUploading } = useUploadSupplierDocument();
-  const { mutate: deleteDocument } = useDeleteSupplierDocument();
-
-  const currentSupplier = useSupplierStore(state => state.currentSupplier);
-  const documents = useSupplierStore(state => state.documents);
+  const {
+    isLoading: documentsLoading,
+    refetch: refetchDocuments
+  } = useSupplierDocuments(currentSupplier?.id || '');
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -90,8 +94,6 @@ export function SupplierProfile() {
     }
   }, [currentSupplier, user?.email, isEditing, form]);
 
-  useSupplierDocuments(currentSupplier?.id || '');
-
   const handleSave = form.handleSubmit((data) => {
     if (!currentSupplier) return;
 
@@ -118,22 +120,28 @@ export function SupplierProfile() {
     });
   });
 
-  const handleUpload = (file: File) => {
+  const handleUpload = (files: File[]) => {
     if (!currentSupplier) return;
-    uploadDocument(file, {
+    uploadDocument(files, {
       onSuccess: () => {
+        refetchDocuments();
         refetchProfile();
       }
     });
   };
 
-  const handleDeleteDocument = (documentKey: string, documentName: string) => {
+  const handleDeleteDocument = (documentUrl: string, documentName: string) => {
     if (window.confirm(`Delete document "${documentName}"?`)) {
-      deleteDocument(documentKey);
+      deleteDocument(documentUrl, {
+        onSuccess: () => {
+          refetchDocuments();
+          refetchProfile();
+        }
+      });
     }
   };
 
-  if (profileLoading) {
+  if (profileLoading || documentsLoading) {
     return (
       <div className="min-h-screen p-4">
         <div className="max-w-6xl mx-auto">
@@ -236,7 +244,7 @@ export function SupplierProfile() {
             {currentSupplier && (
               <DocumentsSection
                 supplierId={currentSupplier.id}
-                documents={supplierData?.documents || []}
+                documents={documents}
                 isUploading={isUploading}
                 onUpload={handleUpload}
                 onDelete={handleDeleteDocument}
