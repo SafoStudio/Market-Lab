@@ -1,9 +1,9 @@
 import { FieldErrors } from 'react-hook-form';
 import { FileUpload } from '@/components/ui';
-import { SupplierProfileFormData } from '@/core/schemas/auth-schemas';
+import { SupplierRegistrationFormData } from '@/core/schemas';
 
 interface DocumentsStepProps {
-  errors: FieldErrors<SupplierProfileFormData>;
+  errors: FieldErrors<SupplierRegistrationFormData>;
   onFilesChange: (files: File[]) => void;
 }
 

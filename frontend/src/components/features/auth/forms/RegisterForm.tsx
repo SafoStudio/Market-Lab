@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, RegisterFormData } from '@/core/schemas/auth-schemas';
+import { registerSchema, RegisterFormData } from '@/core/schemas';
 import { useRegisterInitial } from '@/core/hooks/useAuth';
 import { Input, Button } from '@/components/ui';
 import { GoogleOAuthButton } from '../GoogleOAuthButton';

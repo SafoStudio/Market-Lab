@@ -1,10 +1,10 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input, DatePicker } from '@/components/ui';
-import { CustomerProfileFormData } from '@/core/schemas/auth-schemas';
+import { CustomerRegistrationFormData } from '@/core/schemas';
 
 interface PersonalInfoStepProps {
-  register: UseFormRegister<CustomerProfileFormData>;
-  errors: FieldErrors<CustomerProfileFormData>;
+  register: UseFormRegister<CustomerRegistrationFormData>;
+  errors: FieldErrors<CustomerRegistrationFormData>;
   watch: any;
   setValue: any;
 }

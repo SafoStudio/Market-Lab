@@ -18,7 +18,7 @@ import {
 import {
   supplierProfileSchema,
   SupplierProfileFormData
-} from '@/core/schemas/supplier-schemas';
+} from '@/core/schemas';
 
 // sub components
 import { ProfileHeader } from './ProfileHeader';
@@ -87,7 +87,7 @@ export function SupplierProfile() {
           city: currentSupplier.primaryAddress?.city || '',
           street: currentSupplier.primaryAddress?.street || '',
           state: currentSupplier.primaryAddress?.state || '',
-          building: currentSupplier.primaryAddress?.building || '',
+          building: currentSupplier.primaryAddress?.building,
           postalCode: currentSupplier.primaryAddress?.postalCode || '',
         }
       });

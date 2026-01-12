@@ -1,19 +1,10 @@
 import {
-  CustomerProfileFormData,
-  SupplierProfileFormData
-} from '@/core/schemas/auth-schemas';
+  CustomerRegistrationFormData, CustomerProfileFormData,
+  SupplierRegistrationFormData, SupplierProfileFormData
+} from '@/core/schemas';
 
-// Type for partial default values (all fields are optional)
-export type PartialCustomerProfileFormData = Partial<CustomerProfileFormData> & {
-  address?: Partial<CustomerProfileFormData['address']>;
-};
 
-export type PartialSupplierProfileFormData = Partial<SupplierProfileFormData> & {
-  address?: Partial<SupplierProfileFormData['address']>;
-};
-
-// Helpers for creating default values
-export const getCustomerDefaultValues = (): PartialCustomerProfileFormData => ({
+export const getCustomerRegistrationDefaultValues = (): Partial<CustomerRegistrationFormData> => ({
   firstName: '',
   lastName: '',
   phone: '',
@@ -28,7 +19,23 @@ export const getCustomerDefaultValues = (): PartialCustomerProfileFormData => ({
   birthDate: undefined,
 });
 
-export const getSupplierDefaultValues = (): PartialSupplierProfileFormData => ({
+export const getCustomerProfileDefaultValues = (): Partial<CustomerProfileFormData> => ({
+  firstName: '',
+  lastName: '',
+  phone: '',
+  email: '',
+  address: {
+    country: '',
+    city: '',
+    street: '',
+    building: '',
+    postalCode: '',
+    state: '',
+  },
+  birthDate: undefined,
+});
+
+export const getSupplierRegistrationDefaultValues = (): Partial<SupplierRegistrationFormData> => ({
   firstName: '',
   lastName: '',
   phone: '',
@@ -44,4 +51,21 @@ export const getSupplierDefaultValues = (): PartialSupplierProfileFormData => ({
   description: '',
   registrationNumber: '',
   documents: [],
+});
+
+export const getSupplierProfileDefaultValues = (): Partial<SupplierProfileFormData> => ({
+  firstName: '',
+  lastName: '',
+  phone: '',
+  email: '',
+  address: {
+    country: '',
+    city: '',
+    street: '',
+    building: '',
+    postalCode: '',
+    state: '',
+  },
+  companyName: '',
+  description: '',
 });

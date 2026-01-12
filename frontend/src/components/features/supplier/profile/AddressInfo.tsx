@@ -1,5 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { SupplierProfileFormData } from '@/core/schemas/supplier-schemas';
+import { SupplierProfileFormData } from '@/core/schemas';
 import { formatSupplierAddress } from '@/core/utils/supplier-utils';
 
 interface AddressInfoProps {

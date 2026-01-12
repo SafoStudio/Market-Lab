@@ -1,10 +1,10 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui';
-import { CustomerProfileFormData } from '@/core/schemas/auth-schemas';
+import { CustomerRegistrationFormData } from '@/core/schemas';
 
 interface ContactDetailsStepProps {
-  register: UseFormRegister<CustomerProfileFormData>;
-  errors: FieldErrors<CustomerProfileFormData>;
+  register: UseFormRegister<CustomerRegistrationFormData>;
+  errors: FieldErrors<CustomerRegistrationFormData>;
 }
 
 export function ContactDetailsStep({ register, errors }: ContactDetailsStepProps) {

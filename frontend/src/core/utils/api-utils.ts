@@ -1,4 +1,4 @@
-import { AddressFormData } from '@/core/schemas/auth-schemas';
+import { AddressFormData } from '@/core/schemas';
 
 import {
   API_TIMEOUT,

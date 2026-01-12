@@ -1,4 +1,4 @@
-import { AddressFormData } from '@/core/schemas/auth-schemas';
+import { AddressFormData } from '@/core/schemas';
 
 export const SUPPLIER_STATUS = {
   PENDING: 'pending',

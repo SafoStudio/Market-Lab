@@ -1,7 +1,7 @@
 import {
   CustomerProfileFormData,
   SupplierProfileFormData
-} from '@/core/schemas/auth-schemas';
+} from '@/core/schemas';
 
 // Types for form field paths
 export type CustomerFormFieldPath =

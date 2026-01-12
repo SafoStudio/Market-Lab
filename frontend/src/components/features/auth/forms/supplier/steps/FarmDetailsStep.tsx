@@ -1,10 +1,10 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input, Textarea } from '@/components/ui';
-import { SupplierProfileFormData } from '@/core/schemas/auth-schemas';
+import { SupplierRegistrationFormData } from '@/core/schemas';
 
 interface FarmDetailsStepProps {
-  register: UseFormRegister<SupplierProfileFormData>;
-  errors: FieldErrors<SupplierProfileFormData>;
+  register: UseFormRegister<SupplierRegistrationFormData>;
+  errors: FieldErrors<SupplierRegistrationFormData>;
 }
 
 export function FarmDetailsStep({ register, errors }: FarmDetailsStepProps) {

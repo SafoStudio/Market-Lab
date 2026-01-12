@@ -6,13 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRegisterComplete } from '@/core/hooks/useAuth';
 import { createCustomerFormData } from '@/core/utils/api-utils';
 import { ProgressBar, NavigationButtons } from '@/components/ui';
-import { getCustomerDefaultValues } from '@/core/utils/form-defaults';
-import { customerStepFieldPaths } from '@/core/types/form-types';
 
 import {
-  customerProfileSchema,
-  CustomerProfileFormData
-} from '@/core/schemas/auth-schemas';
+  customerRegistrationSchema,
+  CustomerRegistrationFormData
+} from '@/core/schemas';
+
+import { getCustomerRegistrationDefaultValues } from '@/core/utils/form-defaults';
+import { customerStepFieldPaths } from '@/core/types/form-types';
 
 // step components
 import { PersonalInfoStep } from './steps/PersonalInfoStep';
@@ -34,13 +35,13 @@ export function CustomerProfileForm() {
     watch,
     trigger,
     getFieldState,
-  } = useForm<CustomerProfileFormData>({
-    resolver: zodResolver(customerProfileSchema),
+  } = useForm<CustomerRegistrationFormData>({
+    resolver: zodResolver(customerRegistrationSchema),
     mode: 'onChange',
-    defaultValues: getCustomerDefaultValues(),
+    defaultValues: getCustomerRegistrationDefaultValues(),
   });
 
-  const onSubmit = async (data: CustomerProfileFormData) => {
+  const onSubmit = async (data: CustomerRegistrationFormData) => {
     const formData = createCustomerFormData({
       firstName: data.firstName,
       lastName: data.lastName,

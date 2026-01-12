@@ -6,13 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRegisterComplete } from '@/core/hooks/useAuth';
 import { createSupplierFormData } from '@/core/utils/api-utils';
 import { ProgressBar, NavigationButtons } from '@/components/ui';
-import { getSupplierDefaultValues } from '@/core/utils/form-defaults';
-import { supplierStepFieldPaths } from '@/core/types/form-types';
 
 import {
-  supplierProfileSchema,
-  SupplierProfileFormData
-} from '@/core/schemas/auth-schemas';
+  supplierRegistrationSchema,
+  SupplierRegistrationFormData
+} from '@/core/schemas/supplier-schemas';
+
+import { getSupplierRegistrationDefaultValues } from '@/core/utils/form-defaults';
+import { supplierStepFieldPaths } from '@/core/types/form-types';
 
 // step components
 import { PersonalInfoStep } from './steps/PersonalInfoStep';
@@ -20,7 +21,6 @@ import { AddressStep } from './steps/AddressStep';
 import { FarmDetailsStep } from './steps/FarmDetailsStep';
 import { DocumentsStep } from './steps/DocumentsStep';
 import { ConfirmationStep } from './steps/ConfirmationStep';
-
 
 const steps = ['Personal Info', 'Address', 'Farm Details', 'Documents', 'Confirmation'];
 
@@ -37,10 +37,10 @@ export function SupplierProfileForm() {
     watch,
     trigger,
     getFieldState,
-  } = useForm<SupplierProfileFormData>({
-    resolver: zodResolver(supplierProfileSchema),
+  } = useForm<SupplierRegistrationFormData>({
+    resolver: zodResolver(supplierRegistrationSchema),
     mode: 'onChange',
-    defaultValues: getSupplierDefaultValues(),
+    defaultValues: getSupplierRegistrationDefaultValues(),
   });
 
   const handleFileUpload = (files: File[]) => {
@@ -48,7 +48,7 @@ export function SupplierProfileForm() {
     setValue('documents', files, { shouldValidate: true });
   };
 
-  const onSubmit = async (data: SupplierProfileFormData) => {
+  const onSubmit = async (data: SupplierRegistrationFormData) => {
     const formData = createSupplierFormData(
       {
         firstName: data.firstName,

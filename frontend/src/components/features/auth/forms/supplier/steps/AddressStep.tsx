@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { Input } from '@/components/ui';
-import { SupplierProfileFormData } from '@/core/schemas/auth-schemas';
+import { SupplierRegistrationFormData } from '@/core/schemas';
 
 interface AddressStepProps {
-  register: UseFormRegister<SupplierProfileFormData>;
-  errors: FieldErrors<SupplierProfileFormData>;
-  watch: UseFormWatch<SupplierProfileFormData>;
-  setValue: UseFormSetValue<SupplierProfileFormData>;
+  register: UseFormRegister<SupplierRegistrationFormData>;
+  errors: FieldErrors<SupplierRegistrationFormData>;
+  watch: UseFormWatch<SupplierRegistrationFormData>;
+  setValue: UseFormSetValue<SupplierRegistrationFormData>;
 }
 
 export function AddressStep({ register, errors, watch, setValue }: AddressStepProps) {
