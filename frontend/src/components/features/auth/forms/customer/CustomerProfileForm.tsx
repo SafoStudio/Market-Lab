@@ -4,30 +4,27 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRegisterComplete } from '@/core/hooks/useAuth';
-import { createSupplierFormData } from '@/core/utils/api-utils';
+import { createCustomerFormData } from '@/core/utils/api-utils';
 import { ProgressBar, NavigationButtons } from '@/components/ui';
-import { getSupplierDefaultValues } from '@/core/utils/form-defaults';
-import { supplierStepFieldPaths } from '@/core/types/form-types';
+import { getCustomerDefaultValues } from '@/core/utils/form-defaults';
+import { customerStepFieldPaths } from '@/core/types/form-types';
 
 import {
-  supplierProfileSchema,
-  SupplierProfileFormData
+  customerProfileSchema,
+  CustomerProfileFormData
 } from '@/core/schemas/auth-schemas';
 
 // step components
 import { PersonalInfoStep } from './steps/PersonalInfoStep';
-import { AddressStep } from './steps/AddressStep';
-import { FarmDetailsStep } from './steps/FarmDetailsStep';
-import { DocumentsStep } from './steps/DocumentsStep';
-import { ConfirmationStep } from './steps/ConfirmationStep';
+import { CustomerAddressStep } from './steps/AddressStep';
+import { ContactDetailsStep } from './steps/ContactDetailsStep';
+import { CustomerConfirmationStep } from './steps/ConfirmationStep';
 
+const steps = ['Personal Info', 'Contact Details', 'Address', 'Confirmation'];
 
-const steps = ['Personal Info', 'Address', 'Farm Details', 'Documents', 'Confirmation'];
-
-export function SupplierProfileForm() {
+export function CustomerProfileForm() {
   const completeRegistration = useRegisterComplete();
   const [currentStep, setCurrentStep] = useState(0);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const {
     register,
@@ -37,30 +34,20 @@ export function SupplierProfileForm() {
     watch,
     trigger,
     getFieldState,
-  } = useForm<SupplierProfileFormData>({
-    resolver: zodResolver(supplierProfileSchema),
+  } = useForm<CustomerProfileFormData>({
+    resolver: zodResolver(customerProfileSchema),
     mode: 'onChange',
-    defaultValues: getSupplierDefaultValues(),
+    defaultValues: getCustomerDefaultValues(),
   });
 
-  const handleFileUpload = (files: File[]) => {
-    setUploadedFiles(files);
-    setValue('documents', files, { shouldValidate: true });
-  };
-
-  const onSubmit = async (data: SupplierProfileFormData) => {
-    const formData = createSupplierFormData(
-      {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        address: data.address,
-        companyName: data.companyName,
-        description: data.description,
-        registrationNumber: data.registrationNumber,
-      },
-      uploadedFiles
-    );
+  const onSubmit = async (data: CustomerProfileFormData) => {
+    const formData = createCustomerFormData({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      address: data.address,
+      birthDate: data.birthDate,
+    });
 
     completeRegistration.mutate(formData);
   };
@@ -69,24 +56,18 @@ export function SupplierProfileForm() {
     switch (currentStep) {
       case 0: // Personal Info
         return !getFieldState('firstName').invalid &&
-          !getFieldState('lastName').invalid &&
-          !getFieldState('phone').invalid;
+          !getFieldState('lastName').invalid;
 
-      case 1: // Address
+      case 1: // Contact Details
+        return !getFieldState('phone').invalid;
+
+      case 2: // Address
         return !getFieldState('address.country').invalid &&
           !getFieldState('address.city').invalid &&
           !getFieldState('address.street').invalid &&
           !getFieldState('address.building').invalid;
 
-      case 2: // Farm Details
-        return !getFieldState('companyName').invalid &&
-          !getFieldState('registrationNumber').invalid &&
-          !getFieldState('description').invalid;
-
-      case 3: // Documents
-        return uploadedFiles.length > 0;
-
-      case 4: // Confirmation
+      case 3: // Confirmation
         return true;
 
       default:
@@ -95,7 +76,7 @@ export function SupplierProfileForm() {
   };
 
   const handleNext = async () => {
-    const fieldPaths = supplierStepFieldPaths[currentStep as keyof typeof supplierStepFieldPaths];
+    const fieldPaths = customerStepFieldPaths[currentStep as keyof typeof customerStepFieldPaths];
 
     if (fieldPaths) {
       const result = await trigger(fieldPaths);
@@ -116,38 +97,35 @@ export function SupplierProfileForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <PersonalInfoStep register={register} errors={errors} />;
-      case 1:
         return (
-          <AddressStep
+          <PersonalInfoStep
             register={register}
             errors={errors}
             watch={watch}
             setValue={setValue}
           />
         );
+      case 1:
+        return <ContactDetailsStep register={register} errors={errors} />;
       case 2:
-        return <FarmDetailsStep register={register} errors={errors} />;
-      case 3:
         return (
-          <DocumentsStep
+          <CustomerAddressStep
+            register={register}
             errors={errors}
-            onFilesChange={handleFileUpload}
+            watch={watch}
+            setValue={setValue}
           />
         );
-      case 4:
+      case 3:
         return (
-          <ConfirmationStep
+          <CustomerConfirmationStep
             formData={{
               firstName: formData.firstName,
               lastName: formData.lastName,
+              birthDate: formData.birthDate,
               phone: formData.phone,
               address: formData.address,
-              companyName: formData.companyName,
-              description: formData.description,
-              registrationNumber: formData.registrationNumber,
             }}
-            uploadedFilesCount={uploadedFiles.length}
           />
         );
       default:
@@ -157,11 +135,11 @@ export function SupplierProfileForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
+      <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Complete Farmer Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Complete Your Profile</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Provide details about your farm and upload required documents
+            Fill in your details to get started
           </p>
         </div>
 

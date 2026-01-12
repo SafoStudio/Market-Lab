@@ -1,4 +1,4 @@
-import { Address } from './commonTypes';
+import { AddressFormData } from '@/core/schemas/auth-schemas';
 
 export const SUPPLIER_STATUS = {
   PENDING: 'pending',
@@ -16,8 +16,8 @@ export interface Supplier {
   firstName: string;
   lastName: string;
   registrationNumber: string;
-  address: Address;
-  primaryAddress: Address;
+  address: AddressFormData;
+  primaryAddress: AddressFormData;
   phone: string;
   documents: string[];
   status: SupplierStatus;
@@ -32,7 +32,7 @@ export interface CreateSupplierDto {
   firstName: string;
   lastName: string;
   registrationNumber: string;
-  address: Address;
+  address: AddressFormData;
   phone: string;
   email: string;
   description?: string;

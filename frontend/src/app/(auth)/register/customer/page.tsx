@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { CustomerProfileForm } from '@/components/features/auth/forms/CustomerProfileForm';
+import { CustomerProfileForm } from '@/components/features/auth/forms/customer/CustomerProfileForm';
 
 export const metadata: Metadata = {
   title: 'Complete Profile - Customer | Greenly',

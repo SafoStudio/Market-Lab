@@ -1,3 +1,5 @@
+import { AddressFormData } from '@/core/schemas/auth-schemas';
+
 import {
   API_TIMEOUT,
   API_RETRY_CONFIG,
@@ -150,7 +152,7 @@ export const buildHeaders = (
 /**
  * Creates a timeout promise for fetch requests
  */
-const createTimeoutPromise = (timeout: number): Promise<never> => {
+export const createTimeoutPromise = (timeout: number): Promise<never> => {
   return new Promise((_, reject) => {
     setTimeout(() => {
       reject(new ApiError(408, `Request timeout after ${timeout}ms`, 'TIMEOUT'));
@@ -262,6 +264,36 @@ export const apiFetch = async <T>(
 };
 
 /**
+ * Creates FormData for customer registration with correct structure
+ */
+export const createCustomerFormData = (
+  profileData: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: AddressFormData;
+    birthDate?: Date;
+  }
+): FormData => {
+  const formData = new FormData();
+
+  const data = {
+    role: 'customer' as const,
+    profile: {
+      firstName: profileData.firstName,
+      lastName: profileData.lastName,
+      phone: profileData.phone,
+      address: profileData.address,
+      ...(profileData.birthDate && { birthDate: profileData.birthDate.toISOString() }),
+    },
+  };
+
+  formData.append('data', JSON.stringify(data));
+
+  return formData;
+};
+
+/**
  * Creates FormData for supplier registration with correct structure
  */
 export const createSupplierFormData = (
@@ -269,16 +301,7 @@ export const createSupplierFormData = (
     firstName: string;
     lastName: string;
     phone: string;
-    address: {
-      country: string;
-      city: string;
-      street: string;
-      building: string;
-      postalCode?: string;
-      state?: string;
-      lat?: number;
-      lng?: number;
-    };
+    address: AddressFormData;
     companyName: string;
     description: string;
     registrationNumber: string;
@@ -293,16 +316,7 @@ export const createSupplierFormData = (
       firstName: profileData.firstName,
       lastName: profileData.lastName,
       phone: profileData.phone,
-      address: {
-        country: profileData.address.country,
-        city: profileData.address.city,
-        street: profileData.address.street,
-        building: profileData.address.building,
-        ...(profileData.address.postalCode && { postalCode: profileData.address.postalCode }),
-        ...(profileData.address.state && { state: profileData.address.state }),
-        ...(profileData.address.lat !== undefined && { lat: profileData.address.lat }),
-        ...(profileData.address.lng !== undefined && { lng: profileData.address.lng }),
-      },
+      address: profileData.address,
       companyName: profileData.companyName,
       description: profileData.description,
       registrationNumber: profileData.registrationNumber,
