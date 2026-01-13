@@ -83,7 +83,9 @@ export const CUSTOMER_ENDPOINTS = {
 
 /**
  * Supplier management API endpoints
- */
+ *//**
+* Supplier management API endpoints
+*/
 export const SUPPLIER_ENDPOINTS = {
   // Public endpoints
   PUBLIC_ACTIVE: `${API_PREFIX}/suppliers/public/active`,
@@ -106,6 +108,41 @@ export const SUPPLIER_ENDPOINTS = {
 
   // Search
   SEARCH: `${API_PREFIX}/suppliers/search`,
+} as const;
+
+/**
+ * Product management API endpoints
+ */
+export const PRODUCT_ENDPOINTS = {
+  // Public endpoints
+  GET_ALL_PUBLIC: `${API_PREFIX}/products`,
+  GET_BY_ID_PUBLIC: (id: string) => `${API_PREFIX}/products/${id}`,
+  GET_CATEGORIES: `${API_PREFIX}/products/categories/list`,
+
+  // Supplier endpoints
+  CREATE: `${API_PREFIX}/products`,
+  SUPPLIER_MY: `${API_PREFIX}/products/supplier/my`,
+  UPDATE: (id: string) => `${API_PREFIX}/products/${id}`,
+  RESTOCK: (id: string) => `${API_PREFIX}/products/${id}/restock`,
+
+  // Image management
+  ADD_IMAGES: (id: string) => `${API_PREFIX}/products/${id}/images`,
+  REMOVE_IMAGE: (id: string) => `${API_PREFIX}/products/${id}/images`,
+
+  // Shared endpoints
+  DELETE: (id: string) => `${API_PREFIX}/products/${id}`,
+  UPDATE_STATUS: (id: string) => `${API_PREFIX}/products/${id}/status`,
+  OWNERSHIP: (id: string) => `${API_PREFIX}/products/${id}/ownership`,
+
+  // Customer endpoints
+  PURCHASE: (id: string) => `${API_PREFIX}/products/${id}/purchase`,
+
+  // Admin endpoints
+  STATISTICS: `${API_PREFIX}/products/admin/statistics`,
+  ADMIN_ALL: `${API_PREFIX}/products/admin/all`,
+  FORCE_DELETE: (id: string) => `${API_PREFIX}/products/admin/${id}/force`,
+  LOW_STOCK: `${API_PREFIX}/products/admin/low-stock`,
+  // Search products (implicit - uses GET_ALL_PUBLIC with query params)
 } as const;
 
 /**

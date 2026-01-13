@@ -1,0 +1,109 @@
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  stock: number;
+  images: string[];
+  status: ProductStatus;
+  supplierId: string;
+  supplierName?: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+}
+
+export type ProductStatus = 'active' | 'inactive' | 'archived' | 'draft';
+
+export interface CreateProductDto {
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  stock: number;
+  status?: ProductStatus;
+}
+
+export interface UpdateProductDto {
+  name?: string;
+  description?: string;
+  price?: number;
+  category?: string;
+  stock?: number;
+  status?: ProductStatus;
+}
+
+export interface RestockProductDto {
+  quantity: number;
+}
+
+export interface PurchaseProductDto {
+  quantity: number;
+  shippingAddress?: string;
+  paymentMethod?: string;
+}
+
+export interface ProductsResponse {
+  products: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface ImageUploadResponse {
+  success: boolean;
+  urls: string[];
+  message: string;
+}
+
+export interface OwnershipInfo {
+  isOwner: boolean;
+  isSupplier: boolean;
+  isAdmin: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface ProductStatistics {
+  totalProducts: number;
+  activeProducts: number;
+  inactiveProducts: number;
+  archivedProducts: number;
+  draftProducts: number;
+  outOfStockProducts: number;
+  lowStockProducts: number;
+  totalStockValue: number;
+  averagePrice: number;
+  categoriesCount: { [category: string]: number };
+  monthlySales?: number;
+  topProducts?: Product[];
+}
+
+export interface ProductSearchParams {
+  category?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: ProductStatus;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'price' | 'name' | 'createdAt' | 'stock';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CategoryInfo {
+  name: string;
+  productCount: number;
+  averagePrice: number;
+}
+
+export interface ProductFilters {
+  category?: string;
+  status?: ProductStatus;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  searchQuery?: string;
+}
