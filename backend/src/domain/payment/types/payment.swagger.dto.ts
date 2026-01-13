@@ -444,7 +444,7 @@ export class WebhookResponseDtoSwagger {
   message?: string;
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponsePaymentDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,

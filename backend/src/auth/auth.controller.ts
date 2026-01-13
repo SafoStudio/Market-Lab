@@ -42,7 +42,7 @@ import {
   ForgotPasswordDtoSwagger,
   ResetPasswordDtoSwagger,
   EmailResponseDtoSwagger,
-  SuccessResponseDtoSwagger,
+  SuccessResponseAuthDtoSwagger,
   AuthResponseDtoSwagger,
 } from './types';
 
@@ -217,7 +217,7 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: 'Logout successful',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseAuthDtoSwagger,
   })
   async logout(@Res({ passthrough: true }) res: Response) {
     this._clearAuthCookie(res);
@@ -348,7 +348,7 @@ export class AuthController {
   @ApiQuery({ name: 'token', required: true, description: 'Verification token from email' })
   @ApiOkResponse({
     description: 'Email verified successfully',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseAuthDtoSwagger,
   })
   @ApiResponse({
     status: 400,
@@ -459,7 +459,7 @@ export class AuthController {
   @ApiBody({ type: ResetPasswordDtoSwagger })
   @ApiOkResponse({
     description: 'Password reset successful',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseAuthDtoSwagger,
   })
   @ApiResponse({
     status: 400,
@@ -586,7 +586,7 @@ export class AuthController {
   @ApiBody({ type: GoogleAuthDtoSwagger })
   @ApiOkResponse({
     description: 'Google account linked successfully',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseAuthDtoSwagger,
   })
   async linkGoogleAccount(
     @Req() req: AuthRequest,
@@ -610,7 +610,7 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: 'Google account unlinked successfully',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseAuthDtoSwagger,
   })
   async unlinkGoogleAccount(@Req() req: AuthRequest) {
     if (!req.user) throw new UnauthorizedException('User not authenticated');

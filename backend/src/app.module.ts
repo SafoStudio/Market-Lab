@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Script initial first user (super admin)
-import { SuperAdminInitService } from './system/scripts/super-admin.init.js';
+import { SuperAdminInitService } from './system/scripts/super-admin.init';
 
 // System Modules
 import { DatabaseModule } from '@system/database.module';

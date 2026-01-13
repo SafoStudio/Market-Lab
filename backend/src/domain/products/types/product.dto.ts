@@ -5,7 +5,8 @@ export interface CreateProductDto {
   name: string;
   description: string;
   price: number;
-  category?: string;
+  categoryId?: string,
+  subcategoryId?: string,
   images?: string[];
   stock?: number;
   status?: ProductStatus;

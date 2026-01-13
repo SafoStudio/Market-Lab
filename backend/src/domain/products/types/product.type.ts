@@ -20,7 +20,8 @@ export interface ProductModel extends Entity {
   description: string;
   price: number;
   supplierId: string;
-  category: string;
+  categoryId?: string,
+  subcategoryId?: string,
   images: string[];
   stock: number;
   status: ProductStatus;

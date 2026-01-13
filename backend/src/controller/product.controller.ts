@@ -50,7 +50,7 @@ import {
   AddImagesDtoSwagger,
   RemoveImageDtoSwagger,
   UpdateProductStatusDtoSwagger,
-  SuccessResponseDtoSwagger
+  SuccessResponseProductDtoSwagger
 } from '@domain/products/types/product.swagger.dto';
 
 
@@ -101,7 +101,7 @@ export class ProductController {
     type: ProductsListResponseDtoSwagger,
   })
   async findAll(
-    @Query('category') category?: string,
+    @Query('id') id?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string
@@ -110,8 +110,8 @@ export class ProductController {
       return this.productService.searchByText(search);
     }
 
-    if (category) {
-      return this.productService.findByCategory(category);
+    if (id) {
+      return this.productService.findByCategoryId(id);
     }
 
     if (page || limit) {
@@ -199,8 +199,8 @@ export class ProductController {
     @UploadedFiles() images: Express.Multer.File[],
     @Request() req: AuthRequest
   ) {
-    const supplierId = req.user.id;
-    return this.productService.create(dto, supplierId, images);
+    const userId = req.user.id;
+    return this.productService.create(dto, userId, images);
   }
 
   /**
@@ -316,7 +316,7 @@ export class ProductController {
   @ApiBody({ type: RemoveImageDtoSwagger })
   @ApiOkResponse({
     description: 'Image removed successfully',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseProductDtoSwagger,
   })
   @ApiBadRequestResponse({
     description: 'Image URL is required',

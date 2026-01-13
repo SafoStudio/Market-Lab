@@ -12,17 +12,22 @@ import { ProductController } from '@controller/product.controller';
 // Database infrastructure
 import { ProductOrmEntity } from '@infrastructure/database/postgres/products/product.entity';
 import { PostgresProductRepository } from '@infrastructure/database/postgres/products/product.repository';
+import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
 
 // S3 Storage
 import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
 import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
 
+// Categories Module
+import { CategoriesModule } from '@module/categories.module';
+
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductOrmEntity]),
+    TypeOrmModule.forFeature([ProductOrmEntity, UserOrmEntity]),
     ConfigModule.forRoot(),
     S3StorageModule,
+    CategoriesModule,
   ],
   controllers: [ProductController],
   providers: [

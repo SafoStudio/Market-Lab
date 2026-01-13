@@ -564,7 +564,7 @@ export class CategoryResponseDtoSwagger {
   categoriesWithCount: Array<{ name: string; count: number }>;
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseProductDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,

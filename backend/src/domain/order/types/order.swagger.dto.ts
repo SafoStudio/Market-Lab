@@ -612,7 +612,7 @@ export class PendingOrdersResponseDtoSwagger {
   orders: OrderResponseDtoSwagger[];
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseOrderDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,

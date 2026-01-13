@@ -146,7 +146,7 @@ export class EmailResponseDtoSwagger {
   message: string;
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseAuthDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,
