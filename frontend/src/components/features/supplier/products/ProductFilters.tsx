@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useProductStore } from '@/core/store/productStore';
 import { ProductStatus } from '@/core/types/productTypes';
+import { useCategories } from '@/core/hooks';
 
 export function ProductFilters() {
   const {
@@ -18,6 +19,8 @@ export function ProductFilters() {
 
   const products = useProductStore(state => state.products);
 
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+
   // Statistics for information
   const stats = useMemo(() => {
     const total = products.length;
@@ -28,16 +31,28 @@ export function ProductFilters() {
     return { total, active, lowStock, outOfStock };
   }, [products]);
 
-  // Extract unique categories
-  const categories = useMemo(() => {
-    const uniqueCategories = new Set<string>();
+  // Get category name by ID
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories.find(c => c.id === categoryId);
+    return category?.name || categoryId;
+  };
+
+  // Extract unique categories from products
+  const uniqueCategories = useMemo(() => {
+    const categoryIds = new Set<string>();
     products.forEach(product => {
-      if (product.category) {
-        uniqueCategories.add(product.category);
+      if (product.categoryId) {
+        categoryIds.add(product.categoryId);
       }
     });
-    return Array.from(uniqueCategories).sort();
-  }, [products]);
+
+    return Array.from(categoryIds)
+      .map(categoryId => ({
+        id: categoryId,
+        name: getCategoryName(categoryId)
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [products, categories]);
 
   // local state
   const [search, setSearch] = useState(storeSearchQuery || '');
@@ -151,12 +166,15 @@ export function ProductFilters() {
             <select
               value={category}
               onChange={handleCategoryChange}
-              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+              disabled={isLoadingCategories}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
             >
-              <option value="all">All Categories ({categories.length})</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              <option value="all">
+                {isLoadingCategories ? 'Loading categories...' : `All Categories (${uniqueCategories.length})`}
+              </option>
+              {uniqueCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
                 </option>
               ))}
             </select>
@@ -285,7 +303,7 @@ export function ProductFilters() {
 
             {storeSelectedCategory && (
               <div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
-                <span>Category: {storeSelectedCategory}</span>
+                <span>Category: {getCategoryName(storeSelectedCategory)}</span>
                 <button
                   onClick={() => {
                     setCategory('all');

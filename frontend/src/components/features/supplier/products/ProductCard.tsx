@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import { Product, ProductStatus } from '@/core/types/productTypes';
+import { useCategoryById } from '@/core/hooks';
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +23,8 @@ export const ProductCard = memo(function ProductCard({
     draft: 'bg-yellow-100 text-yellow-800',
     archived: 'bg-red-100 text-red-800',
   };
+
+  const { data: category } = useCategoryById(product.categoryId);
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden border hover:shadow-md transition-shadow">
@@ -62,7 +65,7 @@ export const ProductCard = memo(function ProductCard({
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
 
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <span className="bg-gray-100 px-2 py-1 rounded">#{product.category}</span>
+          <span className="bg-gray-100 px-2 py-1 rounded">#{category?.name}</span>
           <span className={`${product.stock < 10 ? 'text-red-600' : 'text-gray-600'}`}>
             Stock: {product.stock}
           </span>
