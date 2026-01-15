@@ -15,6 +15,8 @@ export interface ProductImageStorage {
     productName: string
   ): Promise<void>;
 
+  deleteImageByUrl(imageUrl: string): Promise<void>;
+
   uploadSupplierLogo(
     file: Express.Multer.File,
     supplierCompanyName: string

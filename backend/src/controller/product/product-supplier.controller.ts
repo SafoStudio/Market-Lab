@@ -1,5 +1,5 @@
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ProductService } from '@domain/products/product.service';
+import { ProductService } from '@domain/products/services/product.service';
 import { SupplierOnly } from '@auth/decorators';
 import { ParseAndValidateDto } from '@shared/decorators';
 import type { AuthRequest } from '@auth/types';

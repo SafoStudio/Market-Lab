@@ -37,6 +37,7 @@ export abstract class ProductRepository implements
     data: ProductDomainEntity[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }>;
 

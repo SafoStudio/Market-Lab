@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ProductService } from '@domain/products/product.service';
+import { ProductService } from '@domain/products/services/product.service';
 import { SupplierOrAdmin, Auth } from '@auth/decorators';
 import { ParseFormDataJson } from '@shared/decorators';
 import type { AuthRequest } from '@auth/types';

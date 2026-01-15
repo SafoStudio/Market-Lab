@@ -40,6 +40,12 @@ export class S3ProductImageStorageAdapter implements ProductImageStorage {
     await this.s3StorageService.deleteProductImages(supplierCompanyName, productName);
   }
 
+  async deleteImageByUrl(imageUrl: string): Promise<void> {
+    const url = new URL(imageUrl);
+    const fileKey = url.pathname.substring(1);
+    await this.s3StorageService.deleteSupplierDocument(fileKey);
+  }
+
   async uploadSupplierLogo(
     file: Express.Multer.File,
     supplierCompanyName: string

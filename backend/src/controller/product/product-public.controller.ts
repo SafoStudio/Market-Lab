@@ -1,4 +1,4 @@
-import { ProductService } from '@domain/products/product.service';
+import { ProductService } from '@domain/products/services/product.service';
 
 import {
   Controller, Get, Param,

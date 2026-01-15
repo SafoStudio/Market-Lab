@@ -35,3 +35,27 @@ export interface ProductModel extends Entity {
   status: ProductStatus;
   tags: string[];
 }
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CategoryWithCount {
+  category: string;
+  count: number;
+}
+
+export interface ProductStatistics {
+  total: number;
+  active: number;
+  inactive: number;
+  archived: number;
+  draft: number;
+  totalStock: number;
+  averagePrice: number;
+  categoriesCount: number;
+}

@@ -3,8 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
 // Domain services
-import { ProductService } from '@domain/products/product.service';
-import { ProductFileService } from '@domain/products/product-file.service';
+import {
+  ProductService,
+  ProductCoreService,
+  ProductManagementService,
+  ProductOwnerService,
+  ProductFileService
+} from '@domain/products/services';
 
 // Controllers
 import {
@@ -43,11 +48,11 @@ import { CategoriesModule } from '@module/categories.module';
     ProductSharedController
   ],
   providers: [
-    // Main product service
-    ProductService,
-
-    // Service for working with product files
+    ProductCoreService,
+    ProductManagementService,
+    ProductOwnerService,
     ProductFileService,
+    ProductService,
 
     // Product repository
     {
@@ -66,7 +71,6 @@ import { CategoriesModule } from '@module/categories.module';
   ],
   exports: [
     ProductService,
-    ProductFileService,
   ],
 })
 export class ProductModule { }

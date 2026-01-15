@@ -1,0 +1,5 @@
+export * from './product-core.service'
+export * from './product-file.service'
+export * from './product-manage.service'
+export * from './product-owner.service'
+export * from './product.service'

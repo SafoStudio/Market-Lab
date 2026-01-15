@@ -1,6 +1,6 @@
 import { CustomerOnly } from '@auth/decorators';
 import type { AuthRequest } from '@auth/types';
-import { ProductService } from '@domain/products/product.service';
+import { ProductService } from '@domain/products/services/product.service';
 import { PurchaseProductDtoSwagger } from '@domain/products/types';
 
 import {

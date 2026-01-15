@@ -79,6 +79,7 @@ export class PostgresProductRepository extends DomainProductRepository {
     data: ProductDomainEntity[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }> {
     const skip = (page - 1) * limit;
@@ -92,6 +93,7 @@ export class PostgresProductRepository extends DomainProductRepository {
       data: entities.map(this._toDomainEntity),
       total,
       page,
+      limit,
       totalPages: Math.ceil(total / limit)
     };
   }

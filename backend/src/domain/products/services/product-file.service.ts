@@ -1,5 +1,6 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
-import type { ProductImageStorage } from './types';
+import type { ProductImageStorage } from '../types';
+
 
 @Injectable()
 export class ProductFileService {
@@ -13,7 +14,7 @@ export class ProductFileService {
     supplierCompanyName: string,
     productName: string
   ): Promise<string[]> {
-    this.validateImages(files);
+    this._validateImages(files);
     return this.productImageStorage.uploadProductImages(files, supplierCompanyName, productName);
   }
 
@@ -21,7 +22,7 @@ export class ProductFileService {
     file: Express.Multer.File,
     supplierCompanyName: string
   ): Promise<string> {
-    this.validateImage(file);
+    this._validateImage(file);
     return this.productImageStorage.uploadSupplierLogo(file, supplierCompanyName);
   }
 
@@ -32,6 +33,11 @@ export class ProductFileService {
     return this.productImageStorage.deleteProductImages(supplierCompanyName, productName);
   }
 
+  async deleteImageByUrl(imageUrl: string): Promise<void> {
+    this._validateImageUrl(imageUrl);
+    await this.productImageStorage.deleteImageByUrl(imageUrl);
+  }
+
   async getProductImageUrls(
     supplierCompanyName: string,
     productName: string
@@ -39,7 +45,7 @@ export class ProductFileService {
     return this.productImageStorage.getProductImageUrls(supplierCompanyName, productName);
   }
 
-  private validateImage(file: Express.Multer.File): void {
+  private _validateImage(file: Express.Multer.File): void {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -49,16 +55,20 @@ export class ProductFileService {
       );
     }
 
-    if (file.size > maxSize) {
-      throw new BadRequestException('File size exceeds 5MB limit');
-    }
+    if (file.size > maxSize) throw new BadRequestException('File size exceeds 5MB limit');
   }
 
-  private validateImages(files: Express.Multer.File[]): void {
+  private _validateImages(files: Express.Multer.File[]): void {
     const maxFiles = 10;
-    if (files.length > maxFiles) {
-      throw new BadRequestException(`Maximum ${maxFiles} files allowed`);
+    if (files.length > maxFiles) throw new BadRequestException(`Maximum ${maxFiles} files allowed`);
+    files.forEach(file => this._validateImage(file));
+  }
+
+  private _validateImageUrl(imageUrl: string): void {
+    try {
+      new URL(imageUrl);
+    } catch (error) {
+      throw new BadRequestException('Invalid image URL format');
     }
-    files.forEach(file => this.validateImage(file));
   }
 }
