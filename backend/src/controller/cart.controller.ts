@@ -38,7 +38,7 @@ import {
   CartCheckoutResponseDtoSwagger,
   ExpiredCartsResponseDtoSwagger,
   SupplierCartStatsResponseDtoSwagger,
-  SuccessResponseDtoSwagger
+  SuccessResponseCartDtoSwagger
 } from '@domain/cart/types/cart.swagger.dto';
 
 @ApiTags('cart')
@@ -279,7 +279,7 @@ export class CartController {
   })
   @ApiOkResponse({
     description: 'Expired carts cleaned up successfully',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponseCartDtoSwagger,
   })
   async cleanupExpiredCarts() {
     return this.cartService.cleanupExpiredCarts();

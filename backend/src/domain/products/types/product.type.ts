@@ -8,6 +8,14 @@ export const PRODUCT_STATUS = {
   DRAFT: 'draft'
 } as const;
 
+// for class-validator
+export enum ProductStatusEnum {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  ARCHIVED = 'archived',
+  DRAFT = 'draft'
+}
+
 export type ProductStatus = typeof PRODUCT_STATUS[keyof typeof PRODUCT_STATUS];
 
 export const DEFAULT_CATEGORY = 'general';
@@ -20,9 +28,33 @@ export interface ProductModel extends Entity {
   description: string;
   price: number;
   supplierId: string;
-  category: string;
+  categoryId?: string,
+  subcategoryId?: string,
   images: string[];
   stock: number;
   status: ProductStatus;
   tags: string[];
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CategoryWithCount {
+  category: string;
+  count: number;
+}
+
+export interface ProductStatistics {
+  total: number;
+  active: number;
+  inactive: number;
+  archived: number;
+  draft: number;
+  totalStock: number;
+  averagePrice: number;
 }

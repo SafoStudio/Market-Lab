@@ -37,6 +37,7 @@ export abstract class ProductRepository implements
     data: ProductDomainEntity[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }>;
 
@@ -44,9 +45,6 @@ export abstract class ProductRepository implements
 
   // Search by supplier
   abstract findBySupplierId(supplierId: string): Promise<ProductDomainEntity[]>;
-
-  // Search by category
-  abstract findByCategory(category: string): Promise<ProductDomainEntity[]>;
 
   // Search by status
   abstract findByStatus(status: ProductStatus): Promise<ProductDomainEntity[]>;
@@ -105,11 +103,17 @@ export abstract class ProductRepository implements
   // Getting products by ID array
   abstract findByIds(ids: string[]): Promise<ProductDomainEntity[]>;
 
-  // Getting categories with product counts
-  abstract getCategoriesWithCount(): Promise<Array<{ category: string; count: number }>>;
+  // Search by category ID
+  abstract findByCategoryId(categoryId: string): Promise<ProductDomainEntity[]>;
 
-  // Getting popular tags
-  abstract getPopularTags(limit?: number): Promise<Array<{ tag: string; count: number }>>;
+  // Search by subcategory ID
+  abstract findBySubcategoryId(subcategoryId: string): Promise<ProductDomainEntity[]>;
+
+  // Search by category and subcategory
+  abstract findByCategoryAndSubcategory(
+    categoryId: string,
+    subcategoryId?: string
+  ): Promise<ProductDomainEntity[]>;
 
   // Getting statistics
   abstract getStatistics(): Promise<{
@@ -120,6 +124,5 @@ export abstract class ProductRepository implements
     draft: number;
     totalStock: number;
     averagePrice: number;
-    categoriesCount: number;
   }>;
 }

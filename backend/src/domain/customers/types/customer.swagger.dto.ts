@@ -305,7 +305,7 @@ export class CustomersListResponseDtoSwagger {
   totalPages: number;
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseCustomerDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,

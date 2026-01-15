@@ -1,341 +1,387 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  ForbiddenException,
-  BadRequestException
-} from "@nestjs/common";
+// !temp
 
-import {
-  ProductStatus,
-  PRODUCT_STATUS,
-  CreateProductDto,
-  UpdateProductDto,
-  PurchaseProductDto,
-  RestockProductDto
-} from "./types";
+// import {
+//   Injectable,
+//   Inject,
+//   NotFoundException,
+//   ForbiddenException,
+//   BadRequestException
+// } from "@nestjs/common";
+// import { InjectRepository } from "@nestjs/typeorm";
+// import { Repository } from "typeorm";
 
-import { Role } from '@shared/types';
-import { ProductRepository } from "./product.repository";
-import { ProductDomainEntity } from "./product.entity";
-import { ProductFileService } from "./product-file.service";
+// import {
+//   ProductStatus,
+//   PRODUCT_STATUS,
+//   CreateProductDto,
+//   UpdateProductDto,
+//   PurchaseProductDto,
+//   RestockProductDto
+// } from "./types";
 
+// import { Role } from '@shared/types';
+// import { ProductRepository } from "./product.repository";
+// import { ProductDomainEntity } from "./product.entity";
+// import { ProductFileService } from "./services/product-file.service";
+// import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
 
-@Injectable()
-export class ProductService {
-  constructor(
-    @Inject('ProductRepository')
-    private readonly productRepository: ProductRepository,
-    private readonly productFileService: ProductFileService
-  ) { }
+// @Injectable()
+// export class ProductService {
+//   constructor(
+//     @Inject('ProductRepository')
+//     private readonly productRepository: ProductRepository,
+//     private readonly productFileService: ProductFileService,
+//     @InjectRepository(UserOrmEntity)
+//     private readonly usersRepository: Repository<UserOrmEntity>
+//   ) { }
 
-  // Public methods
+//   // Public methods
+//   async findAll(): Promise<ProductDomainEntity[]> {
+//     return this.productRepository.findActive();
+//   }
 
-  async findAll(): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findActive();
-  }
+//   async findById(id: string): Promise<ProductDomainEntity> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
+//     return product;
+//   }
 
-  async findById(id: string): Promise<ProductDomainEntity> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    return product;
-  }
+//   async searchByText(text: string): Promise<ProductDomainEntity[]> {
+//     return this.productRepository.searchByText(text);
+//   }
 
-  async searchByText(text: string): Promise<ProductDomainEntity[]> {
-    return this.productRepository.searchByText(text);
-  }
+//   async findByCategoryId(id: string): Promise<ProductDomainEntity[]> {
+//     return this.productRepository.findByCategoryId(id);
+//   }
 
-  async findByCategory(category: string): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findByCategory(category);
-  }
+//   async getPaginated(
+//     page: number = 1,
+//     limit: number = 10,
+//     filter?: Partial<ProductDomainEntity>
+//   ) {
+//     return this.productRepository.findWithPagination(page, limit, filter);
+//   }
 
-  async getPaginated(
-    page: number = 1,
-    limit: number = 10,
-    filter?: Partial<ProductDomainEntity>
-  ) {
-    return this.productRepository.findWithPagination(page, limit, filter);
-  }
+//   async getCategories(): Promise<Array<{ category: string; count: number }>> {
+//     return this.productRepository.getCategoriesWithCount();
+//   }
 
-  async getCategories(): Promise<Array<{ category: string; count: number }>> {
-    return this.productRepository.getCategoriesWithCount();
-  }
+//   // Methods for Suppliers
 
-  // Methods for Suppliers
+//   async create(
+//     dto: CreateProductDto,
+//     userId: string,
+//     images?: Express.Multer.File[]
+//   ): Promise<ProductDomainEntity> {
+//     if (!dto.name?.trim()) throw new BadRequestException('Product name is required');
+//     if (!dto.description?.trim()) throw new BadRequestException('Product description is required');
+//     if (dto.price === undefined || dto.price < 0) throw new BadRequestException('Valid price is required');
 
-  async create(
-    dto: CreateProductDto,
-    supplierId: string,
-    images?: Express.Multer.File[]
-  ): Promise<ProductDomainEntity> {
-    // Проверяем уникальность имени у поставщика
-    const exists = await this.productRepository.existsBySupplierAndName(supplierId, dto.name);
-    if (exists) {
-      throw new BadRequestException('Product with this name already exists for your supplier account');
-    }
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
+//     const companyName = await this._getSupplierCompanyName(userId);
 
-    // Создаем продукт (пока без изображений)
-    const product = ProductDomainEntity.create(dto, supplierId);
+//     const exists = await this.productRepository.existsBySupplierAndName(supplierId, dto.name);
+//     if (exists) throw new BadRequestException('Product with this name already exists');
 
-    // Валидируем продукт
-    const errors = product.validate();
-    if (errors.length > 0) throw new BadRequestException(errors.join(', '));
+//     const product = ProductDomainEntity.create(dto, supplierId);
+//     const errors = product.validate();
 
-    const savedProduct = await this.productRepository.create(product);
+//     if (errors.length > 0) throw new BadRequestException(errors.join(', '));
 
-    if (images && images.length > 0) {
-      try {
-        const imageUrls = await this.productFileService.uploadProductImages(
-          images,
-          supplierId,
-          savedProduct.id
-        );
+//     const savedProduct = await this.productRepository.create(product);
 
-        if (imageUrls.length > 0) {
-          await this.productRepository.update(savedProduct.id, {
-            images: imageUrls
-          });
+//     if (images?.length) {
+//       try {
+//         const imageUrls = await this.productFileService.uploadProductImages(
+//           images,
+//           companyName,
+//           savedProduct.name
+//         );
 
-          savedProduct.images = imageUrls;
-        }
-      } catch (error) {
-        console.error('Failed to upload product images:', error);
-      }
-    }
+//         if (imageUrls.length) {
+//           await this.productRepository.update(savedProduct.id, {
+//             images: imageUrls
+//           });
 
-    return savedProduct;
-  }
+//           savedProduct.images = imageUrls;
+//         }
+//       } catch (error) {
+//         console.error('Failed to upload images:', error);
+//       }
+//     }
 
-  async update(
-    id: string,
-    dto: UpdateProductDto,
-    userId: string,
-    userRoles: string[],
-    newImages?: Express.Multer.File[]
-  ): Promise<ProductDomainEntity> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    // Checking rights
-    this._checkProductOwnership(product, userId, userRoles, 'update');
-    // If there are new images, load them
-    let allImageUrls = [...product.images];
+//     return savedProduct;
+//   }
 
-    if (newImages && newImages.length > 0) {
-      try {
-        const newImageUrls = await this.productFileService.uploadProductImages(
-          newImages,
-          product.supplierId,
-          id
-        );
+//   async update(
+//     id: string,
+//     dto: UpdateProductDto,
+//     userId: string,
+//     userRoles: string[],
+//     newImages?: Express.Multer.File[]
+//   ): Promise<ProductDomainEntity> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
 
-        allImageUrls = [...allImageUrls, ...newImageUrls];
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
+//     this._checkProductOwnership(product, supplierId, userRoles, 'update');
 
-        dto.images = allImageUrls;
-      } catch (error) {
-        console.error('Failed to upload new images:', error);
-      }
-    }
+//     let allImageUrls = [...product.images];
 
-    const updatedProduct = await this.productRepository.update(id, dto);
-    if (!updatedProduct) throw new NotFoundException(`Product ${id} not found after update`);
+//     if (newImages?.length) {
+//       try {
+//         const newImageUrls = await this.productFileService.uploadProductImages(
+//           newImages,
+//           supplierId,
+//           id
+//         );
 
-    return updatedProduct;
-  }
+//         allImageUrls = [...allImageUrls, ...newImageUrls];
+//         dto.images = allImageUrls;
+//       } catch (error) { }
+//     }
 
-  async delete(
-    id: string,
-    userId: string,
-    userRoles: string[]
-  ): Promise<void> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
+//     const updatedProduct = await this.productRepository.update(id, dto);
+//     if (!updatedProduct) throw new NotFoundException(`Product ${id} not found after update`);
 
-    this._checkProductOwnership(product, userId, userRoles, 'delete');
+//     return updatedProduct;
+//   }
 
-    // Delete images from storage
-    try {
-      await this.productFileService.deleteProductImages(product.supplierId, id);
-    } catch (error) {
-      console.error(`Failed to delete product images: ${error.message}`);
-    }
+//   async delete(
+//     id: string,
+//     userId: string,
+//     userRoles: string[]
+//   ): Promise<void> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
 
-    return this.productRepository.delete(id);
-  }
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
+//     const companyName = await this._getSupplierCompanyName(userId);
 
-  async addImages(
-    productId: string,
-    userId: string,
-    userRoles: string[],
-    images: Express.Multer.File[]
-  ): Promise<string[]> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) throw new NotFoundException(`Product ${productId} not found`);
+//     this._checkProductOwnership(product, supplierId, userRoles, 'delete');
 
-    this._checkProductOwnership(product, userId, userRoles, 'add images');
+//     try {
+//       await this.productFileService.deleteProductImages(companyName, product.name);
+//     } catch (error) {
+//       console.error(`Failed to delete product images: ${error.message}`);
+//     }
 
-    const uploadedUrls = await this.productFileService.uploadProductImages(
-      images,
-      product.supplierId,
-      productId
-    );
+//     return this.productRepository.delete(id);
+//   }
 
-    // Update the array of images in the product
-    if (uploadedUrls.length > 0) {
-      const updatedImages = [...product.images, ...uploadedUrls];
-      await this.productRepository.update(productId, {
-        images: updatedImages
-      });
-    }
+//   async addImages(
+//     productId: string,
+//     userId: string,
+//     userRoles: string[],
+//     images: Express.Multer.File[]
+//   ): Promise<string[]> {
+//     const product = await this.productRepository.findById(productId);
+//     if (!product) throw new NotFoundException(`Product ${productId} not found`);
 
-    return uploadedUrls;
-  }
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
+//     const companyName = await this._getSupplierCompanyName(userId);
 
-  async removeImage(
-    productId: string,
-    userId: string,
-    userRoles: string[],
-    imageUrl: string
-  ): Promise<void> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) throw new NotFoundException(`Product ${productId} not found`);
+//     this._checkProductOwnership(product, supplierId, userRoles, 'add images');
 
-    this._checkProductOwnership(product, userId, userRoles, 'remove image');
+//     const uploadedUrls = await this.productFileService.uploadProductImages(
+//       images,
+//       companyName,
+//       product.name
+//     );
 
-    const updatedImages = product.images.filter(img => img !== imageUrl);
-    await this.productRepository.update(productId, {
-      images: updatedImages
-    });
+//     if (uploadedUrls.length > 0) {
+//       const updatedImages = [...product.images, ...uploadedUrls];
+//       await this.productRepository.update(productId, {
+//         images: updatedImages
+//       });
+//     }
 
-    // TODO: удалить файл из хранилища
-    // Нужно извлечь key из URL и вызвать storage.delete(key)
-  }
+//     return uploadedUrls;
+//   }
 
-  async getSupplierProducts(
-    supplierId: string,
-    userId: string,
-    userRoles: string[]
-  ): Promise<ProductDomainEntity[]> {
-    // Only the supplier or the admin
-    if (supplierId !== userId && !userRoles.includes(Role.ADMIN)) {
-      throw new ForbiddenException('You can only view your own products');
-    }
-    return this.productRepository.findBySupplierId(supplierId);
-  }
+//   async removeImage(
+//     productId: string,
+//     userId: string,
+//     userRoles: string[],
+//     imageUrl: string
+//   ): Promise<void> {
+//     const product = await this.productRepository.findById(productId);
+//     if (!product) throw new NotFoundException(`Product ${productId} not found`);
 
-  async restockProduct(
-    id: string,
-    dto: RestockProductDto,
-    userId: string,
-    userRoles: string[]
-  ): Promise<ProductDomainEntity | null> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    // product ownership
-    this._checkProductOwnership(product, userId, userRoles, 'restock');
-    if (dto.quantity <= 0) throw new BadRequestException('Quantity must be positive');
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
 
-    return this.productRepository.increaseStock(id, dto.quantity);
-  }
+//     this._checkProductOwnership(product, supplierId, userRoles, 'remove image');
 
-  async toggleStatus(
-    id: string,
-    status: ProductStatus,
-    userId: string,
-    userRoles: string[]
-  ): Promise<ProductDomainEntity | null> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    // product ownership
-    this._checkProductOwnership(product, userId, userRoles, 'change status');
+//     const updatedImages = product.images.filter(img => img !== imageUrl);
+//     await this.productRepository.update(productId, {
+//       images: updatedImages
+//     });
 
-    return this.productRepository.updateStatus(id, status);
-  }
+//     // TODO: удалить файл из хранилища
+//     // Нужно извлечь key из URL и вызвать storage.delete(key)
+//   }
 
-  // Methods for Customer
+//   async getSupplierProducts(
+//     userId: string,
+//     currentUserId: string,
+//     userRoles: string[]
+//   ): Promise<ProductDomainEntity[]> {
+//     const requestedSupplierId = await this.getSupplierIdFromUserId(userId);
+//     const currentSupplierId = await this.getSupplierIdFromUserId(currentUserId);
 
-  async purchase(
-    id: string,
-    dto: PurchaseProductDto,
-    customerId: string
-  ): Promise<ProductDomainEntity> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    if (!product.isAvailable()) throw new BadRequestException('Product is not available for purchase');
-    if (product.stock < dto.quantity) throw new BadRequestException('Insufficient stock');
+//     // Only the supplier or the admin
+//     if (requestedSupplierId !== currentSupplierId && !userRoles.includes(Role.ADMIN)) {
+//       throw new ForbiddenException('You can only view your own products');
+//     }
 
-    // Decrease the remainder
-    const updatedProduct = await this.productRepository.decreaseStock(id, dto.quantity);
-    if (!updatedProduct) throw new BadRequestException('Failed to process purchase');
+//     return this.productRepository.findBySupplierId(requestedSupplierId);
+//   }
 
-    //! Здесь должна быть логика создания заказа
-    // await this.orderService.createOrder({
-    //   productId: id,
-    //   customerId,
-    //   quantity: dto.quantity,
-    //   totalPrice: product.price * dto.quantity,
-    //   shippingAddress: dto.shippingAddress,
-    //   paymentMethod: dto.paymentMethod
-    // });
+//   async restockProduct(
+//     id: string,
+//     dto: RestockProductDto,
+//     userId: string, // userId, а не supplierId
+//     userRoles: string[]
+//   ): Promise<ProductDomainEntity | null> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
 
-    return updatedProduct;
-  }
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
 
-  // Methods for Admins
+//     // product ownership
+//     this._checkProductOwnership(product, supplierId, userRoles, 'restock');
+//     if (dto.quantity <= 0) throw new BadRequestException('Quantity must be positive');
 
-  async getStatistics(): Promise<any> {
-    return this.productRepository.getStatistics();
-  }
+//     return this.productRepository.increaseStock(id, dto.quantity);
+//   }
 
-  async getAllProducts(
-    filter?: Partial<ProductDomainEntity>
-  ): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findMany(filter || {});
-  }
+//   async toggleStatus(
+//     id: string,
+//     status: ProductStatus,
+//     userId: string, // userId, а не supplierId
+//     userRoles: string[]
+//   ): Promise<ProductDomainEntity | null> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
 
-  async forceDelete(id: string): Promise<void> {
-    const exists = await this.productRepository.exists(id);
-    if (!exists) throw new NotFoundException(`Product ${id} not found`);
+//     const supplierId = await this.getSupplierIdFromUserId(userId);
 
-    return this.productRepository.delete(id);
-  }
+//     // product ownership
+//     this._checkProductOwnership(product, supplierId, userRoles, 'change status');
 
-  async activateProduct(id: string): Promise<ProductDomainEntity | null> {
-    return this.productRepository.updateStatus(id, PRODUCT_STATUS.ACTIVE);
-  }
+//     return this.productRepository.updateStatus(id, status);
+//   }
 
-  async deactivateProduct(id: string): Promise<ProductDomainEntity | null> {
-    return this.productRepository.updateStatus(id, PRODUCT_STATUS.INACTIVE);
-  }
+//   // Methods for Customer
+//   async purchase(
+//     id: string,
+//     dto: PurchaseProductDto,
+//     customerId: string
+//   ): Promise<ProductDomainEntity> {
+//     const product = await this.productRepository.findById(id);
+//     if (!product) throw new NotFoundException(`Product ${id} not found`);
+//     if (!product.isAvailable()) throw new BadRequestException('Product is not available for purchase');
+//     if (product.stock < dto.quantity) throw new BadRequestException('Insufficient stock');
 
-  // Auxiliary methods
+//     // Decrease the remainder
+//     const updatedProduct = await this.productRepository.decreaseStock(id, dto.quantity);
+//     if (!updatedProduct) throw new BadRequestException('Failed to process purchase');
 
-  private _checkProductOwnership(
-    product: ProductDomainEntity,
-    userId: string,
-    userRoles: string[],
-    action: string
-  ): void {
-    //! admins can do everything
-    if (userRoles.includes(Role.ADMIN)) return;
+//     return updatedProduct;
+//   }
 
-    // Suppliers can only manage their own products
-    if (userRoles.includes(Role.SUPPLIER)) {
-      if (!product.isOwnedBy(userId)) {
-        throw new ForbiddenException(`You don't have permission to ${action} this product`);
-      }
-      return;
-    }
+//   // Methods for Admins
+//   async getStatistics(): Promise<any> {
+//     return this.productRepository.getStatistics();
+//   }
 
-    throw new ForbiddenException(`You don't have permission to ${action} products`);
-  }
+//   async getAllProducts(
+//     filter?: Partial<ProductDomainEntity>
+//   ): Promise<ProductDomainEntity[]> {
+//     return this.productRepository.findMany(filter || {});
+//   }
 
-  async checkOwnership(productId: string, userId: string): Promise<boolean> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) return false;
-    return product.isOwnedBy(userId);
-  }
+//   async forceDelete(id: string): Promise<void> {
+//     const exists = await this.productRepository.exists(id);
+//     if (!exists) throw new NotFoundException(`Product ${id} not found`);
 
-  async getLowStockProducts(threshold: number = 10): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findLowStock(threshold);
-  }
-}
+//     return this.productRepository.delete(id);
+//   }
+
+//   async activateProduct(id: string): Promise<ProductDomainEntity | null> {
+//     return this.productRepository.updateStatus(id, PRODUCT_STATUS.ACTIVE);
+//   }
+
+//   async deactivateProduct(id: string): Promise<ProductDomainEntity | null> {
+//     return this.productRepository.updateStatus(id, PRODUCT_STATUS.INACTIVE);
+//   }
+
+//   // Auxiliary methods
+
+//   private _checkProductOwnership(
+//     product: ProductDomainEntity,
+//     supplierId: string,
+//     userRoles: string[],
+//     action: string
+//   ): void {
+//     //! admins can do everything
+//     if (userRoles.includes(Role.ADMIN)) return;
+
+//     // Suppliers can only manage their own products
+//     if (userRoles.includes(Role.SUPPLIER)) {
+//       if (!product.isOwnedBy(supplierId)) {
+//         throw new ForbiddenException(`You don't have permission to ${action} this product`);
+//       }
+//       return;
+//     }
+
+//     throw new ForbiddenException(`You don't have permission to ${action} products`);
+//   }
+
+//   async checkOwnership(productId: string, userId: string): Promise<boolean> {
+//     const product = await this.productRepository.findById(productId);
+//     if (!product) return false;
+
+//     try {
+//       const supplierId = await this.getSupplierIdFromUserId(userId);
+//       return product.isOwnedBy(supplierId);
+//     } catch {
+//       return false;
+//     }
+//   }
+
+//   async getLowStockProducts(threshold: number = 10): Promise<ProductDomainEntity[]> {
+//     return this.productRepository.findLowStock(threshold);
+//   }
+
+//   // Helper method to get supplierId from userId
+//   private async getSupplierIdFromUserId(userId: string): Promise<string> {
+//     const user = await this.usersRepository.findOne({
+//       where: { id: userId },
+//       relations: ['supplierProfile']
+//     });
+
+//     if (!user) {
+//       throw new NotFoundException(`User ${userId} not found`);
+//     }
+
+//     if (!user.supplierProfile) {
+//       throw new BadRequestException('User is not registered as a supplier');
+//     }
+
+//     return user.supplierProfile.id;
+//   }
+
+//   private async _getSupplierCompanyName(userId: string): Promise<string> {
+//     const user = await this.usersRepository.findOne({
+//       where: { id: userId },
+//       relations: ['supplierProfile']
+//     });
+
+//     if (!user || !user.supplierProfile) {
+//       throw new BadRequestException('User is not registered as a supplier');
+//     }
+
+//     return user.supplierProfile.companyName;
+//   }
+// }

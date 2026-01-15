@@ -398,7 +398,7 @@ export class SupplierCartStatsResponseDtoSwagger {
   timePeriodStats: Record<string, { carts: number; revenue: number }>;
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseCartDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,

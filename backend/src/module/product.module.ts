@@ -3,34 +3,56 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
 // Domain services
-import { ProductService } from '@domain/products/product.service';
-import { ProductFileService } from '@domain/products/product-file.service';
+import {
+  ProductService,
+  ProductCoreService,
+  ProductManagementService,
+  ProductOwnerService,
+  ProductFileService
+} from '@domain/products/services';
 
 // Controllers
-import { ProductController } from '@controller/product.controller';
+import {
+  ProductPublicController,
+  ProductSupplierController,
+  ProductCustomerController,
+  ProductAdminController,
+  ProductSharedController
+} from '@controller/product';
 
 // Database infrastructure
 import { ProductOrmEntity } from '@infrastructure/database/postgres/products/product.entity';
 import { PostgresProductRepository } from '@infrastructure/database/postgres/products/product.repository';
+import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
 
 // S3 Storage
 import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
-import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
+import { S3ProductImageStorageAdapter } from '@infrastructure/storage/s3-product-img.adapter';
+
+// Categories Module
+import { CategoriesModule } from '@module/categories.module';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductOrmEntity]),
+    TypeOrmModule.forFeature([ProductOrmEntity, UserOrmEntity]),
     ConfigModule.forRoot(),
     S3StorageModule,
+    CategoriesModule,
   ],
-  controllers: [ProductController],
+  controllers: [
+    ProductPublicController,
+    ProductSupplierController,
+    ProductCustomerController,
+    ProductAdminController,
+    ProductSharedController
+  ],
   providers: [
-    // Main product service
-    ProductService,
-
-    // Service for working with product files
+    ProductCoreService,
+    ProductManagementService,
+    ProductOwnerService,
     ProductFileService,
+    ProductService,
 
     // Product repository
     {
@@ -40,17 +62,15 @@ import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
 
     // S3 storage via abstract interface
     {
-      provide: 'FileStorage',
-      useExisting: S3StorageService,
+      provide: 'ProductImageStorage',
+      useExisting: S3ProductImageStorageAdapter,
     },
 
-    // If direct access to the S3 service is needed
-    S3StorageService,
+    // Direct access to the S3 service
+    S3ProductImageStorageAdapter,
   ],
   exports: [
     ProductService,
-    ProductFileService,
-    S3StorageService,
   ],
 })
 export class ProductModule { }

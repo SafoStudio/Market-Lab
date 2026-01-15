@@ -1,0 +1,340 @@
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
+import { useProductStore } from '@/core/store/productStore';
+import { ProductStatus } from '@/core/types/productTypes';
+import { useCategories } from '@/core/hooks';
+
+export function ProductFilters() {
+  const {
+    setSearchQuery,
+    setSelectedCategory,
+    setStatusFilter,
+    applyFilters,
+    clearFilters,
+    searchQuery: storeSearchQuery,
+    selectedCategory: storeSelectedCategory,
+    statusFilter: storeStatusFilter
+  } = useProductStore();
+
+  const products = useProductStore(state => state.products);
+
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+
+  // Statistics for information
+  const stats = useMemo(() => {
+    const total = products.length;
+    const active = products.filter(p => p.status === 'active').length;
+    const lowStock = products.filter(p => p.stock <= 10 && p.stock > 0).length;
+    const outOfStock = products.filter(p => p.stock === 0).length;
+
+    return { total, active, lowStock, outOfStock };
+  }, [products]);
+
+  // Get category name by ID
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories.find(c => c.id === categoryId);
+    return category?.name || categoryId;
+  };
+
+  // Extract unique categories from products
+  const uniqueCategories = useMemo(() => {
+    const categoryIds = new Set<string>();
+    products.forEach(product => {
+      if (product.categoryId) {
+        categoryIds.add(product.categoryId);
+      }
+    });
+
+    return Array.from(categoryIds)
+      .map(categoryId => ({
+        id: categoryId,
+        name: getCategoryName(categoryId)
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [products, categories]);
+
+  // local state
+  const [search, setSearch] = useState(storeSearchQuery || '');
+  const [category, setCategory] = useState(storeSelectedCategory || 'all');
+  const [status, setStatus] = useState<ProductStatus | 'all'>(storeStatusFilter);
+  const [stockFilter, setStockFilter] = useState<string>('all');
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+
+  // Synchronization
+  useEffect(() => {
+    setSearch(storeSearchQuery);
+    setCategory(storeSelectedCategory || 'all');
+    setStatus(storeStatusFilter);
+  }, [storeSearchQuery, storeSelectedCategory, storeStatusFilter]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+    setSearchQuery(value);
+    const timeoutId = setTimeout(() => {
+      applyFilters();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setCategory(value);
+    setSelectedCategory(value === 'all' ? null : value);
+    applyFilters();
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as ProductStatus | 'all';
+    setStatus(value);
+    setStatusFilter(value);
+    applyFilters();
+  };
+
+  const handleStockFilter = (filter: string) => {
+    setStockFilter(filter);
+    //! добавить логику фильтрации по стоку
+    //! добавить соответствующее поле в store
+  };
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setCategory('all');
+    setStatus('all');
+    setStockFilter('all');
+    clearFilters();
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      {/* Header with information */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Product Filters</h2>
+          <p className="text-gray-600 mt-1">
+            Showing {stats.total} products ({stats.active} active, {stats.lowStock} low stock)
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2"
+          >
+            <span>{isAdvancedOpen ? '▲' : '▼'}</span>
+            {isAdvancedOpen ? 'Hide Advanced' : 'Advanced Filters'}
+          </button>
+
+          <button
+            onClick={handleClearFilters}
+            className="px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors flex items-center gap-2"
+          >
+            <span>✕</span>
+            Clear All
+          </button>
+        </div>
+      </div>
+
+      {/* Basic filters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        {/* Search */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Search Products
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearch}
+              placeholder="Search products..."
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              🔍
+            </div>
+          </div>
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Category
+          </label>
+          <div className="relative">
+            <select
+              value={category}
+              onChange={handleCategoryChange}
+              disabled={isLoadingCategories}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
+            >
+              <option value="all">
+                {isLoadingCategories ? 'Loading categories...' : `All Categories (${uniqueCategories.length})`}
+              </option>
+              {uniqueCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              📂
+            </div>
+          </div>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Status
+          </label>
+          <div className="relative">
+            <select
+              value={status}
+              onChange={handleStatusChange}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+            >
+              <option value="all">All Statuses</option>
+              <option value="active">Active ({stats.active})</option>
+              <option value="inactive">Inactive</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              📊
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced filters */}
+      {isAdvancedOpen && (
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Advanced Filters</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Filter by stock */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Status
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleStockFilter('all')}
+                  className={`px-3 py-2 rounded-md transition-colors ${stockFilter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => handleStockFilter('in-stock')}
+                  className={`px-3 py-2 rounded-md transition-colors ${stockFilter === 'in-stock'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  In Stock
+                </button>
+                <button
+                  onClick={() => handleStockFilter('low-stock')}
+                  className={`px-3 py-2 rounded-md transition-colors ${stockFilter === 'low-stock'
+                    ? 'bg-yellow-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Low Stock ({stats.lowStock})
+                </button>
+                <button
+                  onClick={() => handleStockFilter('out-of-stock')}
+                  className={`px-3 py-2 rounded-md transition-colors ${stockFilter === 'out-of-stock'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Out of Stock ({stats.outOfStock})
+                </button>
+              </div>
+            </div>
+
+            {/* Sorting */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sort By
+              </label>
+              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="stock-low">Stock: Low to High</option>
+                <option value="stock-high">Stock: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active filters */}
+      {(storeSearchQuery || storeSelectedCategory || storeStatusFilter !== 'all') && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Active filters:</span>
+
+            {storeSearchQuery && (
+              <div className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+                <span>Search: "{storeSearchQuery}"</span>
+                <button
+                  onClick={() => {
+                    setSearch('');
+                    setSearchQuery('');
+                    applyFilters();
+                  }}
+                  className="ml-1 text-blue-700 hover:text-blue-900"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {storeSelectedCategory && (
+              <div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
+                <span>Category: {getCategoryName(storeSelectedCategory)}</span>
+                <button
+                  onClick={() => {
+                    setCategory('all');
+                    setSelectedCategory(null);
+                    applyFilters();
+                  }}
+                  className="ml-1 text-green-700 hover:text-green-900"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {storeStatusFilter !== 'all' && (
+              <div className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm">
+                <span>Status: {storeStatusFilter}</span>
+                <button
+                  onClick={() => {
+                    setStatus('all');
+                    setStatusFilter('all');
+                    applyFilters();
+                  }}
+                  className="ml-1 text-purple-700 hover:text-purple-900"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

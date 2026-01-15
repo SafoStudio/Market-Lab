@@ -31,7 +31,7 @@ import {
   PaypalWebhookDtoSwagger,
   SimulatePaymentDtoSwagger,
   WebhookResponseDtoSwagger,
-  SuccessResponseDtoSwagger,
+  SuccessResponsePaymentDtoSwagger,
 } from '@domain/payment/types/payment.swagger.dto';
 
 
@@ -148,7 +148,7 @@ export class PaymentWebhookController {
   @ApiBody({ type: SimulatePaymentDtoSwagger })
   @ApiOkResponse({
     description: 'Payment simulation successful',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponsePaymentDtoSwagger,
   })
   @ApiBadRequestResponse({
     description: 'Invalid payment ID or missing required fields',
@@ -187,7 +187,7 @@ export class PaymentWebhookController {
   @ApiBody({ type: SimulatePaymentDtoSwagger })
   @ApiOkResponse({
     description: 'Payment simulation successful',
-    type: SuccessResponseDtoSwagger,
+    type: SuccessResponsePaymentDtoSwagger,
   })
   @ApiBadRequestResponse({
     description: 'Invalid payment ID or missing required fields',

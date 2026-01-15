@@ -1,15 +1,19 @@
 import {
-  Entity,
-  Column,
+  Entity, Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Index
+  Index, ManyToOne,
+  JoinColumn
 } from 'typeorm';
+
+import { CategoryOrmEntity } from '../categories/category.entity';
+import { SupplierProfileOrmEntity } from '../suppliers/supplier.entity';
 
 @Entity('products')
 @Index(['supplierId', 'status'])
-@Index(['category', 'status'])
+@Index(['categoryId', 'status'])
+@Index(['subcategoryId', 'status'])
 @Index(['supplierId', 'name'], { unique: true })
 export class ProductOrmEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -27,8 +31,23 @@ export class ProductOrmEntity {
   @Column({ type: 'uuid' })
   supplierId: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'general' })
-  category: string;
+  @ManyToOne(() => SupplierProfileOrmEntity)
+  @JoinColumn({ name: 'supplierId' })
+  supplier: SupplierProfileOrmEntity;
+
+  @Column({ type: 'uuid', nullable: true })
+  categoryId: string | null;
+
+  @ManyToOne(() => CategoryOrmEntity, { nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: CategoryOrmEntity;
+
+  @Column({ type: 'uuid', nullable: true })
+  subcategoryId: string | null;
+
+  @ManyToOne(() => CategoryOrmEntity, { nullable: true })
+  @JoinColumn({ name: 'subcategoryId' })
+  subcategory: CategoryOrmEntity;
 
   @Column({ type: 'jsonb', default: [] })
   images: string[];

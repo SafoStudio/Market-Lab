@@ -263,7 +263,7 @@ export class UsersListResponseDtoSwagger {
   };
 }
 
-export class SuccessResponseDtoSwagger {
+export class SuccessResponseAdminDtoSwagger {
   @ApiProperty({
     description: 'Success status',
     example: true,
