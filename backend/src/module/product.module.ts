@@ -22,7 +22,7 @@ import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.enti
 
 // S3 Storage
 import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
-import { S3StorageService } from '@infrastructure/storage/s3-storage.service';
+import { S3ProductImageStorageAdapter } from '@infrastructure/storage/s3-product-img.adapter';
 
 // Categories Module
 import { CategoriesModule } from '@module/categories.module';
@@ -57,17 +57,16 @@ import { CategoriesModule } from '@module/categories.module';
 
     // S3 storage via abstract interface
     {
-      provide: 'FileStorage',
-      useExisting: S3StorageService,
+      provide: 'ProductImageStorage',
+      useExisting: S3ProductImageStorageAdapter,
     },
 
-    // If direct access to the S3 service is needed
-    S3StorageService,
+    // Direct access to the S3 service
+    S3ProductImageStorageAdapter,
   ],
   exports: [
     ProductService,
     ProductFileService,
-    S3StorageService,
   ],
 })
 export class ProductModule { }

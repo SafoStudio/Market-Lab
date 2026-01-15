@@ -76,6 +76,7 @@ export class ProductService {
     if (dto.price === undefined || dto.price < 0) throw new BadRequestException('Valid price is required');
 
     const supplierId = await this.getSupplierIdFromUserId(userId);
+    const companyName = await this._getSupplierCompanyName(userId);
 
     const exists = await this.productRepository.existsBySupplierAndName(supplierId, dto.name);
     if (exists) throw new BadRequestException('Product with this name already exists');
@@ -91,8 +92,8 @@ export class ProductService {
       try {
         const imageUrls = await this.productFileService.uploadProductImages(
           images,
-          supplierId,
-          savedProduct.id
+          companyName,
+          savedProduct.name
         );
 
         if (imageUrls.length) {
@@ -102,7 +103,9 @@ export class ProductService {
 
           savedProduct.images = imageUrls;
         }
-      } catch (error) { }
+      } catch (error) {
+        console.error('Failed to upload images:', error);
+      }
     }
 
     return savedProduct;
@@ -151,12 +154,12 @@ export class ProductService {
     if (!product) throw new NotFoundException(`Product ${id} not found`);
 
     const supplierId = await this.getSupplierIdFromUserId(userId);
+    const companyName = await this._getSupplierCompanyName(userId);
 
     this._checkProductOwnership(product, supplierId, userRoles, 'delete');
 
-    // Delete images from storage
     try {
-      await this.productFileService.deleteProductImages(supplierId, id);
+      await this.productFileService.deleteProductImages(companyName, product.name);
     } catch (error) {
       console.error(`Failed to delete product images: ${error.message}`);
     }
@@ -166,25 +169,24 @@ export class ProductService {
 
   async addImages(
     productId: string,
-    userId: string, // userId, а не supplierId
+    userId: string,
     userRoles: string[],
     images: Express.Multer.File[]
   ): Promise<string[]> {
     const product = await this.productRepository.findById(productId);
     if (!product) throw new NotFoundException(`Product ${productId} not found`);
 
-    // Получаем supplierId для проверки прав
     const supplierId = await this.getSupplierIdFromUserId(userId);
+    const companyName = await this._getSupplierCompanyName(userId);
 
     this._checkProductOwnership(product, supplierId, userRoles, 'add images');
 
     const uploadedUrls = await this.productFileService.uploadProductImages(
       images,
-      supplierId, // Используем правильный supplierId
-      productId
+      companyName,
+      product.name
     );
 
-    // Update the array of images in the product
     if (uploadedUrls.length > 0) {
       const updatedImages = [...product.images, ...uploadedUrls];
       await this.productRepository.update(productId, {
@@ -366,5 +368,18 @@ export class ProductService {
     }
 
     return user.supplierProfile.id;
+  }
+
+  private async _getSupplierCompanyName(userId: string): Promise<string> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['supplierProfile']
+    });
+
+    if (!user || !user.supplierProfile) {
+      throw new BadRequestException('User is not registered as a supplier');
+    }
+
+    return user.supplierProfile.companyName;
   }
 }

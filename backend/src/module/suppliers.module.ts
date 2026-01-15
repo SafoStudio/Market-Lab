@@ -17,7 +17,7 @@ import { PostgresSupplierRepository } from '@infrastructure/database/postgres/su
 
 // S3 Storage
 import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
-import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-document-storage.adapter';
+import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-doc.adapter';
 
 
 @Module({
@@ -43,7 +43,7 @@ import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-document-st
     // S3 storage via abstract interface
     {
       provide: 'DocumentStorage',
-      useClass: S3DocumentStorageAdapter,
+      useExisting: S3DocumentStorageAdapter,
     },
 
     // Direct access to the S3 service
