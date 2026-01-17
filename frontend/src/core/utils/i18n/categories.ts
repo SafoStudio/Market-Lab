@@ -1,46 +1,83 @@
 import { useTranslations } from 'next-intl';
+import type { MainCategoryKey } from '@/core/types/productTypes';
+
+const MAIN_CATEGORIES: MainCategoryKey[] = [
+  'vegetables', 'fruits', 'dairy-products', 'meat-poultry',
+  'eggs', 'bread-bakery', 'honey-bee-products', 'preserves',
+  'drinks', 'grains-cereals', 'nuts-dried-fruits', 'vegetable-oils',
+  'spices-herbs', 'farm-delicacies', 'baby-food', 'other'
+];
 
 export function useCategoryTranslations() {
   const t = useTranslations('Categories');
 
-  const translateCategory = (categoryKey: string): string => {
-    if (!categoryKey || categoryKey.trim() === '') return '';
+  const translateMainCategory = (categoryKey: MainCategoryKey | string): string => {
+    if (!categoryKey) return '';
 
     try {
-      return t(`main.${categoryKey}` as any);
+      return t(`main.${categoryKey}`);
     } catch {
       return categoryKey;
     }
   };
 
   const translateSubcategory = (
-    mainCategory: string,
+    mainCategoryKey: MainCategoryKey | string,
     subcategoryKey: string
   ): string => {
-    if (!mainCategory || !subcategoryKey) return subcategoryKey || '';
+    if (!mainCategoryKey || !subcategoryKey) return subcategoryKey || '';
 
     try {
-      return t(`${mainCategory}.${subcategoryKey}` as any);
+      return t(`${mainCategoryKey}.${subcategoryKey}`);
     } catch {
       return subcategoryKey;
     }
   };
 
-  return {
-    translateCategory,
-    translateSubcategory
+  const translateCategory = (categoryKey: string, parentCategory?: string): string => {
+    if (!categoryKey) return '';
+
+    if (parentCategory) {
+      try {
+        return t(`${parentCategory}.${categoryKey}`);
+      } catch {
+        try {
+          return t(`main.${categoryKey}`);
+        } catch {
+          return categoryKey;
+        }
+      }
+    }
+
+    try {
+      return t(`main.${categoryKey}`);
+    } catch {
+      for (const mainCat of MAIN_CATEGORIES) {
+        try {
+          return t(`${mainCat}.${categoryKey}`);
+        } catch {
+          continue;
+        }
+      }
+
+      return categoryKey;
+    }
   };
-}
 
-export function getTranslatedCategory(
-  t: (key: string) => string,
-  categoryKey: string
-): string {
-  if (!categoryKey || categoryKey.trim() === '') return '';
+  const getSubcategoriesForMain = (mainCategoryKey: MainCategoryKey | string): string[] => {
+    try {
+      const subcategories = t.raw(mainCategoryKey);
+      return subcategories ? Object.keys(subcategories) : [];
+    } catch {
+      return [];
+    }
+  };
 
-  try {
-    return t(`Categories.main.${categoryKey}`);
-  } catch {
-    return categoryKey;
-  }
+  return {
+    translateMainCategory,
+    translateSubcategory,
+    translateCategory,
+    getSubcategoriesForMain,
+    MAIN_CATEGORIES
+  };
 }

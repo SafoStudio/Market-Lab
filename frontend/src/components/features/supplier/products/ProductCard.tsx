@@ -2,7 +2,8 @@
 
 import { memo } from 'react';
 import { Product } from '@/core/types/productTypes';
-import { useCategoryById, useTranslation } from '@/core/hooks';
+import { useCategoryById } from '@/core/hooks';
+import { useTranslations, useLocale } from 'next-intl';
 
 import {
   useStatusTranslations,
@@ -23,7 +24,9 @@ export const ProductCard = memo(function ProductCard({
   onDelete,
   onToggleStatus
 }: ProductCardProps) {
-  const { tr } = useTranslation();
+  const t = useTranslations();
+  const locale = useLocale();
+
   const { getStatusInfo } = useStatusTranslations();
   const { formatPriceWithUnit, formatStockWithUnit } = useProductUnits();
   const { translateCategory } = useCategoryTranslations();
@@ -36,7 +39,8 @@ export const ProductCard = memo(function ProductCard({
   const formattedPrice = formatPriceWithUnit(
     product.price,
     categorySlug,
-    product.subcategoryId
+    product.subcategoryId,
+    locale
   );
   const stockText = formatStockWithUnit(
     product.stock,
@@ -66,7 +70,7 @@ export const ProductCard = memo(function ProductCard({
         {product.stock === 0 && (
           <div className="absolute top-2 left-2">
             <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-              {tr('Common.outOfStock')}
+              {t('Product.outOfStock')}
             </span>
           </div>
         )}
@@ -85,7 +89,7 @@ export const ProductCard = memo(function ProductCard({
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
           <span className="bg-gray-100 px-2 py-1 rounded">#{translatedCategoryName}</span>
           <span className={`${product.stock < 10 ? 'text-red-600' : 'text-gray-600'}`}>
-            {tr('Product.stockLabel')}: {stockText}
+            {t('Product.stockLabel')}: {stockText}
           </span>
         </div>
 
@@ -94,7 +98,7 @@ export const ProductCard = memo(function ProductCard({
             onClick={onEdit}
             className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
           >
-            {tr('Common.edit')}
+            {t('Common.edit')}
           </button>
           <button
             onClick={onToggleStatus}
@@ -104,15 +108,15 @@ export const ProductCard = memo(function ProductCard({
               }`}
           >
             {product.status === 'active'
-              ? tr('Product.deactivate')
-              : tr('Product.activate')
+              ? t('Product.deactivate')
+              : t('Product.activate')
             }
           </button>
           <button
             onClick={onDelete}
             className="px-3 py-2 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200 transition-colors"
           >
-            {tr('Common.delete')}
+            {t('Common.delete')}
           </button>
         </div>
       </div>

@@ -9,10 +9,14 @@
     "login": "Увійти",
     "register": "Реєстрація"
   },
+
+
   "HomePage": {
     "title": "Ласкаво просимо на Фермерський ринок",
     "subtitle": "Свіжі продукти безпосередньо від фермерів"
   },
+
+  
   "Categories": {
     "main": {
       "vegetables": "Овочі",
@@ -145,14 +149,9 @@
       "cookies-for-babies": "Печиво для дітей"
     }
   },
+
+
   "Product": {
-    "stockLabel": "Залишки",
-    "deactivate": "деактивувати",
-    "activate": "активувати",
-    "stock": "Залишки: {stock} {unit}",
-    "inStock": "В наявності",
-    "lowStock": "Закінчується",
-    "outOfStock": "Немає в наявності",
     "status": {
       "active": "Активний",
       "inactive": "Неактивний",
@@ -167,8 +166,17 @@
       "piece": "шт",
       "pack": "уп",
       "bunch": "пучок"
-    }
+    },
+    "stockLabel": "На складі",
+    "activate": "Активувати",
+    "deactivate": "Деактивувати",
+    "stock": "Залишки: {stock} {unit}",
+    "inStock": "В наявності",
+    "lowStock": "Закінчується",
+    "outOfStock": "Немає в наявності"
   },
+
+
   "ProductFilters": {
     "title": "Фільтри продуктів",
     "subtitle": "Показано {total} продуктів ({active} активних, {lowStock} майже закінчилось)",
@@ -203,6 +211,8 @@
     "categoryFilter": "Категорія: {category}",
     "statusFilter": "Статус: {status}"
   },
+
+
   "ProductForm": {
     "editTitle": "Редагування продукту",
     "createTitle": "Додати новий продукт",
@@ -232,17 +242,15 @@
     "updateButton": "Оновити продукт",
     "createButton": "Додати продукт"
   },
+
+
   "Common": {
     "per": "за",
     "price": "Ціна",
-    "stock": "Наявність",
     "quantity": "Кількість",
     "addToCart": "Додати в кошик",
     "buyNow": "Купити зараз",
     "viewDetails": "Переглянути деталі",
-    "outOfStock": "Немає в наявності",
-    "inStock": "В наявності",
-    "lowStock": "Закінчується",
     "available": "Доступно",
     "unavailable": "Недоступно",
     "save": "Зберегти",
@@ -260,6 +268,8 @@
     "success": "Успішно",
     "warning": "Попередження"
   },
+
+
   "Forms": {
     "name": "Ім'я",
     "email": "Електронна пошта",
@@ -277,6 +287,8 @@
     "minLength": "Мінімум {min} символів",
     "maxLength": "Максимум {max} символів"
   },
+
+
   "NotFound": {
     "title": "Сторінку не знайдено",
     "description": "Вибачте, але сторінка, яку ви шукаєте, не існує.",

@@ -1,47 +1,20 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 export default function LanguageSwitcher() {
-  const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
+  const locale = useLocale();
 
-  const getCurrentLocale = (): string => {
-    const segments = pathname.split('/');
-    return segments[1] || 'uk';
-  };
-
-  const [currentLocale, setCurrentLocale] = useState<string>(getCurrentLocale());
-
-  useEffect(() => {
-    setCurrentLocale(getCurrentLocale());
-  }, [pathname]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const changeLanguage = () => {
-    const newLocale = currentLocale === 'uk' ? 'en' : 'uk';
-    const segments = pathname.split('/');
-    segments[1] = newLocale;
-    const newPath = segments.join('/');
-
-    router.push(newPath);
-    setCurrentLocale(newLocale);
-  };
-
-  if (!mounted) {
-    return (
-      <div className="w-12 h-12 rounded-full bg-gray-100 shadow-sm"></div>
-    );
-  }
+  const newLocale = locale === 'uk' ? 'en' : 'uk';
+  const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
+  const newPath = `/${newLocale}${pathWithoutLocale}`;
 
   const flagEmojis = {
-    uk: 'UA',
-    en: 'US'
+    uk: '🇺🇦',
+    en: '🇺🇸'
   };
 
   const tooltips = {
@@ -50,8 +23,8 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <button
-      onClick={changeLanguage}
+    <Link
+      href={newPath}
       className="
         w-12 h-12 
         rounded-full 
@@ -64,20 +37,18 @@ export default function LanguageSwitcher() {
         border border-gray-100
         focus:outline-none focus:ring-2 focus:ring-gray-300
       "
-      aria-label={tooltips[currentLocale as keyof typeof tooltips]}
-      title={tooltips[currentLocale as keyof typeof tooltips]}
+      aria-label={tooltips[locale as keyof typeof tooltips]}
+      title={tooltips[locale as keyof typeof tooltips]}
+      prefetch={false}
     >
       <div className="
         w-10 h-10 
         rounded-full 
-        bg-gray-50 
         flex items-center justify-center
-        text-gray-800 
-        font-medium
-        text-sm
+        text-xl
       ">
-        {flagEmojis[currentLocale as keyof typeof flagEmojis]}
+        {flagEmojis[locale as keyof typeof flagEmojis]}
       </div>
-    </button>
+    </Link>
   );
 }

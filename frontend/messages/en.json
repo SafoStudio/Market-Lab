@@ -9,10 +9,14 @@
     "login": "Login",
     "register": "Register"
   },
+
+
   "HomePage": {
     "title": "Welcome to Farm Market",
     "subtitle": "Fresh products directly from farmers"
   },
+
+
   "Categories": {
     "main": {
       "vegetables": "Vegetables",
@@ -145,6 +149,8 @@
       "cookies-for-babies": "Cookies for Babies"
     }
   },
+
+
   "Product": {
     "status": {
       "active": "Active",
@@ -160,8 +166,17 @@
       "piece": "pc",
       "pack": "pack",
       "bunch": "bunch"
-    }
+    },
+    "stockLabel": "Stock",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "stock": "Stock: {stock} {unit}",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock", 
+    "outOfStock": "Out of Stock"
   },
+
+
   "ProductFilters": {
     "title": "Product Filters",
     "subtitle": "Showing {total} products ({active} active, {lowStock} low stock)",
@@ -196,7 +211,9 @@
     "categoryFilter": "Category: {category}",
     "statusFilter": "Status: {status}"
   },
-   "ProductForm": {
+
+
+  "ProductForm": {
     "editTitle": "Edit Product",
     "createTitle": "Add New Product",
     "nameLabel": "Product Name",
@@ -225,6 +242,8 @@
     "updateButton": "Update Product",
     "createButton": "Add Product"
   },
+
+
   "Common": {
     "per": "per",
     "price": "Price",
@@ -253,6 +272,8 @@
     "success": "Success",
     "warning": "Warning"
   },
+
+
   "Forms": {
     "name": "Name",
     "email": "Email",
@@ -270,6 +291,8 @@
     "minLength": "Minimum {min} characters",
     "maxLength": "Maximum {max} characters"
   },
+
+  
   "NotFound": {
     "title": "Page Not Found",
     "description": "Sorry, but the page you are looking for does not exist.",

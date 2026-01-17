@@ -79,7 +79,7 @@ export function useProductUnits() {
     price: number,
     categorySlug: string,
     subcategorySlug?: string,
-    locale?: string
+    locale: string = 'uk'
   ): string => {
     const unit = getProductUnit(categorySlug, subcategorySlug);
     const translatedUnit = translateUnit(unit);

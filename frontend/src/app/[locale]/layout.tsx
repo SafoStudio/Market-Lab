@@ -21,10 +21,16 @@ export default async function LocaleLayout({
 }: Props) {
   const { locale } = await params;
   if (!locales.includes(locale as any)) notFound();
-  const messages = await getMessages();
+  const messages = await getMessages({ locale });
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      timeZone="Europe/Kiev"
+      now={new Date()}
+      key={locale}
+    >
       <ReactQueryProvider>
         <Header />
         <main>{children}</main>
