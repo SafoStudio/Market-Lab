@@ -11,9 +11,9 @@ import { SupplierProducts } from './products/SupplierProducts';
 type ActiveTab = 'dashboard' | 'profile' | 'products';
 
 const SUPPLIER_TABS = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'profile', label: 'Profile', icon: '👤' },
-  { id: 'products', label: 'Products', icon: '📦', badge: 24 },
+  { id: 'dashboard', label: 'Dashboard', icon: '📈', align: 'left' as const },
+  { id: 'products', label: 'Products', icon: '📦', badge: 24, align: 'left' as const },
+  { id: 'profile', label: 'Profile', icon: '👤', align: 'right' as const },
 ] as const;
 
 export function SupplierDashboard() {
@@ -45,6 +45,7 @@ export function SupplierDashboard() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         tabs={SUPPLIER_TABS}
+        distribution="custom"
       />
       {renderContent()}
     </div>

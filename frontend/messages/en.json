@@ -170,12 +170,24 @@
     "stockLabel": "Stock",
     "activate": "Activate",
     "deactivate": "Deactivate",
+    "totalProducts": "Total Products",
     "stock": "Stock: {stock} {unit}",
     "inStock": "In Stock",
     "lowStock": "Low Stock", 
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "deleteConfirmation": "Are you sure you want to delete this product?"
   },
 
+  "ProductList": {
+    "emptyTitle": "No products yet",
+    "emptyDescription": "Start by adding your first product to the catalog"
+  },
+
+  "ProductStats": {
+    "title": "Product Management",
+    "subtitle": "Manage your product listings and inventory",
+    "addButton": "Add New Product"
+  },
 
   "ProductFilters": {
     "title": "Product Filters",
@@ -242,7 +254,6 @@
     "updateButton": "Update Product",
     "createButton": "Add Product"
   },
-
 
   "Common": {
     "per": "per",

@@ -49,7 +49,7 @@ export const ProductCard = memo(function ProductCard({
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden border hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div className="h-48 bg-gray-200 relative overflow-hidden">
         {product.images && product.images.length > 0 ? (
           <img
@@ -79,7 +79,7 @@ export const ProductCard = memo(function ProductCard({
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold text-gray-900 truncate">{product.name}</h3>
-          <span className="text-xl font-bold text-blue-600 whitespace-nowrap">
+          <span className="text-xl font-bold text-green-600 whitespace-nowrap">
             {formattedPrice}
           </span>
         </div>
@@ -96,7 +96,7 @@ export const ProductCard = memo(function ProductCard({
         <div className="flex gap-2">
           <button
             onClick={onEdit}
-            className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+            className="flex-1 px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
           >
             {t('Common.edit')}
           </button>

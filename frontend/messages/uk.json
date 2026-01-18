@@ -170,10 +170,25 @@
     "stockLabel": "На складі",
     "activate": "Активувати",
     "deactivate": "Деактивувати",
+    "totalProducts": "Всього продуктів",
     "stock": "Залишки: {stock} {unit}",
     "inStock": "В наявності",
     "lowStock": "Закінчується",
-    "outOfStock": "Немає в наявності"
+    "outOfStock": "Немає в наявності",
+    "deleteConfirmation": "Ви впевнені, що хочете видалити цей продукт?"
+  },
+
+
+  "ProductList": {
+    "emptyTitle": "Ще немає продуктів",
+    "emptyDescription": "Почніть з додавання першого продукту до каталогу"
+  },
+
+
+  "ProductStats": {
+    "title": "Управління продуктами",
+    "subtitle": "Керуйте вашими продуктами та запасами",
+    "addButton": "Додати новий продукт"
   },
 
 

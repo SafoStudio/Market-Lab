@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { ReactNode } from 'react';
-import { locales } from '@/core/constants/locales';
+import { locales, isValidLocale } from '@/core/constants/locales';
 import { ReactQueryProvider } from '@/core/providers/reactQueryProvider';
 import { Header } from '@/components/layout/Header'
 
@@ -20,7 +20,7 @@ export default async function LocaleLayout({
   params
 }: Props) {
   const { locale } = await params;
-  if (!locales.includes(locale as any)) notFound();
+  if (!isValidLocale(locale)) notFound();
   const messages = await getMessages({ locale });
 
   return (

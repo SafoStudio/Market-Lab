@@ -53,3 +53,7 @@ export const localeFormats: Record<Locale, {
     }
   }
 };
+
+export function isValidLocale(locale: string): locale is Locale {
+  return locales.includes(locale as Locale);
+}
