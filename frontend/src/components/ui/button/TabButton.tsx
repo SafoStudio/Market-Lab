@@ -20,8 +20,8 @@ export function TabButton({
   onClick,
   children,
   className = '',
-  activeClassName = 'border-green-500 text-green-600',
-  inactiveClassName = 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+  activeClassName = 'px-4 bg-green-50 border-green-500 text-green-600',
+  inactiveClassName = 'px-4 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
   disabled = false,
   icon,
   badge

@@ -1,4 +1,3 @@
-// @/core/schemas/supplier-schemas.ts
 import { z } from 'zod';
 import { addressSchema } from './address-schemas';
 

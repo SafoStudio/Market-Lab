@@ -74,7 +74,7 @@ export function TabNavigation<T extends string>({
           navClassName
         )}>
           {/* left tab group */}
-          <div className="flex space-x-8">
+          <div className="flex space-x-6">
             {leftTabs.map((tab) => (
               <TabButton
                 key={tab.id}

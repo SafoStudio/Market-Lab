@@ -430,6 +430,100 @@
       "kb": "{kb} КБ",
       "mb": "{mb} МБ"
     }
+  },
+
+
+  "SupplierProfile": {
+    "title": "Налаштування профілю",
+    "subtitle": "Керуйте інформацією про компанію та документами",
+    "addresses": "Адреси",
+    "accountActions": "Дії з акаунтом",
+    "deleteConfirmation": "Видалити документ \"{documentName}\"?",
+    "errors": {
+      "loading": "Помилка завантаження профілю",
+      "tryAgain": "Будь ласка, спробуйте пізніше"
+    },
+    "actions": {
+      "changePassword": "Змінити пароль",
+      "notifications": "Сповіщення",
+      "deactivate": "Деактивувати"
+    },
+    "ProfileHeader": {
+      "title": "Налаштування профілю",
+      "subtitle": "Керуйте інформацією про компанію та документами",
+      "edit": "Редагувати профіль",
+      "cancel": "Скасувати",
+      "save": "Зберегти",
+      "saving": "Збереження..."
+    },
+    "AccountInfo": {
+      "title": "Інформація про акаунт",
+      "email": "Електронна пошта",
+      "status": "Статус",
+      "unknown": "Невідомо",
+      "statuses": {
+        "approved": "Затверджено",
+        "pending": "На розгляді",
+        "rejected": "Відхилено"
+      }
+    },
+    "CompanyInfo": {
+      "title": "Інформація про компанію",
+      "companyName": "Назва компанії",
+      "companyNamePlaceholder": "Введіть назву компанії",
+      "registrationNumber": "Реєстраційний номер",
+      "contactPerson": "Контактна особа",
+      "phone": "Телефон",
+      "phonePlaceholder": "+380123456789",
+      "email": "Електронна пошта",
+      "emailPlaceholder": "contact@company.com",
+      "description": "Опис компанії",
+      "descriptionPlaceholder": "Опишіть вашу компанію...",
+      "firstNamePlaceholder": "Ім'я",
+      "lastNamePlaceholder": "Прізвище",
+      "notSpecified": "Не вказано",
+      "noDescription": "Опис відсутній"
+    },
+    "AddressInfo": {
+      "primaryAddress": "Основна адреса",
+      "countryPlaceholder": "Країна *",
+      "cityPlaceholder": "Місто *",
+      "statePlaceholder": "Область/Регіон",
+      "streetPlaceholder": "Вулиця *",
+      "buildingPlaceholder": "Будинок/Квартира",
+      "postalCodePlaceholder": "Поштовий індекс",
+      "notSpecified": "Не вказано"
+    },
+    "Documents": {
+      "title": "Бізнес-документи",
+      "document": "документ",
+      "businessDocument": "Бізнес-документ",
+      "uploadedDocuments": "Завантажені документи",
+      "noDocuments": "Ще немає завантажених документів",
+      "view": "Переглянути",
+      "delete": "Видалити",
+      "remove": "Видалити",
+      "errors": {
+        "invalidFile": "Дозволені тільки файли PDF, JPEG, WEBP, PNG до 5МБ"
+      },
+      "upload": {
+        "click": "Натисніть для завантаження бізнес-документів",
+        "formats": "PDF, JPG, PNG, WEBP до 5МБ",
+        "multiple": "Можна вибрати кілька файлів",
+        "uploading": "Завантаження...",
+        "button": "Завантажити {count} документів"
+      }
+    }
+  },
+
+
+  "SupplierDashboard": {
+    "loading": "Завантаження...",
+    "tabs": {
+      "dashboard": "Панель керування",
+      "products": "Продукти",
+      "profile": "Профіль"
+    }
   }
 
 

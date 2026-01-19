@@ -432,7 +432,100 @@
       "kb": "{kb} KB",
       "mb": "{mb} MB"
     }
+  },
+
+
+  "SupplierProfile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your company information and documents",
+    "addresses": "Addresses",
+    "accountActions": "Account Actions",
+    "deleteConfirmation": "Delete document \"{documentName}\"?",
+    "errors": {
+      "loading": "Error loading profile",
+      "tryAgain": "Please try again later"
+    },
+    "actions": {
+      "changePassword": "Change Password",
+      "notifications": "Notifications",
+      "deactivate": "Deactivate"
+    },
+    "ProfileHeader": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your company information and documents",
+      "edit": "Edit Profile",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "AccountInfo": {
+      "title": "Account Information",
+      "email": "Email",
+      "status": "Status",
+      "unknown": "Unknown",
+      "statuses": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected"
+      }
+    },
+    "CompanyInfo": {
+      "title": "Company Information",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "Enter company name",
+      "registrationNumber": "Registration Number",
+      "contactPerson": "Contact Person",
+      "phone": "Phone",
+      "phonePlaceholder": "+1234567890",
+      "email": "Email",
+      "emailPlaceholder": "contact@company.com",
+      "description": "Company Description",
+      "descriptionPlaceholder": "Describe your company...",
+      "firstNamePlaceholder": "First name",
+      "lastNamePlaceholder": "Last name",
+      "notSpecified": "Not specified",
+      "noDescription": "No description provided"
+    },
+    "AddressInfo": {
+      "primaryAddress": "Primary Address",
+      "countryPlaceholder": "Country *",
+      "cityPlaceholder": "City *",
+      "statePlaceholder": "State/Region",
+      "streetPlaceholder": "Street *",
+      "buildingPlaceholder": "Building/Apartment",
+      "postalCodePlaceholder": "Postal Code",
+      "notSpecified": "Not specified"
+    },
+    "Documents": {
+      "title": "Business Documents",
+      "document": "document",
+      "businessDocument": "Business document",
+      "uploadedDocuments": "Uploaded Documents",
+      "noDocuments": "No documents uploaded yet",
+      "view": "View",
+      "delete": "Delete",
+      "remove": "Remove",
+      "errors": {
+        "invalidFile": "Only PDF, JPEG, WEBP, and PNG files up to 5MB are allowed"
+      },
+      "upload": {
+        "click": "Click to upload business documents",
+        "formats": "PDF, JPG, PNG, WEBP up to 5MB",
+        "multiple": "You can select multiple files",
+        "uploading": "Uploading...",
+        "button": "Upload {count} document(s)"
+      }
+    }
+  },
+
+
+  "SupplierDashboard": {
+    "loading": "Loading...",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "profile": "Profile"
+    }
   }
-
-
+  
 }
