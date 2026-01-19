@@ -9,14 +9,14 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = 'primary', 
-    size = 'md', 
+  ({
+    className,
+    variant = 'primary',
+    size = 'md',
     loading = false,
     disabled,
     children,
-    ...props 
+    ...props
   }, ref) => {
     const isDisabled = disabled || loading;
 
@@ -28,17 +28,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:pointer-events-none disabled:opacity-50',
           {
             // Primary variant
-            'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800': variant === 'primary',
-            
+            'bg-green-600 text-white hover:bg-green-700 active:bg-green-700': variant === 'primary',
+
             // Secondary variant
             'bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300': variant === 'secondary',
-            
+
             // Outline variant
             'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100': variant === 'outline',
-            
+
             // Ghost variant
             'text-gray-700 hover:bg-gray-100 active:bg-gray-200': variant === 'ghost',
-            
+
             // Danger variant
             'bg-red-600 text-white hover:bg-red-700 active:bg-red-800': variant === 'danger',
           },
@@ -54,9 +54,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <svg 
-            className="mr-2 h-4 w-4 animate-spin" 
-            fill="none" 
+          <svg
+            className="mr-2 h-4 w-4 animate-spin"
+            fill="none"
             viewBox="0 0 24 24"
           >
             <circle

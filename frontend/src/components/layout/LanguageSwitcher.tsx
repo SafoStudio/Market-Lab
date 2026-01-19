@@ -45,7 +45,7 @@ export default function LanguageSwitcher() {
         w-10 h-10 
         rounded-full 
         flex items-center justify-center
-        text-xl
+        text-xl pb-1
       ">
         {flagEmojis[locale as keyof typeof flagEmojis]}
       </div>

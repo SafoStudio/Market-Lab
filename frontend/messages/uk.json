@@ -4,10 +4,12 @@
     "products": "Продукти",
     "map": "Мапа",
     "sellers": "Продавці",
-    "about": "Про нас",
-    "cart": "Кошик",
-    "login": "Увійти",
-    "register": "Реєстрація"
+    "about": "Про нас"
+  },
+
+
+  "Cart": {
+    "cart": "Кошик"
   },
 
 
@@ -281,7 +283,14 @@
     "loading": "Завантаження...",
     "error": "Помилка",
     "success": "Успішно",
-    "warning": "Попередження"
+    "warning": "Попередження",
+    "or": "або", 
+    "continueWith": "продовжити через", 
+    "forgotPassword": "Забули пароль?",
+    "logIntoExisting": "войти в существующий аккаунт",
+    "registerWithEmail": "зарегистрироваться через email",
+    "createPassword": "Создайте пароль",
+    "registering": "Регистрация..."
   },
 
 
@@ -308,5 +317,20 @@
     "title": "Сторінку не знайдено",
     "description": "Вибачте, але сторінка, яку ви шукаєте, не існує.",
     "backHome": "Повернутися на головну"
+  },
+
+
+  "Auth": {
+    "login": "Увійти",
+    "logout": "вийти",
+    "register": "Реєстрація",
+    "registration": "зареєструватися",
+    "or": "або", 
+    "continueWith": "продовжити через", 
+    "forgotPassword": "Забули пароль?",
+    "logIntoExisting": "увійти до існуючого облікового запису",
+    "registerWithEmail": "зареєструватися через email",
+    "createPassword": "Створіть пароль",
+    "registering": "Реєстрація..."
   }
 }
