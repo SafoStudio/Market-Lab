@@ -30,7 +30,6 @@ export function AdminCreateForm() {
     createAdmin(data, {
       onSuccess: () => {
         reset();
-        //! замінити на toast
         alert('Admin created successfully!');
       },
     });

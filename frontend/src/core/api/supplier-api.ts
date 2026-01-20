@@ -36,22 +36,30 @@ export const supplierApi = {
   },
 
   /**
-   * Get all suppliers (requires admin auth)
+   * ADMIN: Get suppliers list with pagination and filters (admin only)
    */
-  getSuppliers: async (
+  getSuppliersAdmin: async (
     token: string,
-    params?: SupplierSearchParams
+    params?: {
+      page?: number;
+      limit?: number;
+      status?: SupplierStatus;
+      companyName?: string;
+      registrationNumber?: string;
+    }
   ): Promise<SuppliersResponse> => {
     const searchParams = new URLSearchParams();
 
-    if (params?.query) searchParams.append('query', params.query);
-    if (params?.status) searchParams.append('status', params.status);
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
-    if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.companyName) searchParams.append('companyName', params.companyName);
+    if (params?.registrationNumber) searchParams.append('registrationNumber', params.registrationNumber);
 
-    const url = `${SUPPLIER_ENDPOINTS.SUPPLIERS}?${searchParams.toString()}`;
+    const queryString = searchParams.toString();
+    const url = queryString
+      ? `${SUPPLIER_ENDPOINTS.ADMIN_LIST}?${queryString}`
+      : SUPPLIER_ENDPOINTS.ADMIN_LIST;
 
     return apiFetch<SuppliersResponse>(
       url,
@@ -61,7 +69,7 @@ export const supplierApi = {
   },
 
   /**
-   * Get supplier by ID (requires auth)
+   * Get supplier by ID (requires auth - supplier or admin)
    */
   getSupplier: async (id: string, token: string): Promise<Supplier> => {
     return apiFetch<Supplier>(
@@ -83,14 +91,14 @@ export const supplierApi = {
   },
 
   /**
-   * Update supplier profile
+   * Update current supplier's own profile
    */
-  updateProfile: async (
+  updateMyProfile: async (
     data: UpdateSupplierDto,
     token: string
   ): Promise<Supplier> => {
     return apiFetch<Supplier>(
-      SUPPLIER_ENDPOINTS.PROFILE_UPDATE,
+      SUPPLIER_ENDPOINTS.PROFILE_UPDATE_SELF,
       {
         method: 'PUT',
         body: JSON.stringify(data),
@@ -100,16 +108,17 @@ export const supplierApi = {
   },
 
   /**
-   * Create new supplier (admin only)
+   * Update any supplier profile (admin or owner)
    */
-  createSupplier: async (
-    data: CreateSupplierDto,
+  updateSupplier: async (
+    id: string,
+    data: UpdateSupplierDto,
     token: string
   ): Promise<Supplier> => {
     return apiFetch<Supplier>(
-      SUPPLIER_ENDPOINTS.SUPPLIERS,
+      SUPPLIER_ENDPOINTS.SUPPLIER_UPDATE(id),
       {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify(data),
       },
       { token }
@@ -117,18 +126,19 @@ export const supplierApi = {
   },
 
   /**
-   * Update supplier status (admin only)
+   * ADMIN: Update supplier status (admin only)
    */
-  updateStatus: async (
+  updateSupplierStatus: async (
     id: string,
     status: SupplierStatus,
-    token: string
+    token: string,
+    reason?: string
   ): Promise<Supplier> => {
     return apiFetch<Supplier>(
-      SUPPLIER_ENDPOINTS.UPDATE_STATUS(id),
+      SUPPLIER_ENDPOINTS.ADMIN_UPDATE_STATUS(id),
       {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
+        method: 'PUT',
+        body: JSON.stringify({ status, reason }),
       },
       { token }
     );
@@ -163,7 +173,7 @@ export const supplierApi = {
     token: string
   ): Promise<string[]> => {
     return apiFetch<string[]>(
-      SUPPLIER_ENDPOINTS.DOCUMENTS(supplierId),
+      SUPPLIER_ENDPOINTS.DOCUMENTS_GET(supplierId),
       { method: 'GET' },
       { token }
     );
@@ -187,30 +197,14 @@ export const supplierApi = {
   },
 
   /**
-   * Search suppliers
-   */
-  searchSuppliers: async (
-    params: SupplierSearchParams,
-    token: string
-  ): Promise<SuppliersResponse> => {
-    return apiFetch<SuppliersResponse>(
-      SUPPLIER_ENDPOINTS.SEARCH,
-      {
-        method: 'POST',
-        body: JSON.stringify(params),
-      },
-      { token }
-    );
-  },
-
-  /**
-   * Delete supplier (admin only)
+   * Delete supplier (admin or owner)
    */
   deleteSupplier: async (id: string, token: string): Promise<void> => {
     return apiFetch<void>(
-      SUPPLIER_ENDPOINTS.SUPPLIER_BY_ID(id),
+      SUPPLIER_ENDPOINTS.SUPPLIER_DELETE(id),
       { method: 'DELETE' },
       { token }
     );
   },
+
 } as const;

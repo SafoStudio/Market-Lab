@@ -6,6 +6,7 @@ import { SupplierDomainEntity } from '@domain/suppliers/supplier.entity';
 import { SupplierProfileOrmEntity } from './supplier.entity';
 import { SupplierStatus } from '@domain/suppliers/types';
 
+
 @Injectable()
 export class PostgresSupplierRepository extends DomainSupplierRepository {
   constructor(
@@ -20,7 +21,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       relations: ['user'],
       order: { createdAt: 'DESC' },
     });
-    return ormEntities.map(this.toDomainEntity);
+    return ormEntities.map(this._toDomainEntity);
   }
 
   async findById(id: string): Promise<SupplierDomainEntity | null> {
@@ -29,7 +30,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       where: { id },
       relations: ['user']
     });
-    return ormEntity ? this.toDomainEntity(ormEntity) : null;
+    return ormEntity ? this._toDomainEntity(ormEntity) : null;
   }
 
   async findByUserId(userId: string): Promise<SupplierDomainEntity | null> {
@@ -37,7 +38,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       where: { user_id: userId },
       relations: ['user']
     });
-    return ormEntity ? this.toDomainEntity(ormEntity) : null;
+    return ormEntity ? this._toDomainEntity(ormEntity) : null;
   }
 
   async findByRegistrationNumber(regNumber: string): Promise<SupplierDomainEntity | null> {
@@ -45,7 +46,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       where: { registrationNumber: regNumber },
       relations: ['user']
     });
-    return ormEntity ? this.toDomainEntity(ormEntity) : null;
+    return ormEntity ? this._toDomainEntity(ormEntity) : null;
   }
 
   async findByStatus(status: string): Promise<SupplierDomainEntity[]> {
@@ -53,13 +54,13 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       where: { status },
       relations: ['user']
     });
-    return ormEntities.map(this.toDomainEntity);
+    return ormEntities.map(this._toDomainEntity);
   }
 
   async create(data: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity> {
-    const ormEntity = this.toOrmEntity(data);
+    const ormEntity = this._toOrmEntity(data);
     const savedOrmEntity = await this.repository.save(ormEntity);
-    return this.toDomainEntity(savedOrmEntity);
+    return this._toDomainEntity(savedOrmEntity);
   }
 
   async update(id: string, data: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity | null> {
@@ -71,7 +72,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       relations: ['user']
     });
 
-    return updatedOrmEntity ? this.toDomainEntity(updatedOrmEntity) : null;
+    return updatedOrmEntity ? this._toDomainEntity(updatedOrmEntity) : null;
   }
 
   async delete(id: string): Promise<void> {
@@ -85,46 +86,18 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       .createQueryBuilder('supplier')
       .leftJoinAndSelect('supplier.user', 'user');
 
-    if (filter.id) {
-      queryBuilder.andWhere('supplier.id = :id', { id: filter.id });
-    }
-
-    if (filter.userId) {
-      queryBuilder.andWhere('supplier.user_id = :userId', { userId: filter.userId });
-    }
-
-    if (filter.status) {
-      queryBuilder.andWhere('supplier.status = :status', { status: filter.status });
-    }
-
-    if (filter.companyName) {
-      queryBuilder.andWhere('supplier.companyName = :companyName', { companyName: filter.companyName });
-    }
-
-    if (filter.registrationNumber) {
-      queryBuilder.andWhere('supplier.registrationNumber = :registrationNumber', {
-        registrationNumber: filter.registrationNumber
-      });
-    }
-
-    if (filter.phone) {
-      queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
-    }
-
-    if (filter.firstName) {
-      queryBuilder.andWhere('supplier.firstName = :firstName', { firstName: filter.firstName });
-    }
-
-    if (filter.lastName) {
-      queryBuilder.andWhere('supplier.lastName = :lastName', { lastName: filter.lastName });
-    }
-
-    if (filter.description) {
-      queryBuilder.andWhere('supplier.description = :description', { description: filter.description });
-    }
+    if (filter.id) queryBuilder.andWhere('supplier.id = :id', { id: filter.id });
+    if (filter.userId) queryBuilder.andWhere('supplier.user_id = :userId', { userId: filter.userId });
+    if (filter.status) queryBuilder.andWhere('supplier.status = :status', { status: filter.status });
+    if (filter.companyName) queryBuilder.andWhere('supplier.companyName = :companyName', { companyName: filter.companyName });
+    if (filter.registrationNumber) queryBuilder.andWhere('supplier.registrationNumber = :registrationNumber', { registrationNumber: filter.registrationNumber });
+    if (filter.phone) queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
+    if (filter.firstName) queryBuilder.andWhere('supplier.firstName = :firstName', { firstName: filter.firstName });
+    if (filter.lastName) queryBuilder.andWhere('supplier.lastName = :lastName', { lastName: filter.lastName });
+    if (filter.description) queryBuilder.andWhere('supplier.description = :description', { description: filter.description });
 
     const ormEntity = await queryBuilder.getOne();
-    return ormEntity ? this.toDomainEntity(ormEntity) : null;
+    return ormEntity ? this._toDomainEntity(ormEntity) : null;
   }
 
   async findMany(filter: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity[]> {
@@ -132,53 +105,72 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
       .createQueryBuilder('supplier')
       .leftJoinAndSelect('supplier.user', 'user');
 
-    if (filter.id) {
-      queryBuilder.andWhere('supplier.id = :id', { id: filter.id });
-    }
-
-    if (filter.userId) {
-      queryBuilder.andWhere('supplier.user_id = :userId', { userId: filter.userId });
-    }
-
-    if (filter.status) {
-      queryBuilder.andWhere('supplier.status = :status', { status: filter.status });
-    }
-
-    if (filter.companyName) {
-      queryBuilder.andWhere('supplier.companyName = :companyName', { companyName: filter.companyName });
-    }
-
-    if (filter.registrationNumber) {
-      queryBuilder.andWhere('supplier.registrationNumber = :registrationNumber', {
-        registrationNumber: filter.registrationNumber
-      });
-    }
-
-    if (filter.phone) {
-      queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
-    }
-
-    if (filter.firstName) {
-      queryBuilder.andWhere('supplier.firstName = :firstName', { firstName: filter.firstName });
-    }
-
-    if (filter.lastName) {
-      queryBuilder.andWhere('supplier.lastName = :lastName', { lastName: filter.lastName });
-    }
-
-    if (filter.description) {
-      queryBuilder.andWhere('supplier.description = :description', { description: filter.description });
-    }
-
-    if (filter.companyName && filter.companyName.includes('%')) {
-      queryBuilder.andWhere('supplier.companyName LIKE :companyName', { companyName: filter.companyName });
-    }
+    if (filter.id) queryBuilder.andWhere('supplier.id = :id', { id: filter.id });
+    if (filter.userId) queryBuilder.andWhere('supplier.user_id = :userId', { userId: filter.userId });
+    if (filter.status) queryBuilder.andWhere('supplier.status = :status', { status: filter.status });
+    if (filter.companyName) queryBuilder.andWhere('supplier.companyName = :companyName', { companyName: filter.companyName });
+    if (filter.registrationNumber) queryBuilder.andWhere('supplier.registrationNumber = :registrationNumber', { registrationNumber: filter.registrationNumber });
+    if (filter.phone) queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
+    if (filter.firstName) queryBuilder.andWhere('supplier.firstName = :firstName', { firstName: filter.firstName });
+    if (filter.lastName) queryBuilder.andWhere('supplier.lastName = :lastName', { lastName: filter.lastName });
+    if (filter.description) queryBuilder.andWhere('supplier.description = :description', { description: filter.description });
+    if (filter.companyName && filter.companyName.includes('%')) queryBuilder.andWhere('supplier.companyName LIKE :companyName', { companyName: filter.companyName });
 
     const ormEntities = await queryBuilder.getMany();
-    return ormEntities.map(this.toDomainEntity);
+    return ormEntities.map(this._toDomainEntity);
   }
 
-  private toDomainEntity(ormEntity: SupplierProfileOrmEntity): SupplierDomainEntity {
+  // PaginableRepository method
+  async findWithPagination(
+    page: number,
+    limit: number,
+    filter?: Partial<SupplierDomainEntity>
+  ): Promise<{
+    data: SupplierDomainEntity[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.repository
+      .createQueryBuilder('supplier')
+      .leftJoinAndSelect('supplier.user', 'user');
+
+    if (filter) {
+      if (filter.id) queryBuilder.andWhere('supplier.id = :id', { id: filter.id });
+      if (filter.userId) queryBuilder.andWhere('supplier.user_id = :userId', { userId: filter.userId });
+      if (filter.status) queryBuilder.andWhere('supplier.status = :status', { status: filter.status });
+      if (filter.companyName) {
+        // Support for partial match search
+        if (filter.companyName.includes('%')) queryBuilder.andWhere('supplier.companyName ILIKE :companyName', { companyName: filter.companyName });
+        else queryBuilder.andWhere('supplier.companyName = :companyName', { companyName: filter.companyName });
+      }
+      if (filter.registrationNumber) queryBuilder.andWhere('supplier.registrationNumber = :registrationNumber', { registrationNumber: filter.registrationNumber });
+      if (filter.phone) queryBuilder.andWhere('supplier.phone = :phone', { phone: filter.phone });
+      if (filter.firstName) queryBuilder.andWhere('supplier.firstName = :firstName', { firstName: filter.firstName });
+      if (filter.lastName) queryBuilder.andWhere('supplier.lastName = :lastName', { lastName: filter.lastName });
+      if (filter.description) queryBuilder.andWhere('supplier.description = :description', { description: filter.description });
+    }
+
+    const total = await queryBuilder.getCount();
+
+    queryBuilder
+      .skip(skip)
+      .take(limit)
+      .orderBy('supplier.createdAt', 'DESC');
+
+    const ormEntities = await queryBuilder.getMany();
+
+    return {
+      data: ormEntities.map(this._toDomainEntity),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  private _toDomainEntity(ormEntity: SupplierProfileOrmEntity): SupplierDomainEntity {
     return new SupplierDomainEntity(
       ormEntity.id,
       ormEntity.user_id,
@@ -195,7 +187,7 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
     );
   }
 
-  private toOrmEntity(domainEntity: Partial<SupplierDomainEntity>): SupplierProfileOrmEntity {
+  private _toOrmEntity(domainEntity: Partial<SupplierDomainEntity>): SupplierProfileOrmEntity {
     const ormEntity = new SupplierProfileOrmEntity();
 
     if (domainEntity.id) ormEntity.id = domainEntity.id;

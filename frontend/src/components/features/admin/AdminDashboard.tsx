@@ -1,78 +1,79 @@
 'use client';
 
+import { useState } from 'react';
+import { TabNavigation } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/core/store/authStore';
-import { useAdmins, useDeleteAdmin } from '@/core/hooks/useAdmin';
-import { AdminCreateForm } from '@/components/features/admin/forms/AdminCreateForm';
-import { Button } from '@/components/ui/button/Button';
 
+import { AdminManagement } from './AdminManagement';
+import { SupplierApproval } from './SupplierApproval';
+import { SystemOverview } from './SystemOverview';
+
+type AdminTab = 'overview' | 'admins' | 'suppliers';
 
 export function AdminDashboard() {
-  const user = useAuthStore((state) => state.user);
-  const canManageAdmins = useAuthStore((state) => state.canManageAdmins);
-  const { data: admins, isLoading } = useAdmins();
-  const { mutate: deleteAdmin } = useDeleteAdmin();
+  const t = useTranslations('AdminDashboard');
+  const { user, isAuthenticated } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
 
-  if (!user || !user.roles.includes('admin')) return null;
+  const ADMIN_TABS = [
+    {
+      id: 'overview' as const,
+      label: t('tabs.overview'),
+      icon: '📊',
+      align: 'left' as const
+    },
+    {
+      id: 'suppliers' as const,
+      label: t('tabs.suppliers'),
+      icon: '👥',
+      badge: 5,
+      align: 'left' as const
+    },
+    {
+      id: 'admins' as const,
+      label: t('tabs.admins'),
+      icon: '🔧',
+      align: 'right' as const
+    },
+  ] as const;
 
-  const handleDeleteAdmin = (adminId: string) => {
-    if (confirm('Are you sure you want to delete this admin?')) {
-      deleteAdmin(adminId);
+  if (!isAuthenticated || !user || !user.roles.includes('admin')) {
+    return (
+      <div className="flex justify-center items-center min-h-64">
+        <div className="text-lg">{t('unauthorized')}</div>
+      </div>
+    );
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'admins':
+        return <AdminManagement />;
+      case 'suppliers':
+        return <SupplierApproval />;
+      default:
+        return <SystemOverview user={user} />;
     }
   };
 
   return (
-    <div className="p-6 space-y-8">
-      <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
-        <p className="text-gray-600">Manage system administrators</p>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p className="text-gray-600">Manage your platform administration</p>
       </div>
 
-      {/* The admin creation section is only for SUPER_ADMIN.*/}
-      {canManageAdmins() && (
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Create New Admin</h2>
-          <AdminCreateForm />
-        </section>
-      )}
+      <TabNavigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        tabs={ADMIN_TABS}
+        distribution="custom"
+      />
 
-      {/* Admin list */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Administrators</h2>
-
-        {isLoading ? (
-          <div>Loading admins...</div>
-        ) : (
-          <div className="space-y-4">
-            {admins?.map((admin) => (
-              <div key={admin.id} className="border rounded-lg p-4 flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">
-                    {admin.firstName} {admin.lastName}
-                  </h3>
-                  <div className="flex gap-2 mt-1">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                      {admin.role}
-                    </span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                      {admin.status}
-                    </span>
-                  </div>
-                </div>
-
-                {canManageAdmins() && admin.role !== 'super_admin' && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteAdmin(admin.id)}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <div className="mt-6">
+        {renderContent()}
+      </div>
     </div>
   );
 }

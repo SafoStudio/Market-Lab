@@ -9,7 +9,7 @@ import { Spinner } from '@/components/ui';
 
 import {
   useMySupplierProfile,
-  useUpdateSupplierProfile,
+  useUpdateMySupplierProfile,
   useSupplierDocuments,
   useUploadSupplierDocuments,
   useDeleteSupplierDocument
@@ -31,7 +31,9 @@ import { DocumentsSection } from './DocumentsSection';
 export function SupplierProfile() {
   const { user } = useAuthStore();
 
-  const { mutate: updateProfile, isPending: isUpdating } = useUpdateSupplierProfile();
+  const { supplierProfileSchema } = createSupplierSchemas(locale);
+
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateMySupplierProfile();
   const { mutate: uploadDocument, isPending: isUploading } = useUploadSupplierDocuments();
   const { mutate: deleteDocument } = useDeleteSupplierDocument();
 

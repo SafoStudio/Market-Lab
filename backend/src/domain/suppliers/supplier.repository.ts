@@ -1,9 +1,15 @@
-import { BaseRepository, QueryableRepository } from '@shared/types/repository.interface';
+import {
+  BaseRepository,
+  QueryableRepository,
+  PaginableRepository
+} from '@shared/types/repository.interface';
 import { SupplierDomainEntity } from './supplier.entity';
 
 export abstract class SupplierRepository implements
   BaseRepository<SupplierDomainEntity>,
-  QueryableRepository<SupplierDomainEntity> {
+  QueryableRepository<SupplierDomainEntity>,
+  PaginableRepository<SupplierDomainEntity> {
+
   // BaseRepository methods
   abstract create(data: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity>;
   abstract findById(id: string): Promise<SupplierDomainEntity | null>;
@@ -14,6 +20,18 @@ export abstract class SupplierRepository implements
   abstract findOne(filter: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity | null>;
   abstract findMany(filter: Partial<SupplierDomainEntity>): Promise<SupplierDomainEntity[]>;
   abstract findAll(): Promise<SupplierDomainEntity[]>;
+
+  // PaginableRepository methods
+  abstract findWithPagination(
+    page: number,
+    limit: number,
+    filter?: Partial<SupplierDomainEntity>
+  ): Promise<{
+    data: SupplierDomainEntity[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }>;
 
   // Supplier-specific methods
   abstract findByUserId(userId: string): Promise<SupplierDomainEntity | null>;

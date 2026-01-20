@@ -63,10 +63,12 @@ export interface SupplierProfile {
 
 export interface SuppliersResponse {
   suppliers: Supplier[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface SupplierSearchParams {

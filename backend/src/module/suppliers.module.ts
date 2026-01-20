@@ -6,10 +6,22 @@ import { AuthModule } from '@auth/auth.module';
 import { UsersModule } from './users.module';
 
 // Domain services
-import { SupplierService } from '@domain/suppliers/supplier.service';
+import {
+  SupplierService,
+  SupplierCoreService,
+  SupplierAccessService,
+  SupplierAdminService,
+  SupplierDocumentsService
+} from '@domain/suppliers/services';
 
 // Controllers
-import { SuppliersController } from '../controller/suppliers.controller';
+import {
+  SupplierPublicController,
+  SupplierProfileController,
+  SupplierAdminController,
+  SupplierDocumentsController
+} from '@controller/suppliers';
+
 
 // Database infrastructure
 import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/suppliers/supplier.entity';
@@ -29,10 +41,18 @@ import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-doc.adapter
     S3StorageModule,
     UsersModule,
   ],
-  controllers: [SuppliersController],
+  controllers: [
+    SupplierPublicController,
+    SupplierProfileController,
+    SupplierAdminController,
+    SupplierDocumentsController,
+  ],
   providers: [
-    // Main supplier service
     SupplierService,
+    SupplierCoreService,
+    SupplierAccessService,
+    SupplierAdminService,
+    SupplierDocumentsService,
 
     // Supplier repository
     {

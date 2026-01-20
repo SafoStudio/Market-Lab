@@ -3,20 +3,20 @@ import { cn } from '@/core/utils/cn';
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = 'primary', 
-    size = 'md', 
+  ({
+    className,
+    variant = 'primary',
+    size = 'md',
     loading = false,
     disabled,
     children,
-    ...props 
+    ...props
   }, ref) => {
     const isDisabled = disabled || loading;
 
@@ -28,19 +28,25 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:pointer-events-none disabled:opacity-50',
           {
             // Primary variant
-            'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800': variant === 'primary',
-            
+            'bg-green-600 text-white hover:bg-green-700 active:bg-green-800': variant === 'primary',
+
             // Secondary variant
             'bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300': variant === 'secondary',
-            
+
             // Outline variant
             'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100': variant === 'outline',
-            
+
             // Ghost variant
             'text-gray-700 hover:bg-gray-100 active:bg-gray-200': variant === 'ghost',
-            
+
             // Danger variant
             'bg-red-600 text-white hover:bg-red-700 active:bg-red-800': variant === 'danger',
+
+            // Success variant
+            'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800': variant === 'success',
+
+            // Warning variant
+            'bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700': variant === 'warning',
           },
           {
             'h-8 px-3 text-sm': size === 'sm',
@@ -54,9 +60,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <svg 
-            className="mr-2 h-4 w-4 animate-spin" 
-            fill="none" 
+          <svg
+            className="mr-2 h-4 w-4 animate-spin"
+            fill="none"
             viewBox="0 0 24 24"
           >
             <circle

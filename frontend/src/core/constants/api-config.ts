@@ -83,31 +83,27 @@ export const CUSTOMER_ENDPOINTS = {
 
 /**
  * Supplier management API endpoints
- *//**
-* Supplier management API endpoints
-*/
+ */
 export const SUPPLIER_ENDPOINTS = {
   // Public endpoints
   PUBLIC_ACTIVE: `${API_PREFIX}/suppliers/public/active`,
   PUBLIC_BY_ID: (id: string) => `${API_PREFIX}/suppliers/public/${id}`,
 
-  // Protected endpoints
-  SUPPLIERS: `${API_PREFIX}/suppliers`,
+  // Profile endpoints
   SUPPLIER_BY_ID: (id: string) => `${API_PREFIX}/suppliers/${id}`,
+  SUPPLIER_UPDATE: (id: string) => `${API_PREFIX}/suppliers/${id}`,
+  SUPPLIER_DELETE: (id: string) => `${API_PREFIX}/suppliers/${id}`,
   PROFILE_MY: `${API_PREFIX}/suppliers/profile/my`,
-  PROFILE_UPDATE: `${API_PREFIX}/suppliers/profile/update`,
+  PROFILE_UPDATE_SELF: `${API_PREFIX}/suppliers/profile/update`,
 
-  // Document management
+  // Documents endpoints
   DOCUMENTS_UPLOAD: (id: string) => `${API_PREFIX}/suppliers/${id}/documents`,
-  DOCUMENTS: (id: string) => `${API_PREFIX}/suppliers/${id}/documents`,
-  DOCUMENT_DELETE: (id: string, documentKey: string) =>
-    `${API_PREFIX}/suppliers/${id}/documents/${documentKey}`,
+  DOCUMENTS_GET: (id: string) => `${API_PREFIX}/suppliers/${id}/documents`,
+  DOCUMENT_DELETE: (id: string, documentUrl: string) => `${API_PREFIX}/suppliers/${id}/documents/${documentUrl}`,
 
-  // Admin for supplier
-  UPDATE_STATUS: (id: string) => `${API_PREFIX}/suppliers/admin/${id}/status`,
-
-  // Search
-  SEARCH: `${API_PREFIX}/suppliers/search`,
+  // Admin endpoints
+  ADMIN_LIST: `${API_PREFIX}/admin/suppliers`,
+  ADMIN_UPDATE_STATUS: (id: string) => `${API_PREFIX}/admin/suppliers/${id}/status`,
 } as const;
 
 /**
