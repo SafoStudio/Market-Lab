@@ -13,7 +13,8 @@ import {
 export const supplierKeys = {
   all: ['suppliers'] as const,
   lists: () => [...supplierKeys.all, 'list'] as const,
-  list: (filters: SupplierSearchParams) => [...supplierKeys.lists(), filters] as const,
+  list: (filters: any) => [...supplierKeys.lists(), filters] as const,
+  adminList: (filters: any) => [...supplierKeys.all, 'admin', 'list', filters] as const,
   details: () => [...supplierKeys.all, 'detail'] as const,
   detail: (id: string) => [...supplierKeys.details(), id] as const,
   profile: () => [...supplierKeys.all, 'profile'] as const,
@@ -45,21 +46,24 @@ export const useSupplierPublic = (id: string) => {
 };
 
 /**
- * Hook for getting all suppliers (admin)
+ * ADMIN: Hook for getting suppliers list with pagination and filters (admin only)
  */
-export const useSuppliers = (params?: SupplierSearchParams) => {
+export const useAdminSuppliers = (filters?: {
+  page?: number;
+  limit?: number;
+  status?: SupplierStatus;
+  companyName?: string;
+  registrationNumber?: string;
+}) => {
   const { token } = useAuthStore();
-  const { setSuppliers, setFilteredSuppliers } = useSupplierStore();
 
   return useQuery({
-    queryKey: supplierKeys.list(params || {}),
+    queryKey: supplierKeys.adminList(filters || {}),
     queryFn: async () => {
-      const data = await supplierApi.getSuppliers(token!, params);
-      setSuppliers(data.suppliers);
-      setFilteredSuppliers(data.suppliers);
-      return data;
+      return await supplierApi.getSuppliersAdmin(token!, filters);
     },
     enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -101,32 +105,16 @@ export const useMySupplierProfile = () => {
 };
 
 /**
- * Hook for creating supplier (admin)
+ * Hook for updating current supplier's own profile
  */
-export const useCreateSupplier = () => {
-  const { token } = useAuthStore();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateSupplierDto) =>
-      supplierApi.createSupplier(data, token!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
-    },
-  });
-};
-
-/**
- * Hook for updating supplier profile
- */
-export const useUpdateSupplierProfile = () => {
+export const useUpdateMySupplierProfile = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
   const { setCurrentSupplier } = useSupplierStore();
 
   return useMutation({
     mutationFn: (data: UpdateSupplierDto) =>
-      supplierApi.updateProfile(data, token!),
+      supplierApi.updateMyProfile(data, token!),
     onSuccess: (updatedSupplier) => {
       setCurrentSupplier(updatedSupplier);
       queryClient.invalidateQueries({ queryKey: supplierKeys.profile() });
@@ -138,16 +126,45 @@ export const useUpdateSupplierProfile = () => {
 };
 
 /**
- * Hook for updating supplier status (admin)
+ * Hook for updating any supplier profile (admin or owner)
+ */
+export const useUpdateSupplier = () => {
+  const { token } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateSupplierDto }) =>
+      supplierApi.updateSupplier(id, data, token!),
+    onSuccess: (updatedSupplier) => {
+      queryClient.invalidateQueries({
+        queryKey: supplierKeys.detail(updatedSupplier.id)
+      });
+      queryClient.invalidateQueries({
+        queryKey: supplierKeys.adminList({})
+      });
+    },
+  });
+};
+
+/**
+ * Hook for updating supplier status (admin only) - NEW VERSION
  */
 export const useUpdateSupplierStatus = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: SupplierStatus }) =>
-      supplierApi.updateStatus(id, status, token!),
+    mutationFn: ({
+      id,
+      status,
+      reason
+    }: {
+      id: string;
+      status: SupplierStatus;
+      reason?: string;
+    }) => supplierApi.updateSupplierStatus(id, status, reason || '', token!),
     onSuccess: (updatedSupplier) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.adminList({}) });
       queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: supplierKeys.detail(updatedSupplier.id)
@@ -216,7 +233,6 @@ export const useDeleteSupplierDocument = () => {
   return useMutation({
     mutationFn: (documentUrl: string) => {
       if (!currentSupplier) throw new Error('No current supplier');
-
       return supplierApi.deleteDocument(
         currentSupplier.id,
         documentUrl,
@@ -238,23 +254,7 @@ export const useDeleteSupplierDocument = () => {
 };
 
 /**
- * Hook for searching suppliers
- */
-export const useSearchSuppliers = () => {
-  const { token } = useAuthStore();
-  const { setFilteredSuppliers } = useSupplierStore();
-
-  return useMutation({
-    mutationFn: async (params: SupplierSearchParams) => {
-      const data = await supplierApi.searchSuppliers(params, token!);
-      setFilteredSuppliers(data.suppliers);
-      return data;
-    },
-  });
-};
-
-/**
- * Hook for deleting supplier (admin)
+ * Hook for deleting supplier (admin or owner)
  */
 export const useDeleteSupplier = () => {
   const { token } = useAuthStore();
@@ -262,8 +262,71 @@ export const useDeleteSupplier = () => {
 
   return useMutation({
     mutationFn: (id: string) => supplierApi.deleteSupplier(id, token!),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.adminList({}) });
+      queryClient.invalidateQueries({
+        queryKey: supplierKeys.detail(id)
+      });
+    },
+  });
+};
+
+
+/**
+ * Hook for bulk supplier approval (admin only)
+ */
+export const useBulkApproveSuppliers = () => {
+  const { token } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      supplierIds,
+      reason = 'Bulk approval'
+    }: {
+      supplierIds: string[];
+      reason?: string;
+    }) => {
+      const promises = supplierIds.map(id =>
+        supplierApi.updateSupplierStatus(id, 'approved', reason, token!)
+      );
+      return await Promise.all(promises);
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: supplierKeys.adminList({}) });
       queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
     },
+  });
+};
+
+/**
+ * Hook for supplier statistics (admin only)
+ */
+export const useSupplierStatistics = () => {
+  const { token } = useAuthStore();
+
+  return useQuery({
+    queryKey: [...supplierKeys.all, 'statistics'],
+    queryFn: async () => {
+      // Получаем все статусы для подсчета статистики
+      const [pending, approved, rejected, suspended] = await Promise.all([
+        supplierApi.getSuppliersAdmin(token!, { status: 'pending', limit: 1 }),
+        supplierApi.getSuppliersAdmin(token!, { status: 'approved', limit: 1 }),
+        supplierApi.getSuppliersAdmin(token!, { status: 'rejected', limit: 1 }),
+        supplierApi.getSuppliersAdmin(token!, { status: 'suspended', limit: 1 }),
+      ]);
+
+      return {
+        pending: pending.pagination?.total || 0,
+        approved: approved.pagination?.total || 0,
+        rejected: rejected.pagination?.total || 0,
+        suspended: suspended.pagination?.total || 0,
+        total: [pending, approved, rejected, suspended]
+          .reduce((sum, data) => sum + (data.pagination?.total || 0), 0)
+      };
+    },
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };

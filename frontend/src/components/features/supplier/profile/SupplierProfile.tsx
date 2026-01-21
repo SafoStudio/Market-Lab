@@ -10,7 +10,7 @@ import { useTranslations, useLocale } from 'next-intl';
 
 import {
   useMySupplierProfile,
-  useUpdateSupplierProfile,
+  useUpdateMySupplierProfile,
   useSupplierDocuments,
   useUploadSupplierDocuments,
   useDeleteSupplierDocument
@@ -36,7 +36,7 @@ export function SupplierProfile() {
 
   const { supplierProfileSchema } = createSupplierSchemas(locale);
 
-  const { mutate: updateProfile, isPending: isUpdating } = useUpdateSupplierProfile();
+  const { mutate: updateProfile, isPending: isUpdating } = useUpdateMySupplierProfile();
   const { mutate: uploadDocument, isPending: isUploading } = useUploadSupplierDocuments();
   const { mutate: deleteDocument } = useDeleteSupplierDocument();
 

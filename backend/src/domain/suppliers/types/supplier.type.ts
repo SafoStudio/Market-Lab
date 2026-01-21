@@ -1,14 +1,22 @@
 // Use only within the domain, internal typing..
 import { Entity } from '@shared/types';
 
-export const SUPPLIER_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  SUSPENDED: 'suspended',
-} as const;
+export enum SupplierStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  SUSPENDED = 'suspended',
+}
 
-export type SupplierStatus = typeof SUPPLIER_STATUS[keyof typeof SUPPLIER_STATUS];
+export const SUPPLIER_STATUS = SupplierStatus;
+export type SupplierStatusType = SupplierStatus;
+
+export interface AccessibleSupplier {
+  id: string;
+  userId: string;
+  status: SupplierStatus;
+  isActive(): boolean;
+}
 
 export interface SupplierModel extends Entity {
   userId: string;

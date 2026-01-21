@@ -49,21 +49,6 @@ export class AdminDashboardService {
     return distribution;
   }
 
-  private getPermissionStats(admins: AdminDomainEntity[]): Record<string, number> {
-    const stats: Record<string, number> = {};
-
-    admins.forEach(admin => {
-      if (admin.userId) {
-        const permissions = this.permissionsService.getPermissionsByRoles(admin.roles);
-        permissions.forEach(permission => {
-          stats[permission] = (stats[permission] || 0) + 1;
-        });
-      }
-    });
-
-    return stats;
-  }
-
   private getRecentActivity(admins: AdminDomainEntity[]): AdminDomainEntity[] {
     const now = new Date();
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);

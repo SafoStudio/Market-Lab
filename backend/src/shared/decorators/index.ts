@@ -1,1 +1,1 @@
-export * from './parse-form-data.decorator'
+export * from './parse-data.decorator'

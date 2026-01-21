@@ -1,8 +1,7 @@
-import { BadRequestException } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductService } from '@domain/products/services/product.service';
 import { SupplierOrAdmin, Auth } from '@auth/decorators';
-import { ParseFormDataJson } from '@shared/decorators';
+import { ParseData } from '@shared/decorators';
 import type { AuthRequest } from '@auth/types';
 
 import {
@@ -17,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 
 import {
+  UpdateProductStatusDto,
   AddImagesDtoSwagger,
   RemoveImageDtoSwagger,
   UpdateProductStatusDtoSwagger,
@@ -87,7 +87,7 @@ export class ProductSharedController {
   @ApiResponse({ status: 200, type: SuccessResponseProductDtoSwagger })
   async removeImage(
     @Param('id', ParseUUIDPipe) id: string,
-    @ParseFormDataJson() body: { imageUrl: string },
+    @ParseData() body: { imageUrl: string },
     @Request() req: AuthRequest
   ) {
     const userId = req.user.id;
@@ -105,16 +105,12 @@ export class ProductSharedController {
   @ApiResponse({ status: 200, description: 'Status updated' })
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
-    @ParseFormDataJson() dto: { status: string },
+    @ParseData(UpdateProductStatusDto) dto: UpdateProductStatusDto,
     @Request() req: AuthRequest
   ) {
     const userId = req.user.id;
     const userRoles = req.user.roles;
-    const validStatuses = ['active', 'inactive', 'archived', 'draft'];
-    if (!validStatuses.includes(dto.status)) {
-      throw new BadRequestException('Invalid status');
-    }
-    return this.productService.toggleStatus(id, dto.status as any, userId, userRoles);
+    return this.productService.toggleStatus(id, dto.status, userId, userRoles);
   }
 
   @Get(':id/ownership')
