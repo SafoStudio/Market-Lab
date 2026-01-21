@@ -31,7 +31,7 @@ export const ProductsList = memo(function ProductsList({
     }
   };
 
-  const handleToggleStatus = async (product: any) => {
+  const handleToggleStatus = async (product: Product) => {
     try {
       const newStatus = product.status === 'active' ? 'inactive' : 'active';
       await updateStatusMutation.mutateAsync({

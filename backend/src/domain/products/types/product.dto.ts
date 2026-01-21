@@ -101,3 +101,9 @@ export class PurchaseProductDto {
   @Type(() => Number)
   quantity: number;
 }
+
+export class UpdateProductStatusDto {
+  @IsEnum(ProductStatusEnum, { message: 'Invalid status' })
+  @IsNotEmpty({ message: 'Status is required' })
+  status: ProductStatusEnum;
+}

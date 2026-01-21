@@ -1,7 +1,7 @@
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductService } from '@domain/products/services/product.service';
 import { SupplierOnly } from '@auth/decorators';
-import { ParseAndValidateDto } from '@shared/decorators';
+import { ParseData } from '@shared/decorators';
 import type { AuthRequest } from '@auth/types';
 
 import {
@@ -42,7 +42,7 @@ export class ProductSupplierController {
   @ApiResponse({ status: 400, description: 'Invalid data' })
   @ApiResponse({ status: 403, description: 'Not a supplier' })
   async create(
-    @ParseAndValidateDto(CreateProductDto) dto: CreateProductDto,
+    @ParseData(CreateProductDto) dto: CreateProductDto,
     @UploadedFiles() images: Express.Multer.File[],
     @Request() req: AuthRequest
   ) {
@@ -62,7 +62,7 @@ export class ProductSupplierController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @ParseAndValidateDto(UpdateProductDto) dto: UpdateProductDto,
+    @ParseData(UpdateProductDto) dto: UpdateProductDto,
     @UploadedFiles() newImages: Express.Multer.File[],
     @Request() req: AuthRequest
   ) {
@@ -80,7 +80,7 @@ export class ProductSupplierController {
   @ApiResponse({ status: 200, type: ProductResponseDtoSwagger })
   async restock(
     @Param('id', ParseUUIDPipe) id: string,
-    @ParseAndValidateDto(RestockProductDto) dto: RestockProductDto,
+    @ParseData(RestockProductDto) dto: RestockProductDto,
     @Request() req: AuthRequest
   ) {
     const userId = req.user.id;
