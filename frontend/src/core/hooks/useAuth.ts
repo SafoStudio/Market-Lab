@@ -143,7 +143,7 @@ export const useAuthRedirect = () => {
     if (role === 'admin') return redirectTo('/admin-dashboard');
     if (role === 'customer') return redirectTo('/customer-dashboard');
     if (role === 'supplier') return redirectTo('/supplier-dashboard');
-    return redirectTo('/dashboard');
+    return redirectTo('/');
   };
   const redirectToRoleSelection = () => redirectTo('/register/role');
 

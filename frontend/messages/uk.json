@@ -177,7 +177,8 @@
     "inStock": "В наявності",
     "lowStock": "Закінчується",
     "outOfStock": "Немає в наявності",
-    "deleteConfirmation": "Ви впевнені, що хочете видалити цей продукт?"
+    "deleteConfirmation": "Ви впевнені, що хочете видалити цей продукт?",
+    "backToCatalog": "Назад до каталогу"
   },
 
 
@@ -293,7 +294,21 @@
     "page": "Сторінка",
     "of": "з",
     "yes": "Так",
-    "no": "Ні"
+    "no": "Ні",
+    "backToProducts": "Назад до товарів",
+    "productNotFound": "Товар не знайдено",
+    "productNotFoundDescription": "На жаль, товар, який ви шукаєте, не існує або був видалений.",
+    "category": "Категорія",
+    "noCategory": "Без категорії",
+    "details": "Деталі",
+    "sku": "Артикул",
+    "status": "Статус",
+    "addedDate": "Дата додавання",
+    "subcategory": "Підкатегорія",
+    "tags": "Теги",
+    "notifyWhenAvailable": "Повідомити про наявність",
+    "allProducts": "Всі продукти",
+    "allCategories": "Всі категорії"
   },
 
 
@@ -619,7 +634,17 @@
     "creatingButton": "Створення...",
     "successMessage": "Адміністратора успішно створено!",
     "errorMessage": "Не вдалося створити адміністратора"
-  }
-  
+  },
+
+
+  "Catalog": {
+  "activeProductsFromAllSuppliers": "Активні товари від усіх постачальників",
+  "foundProducts": "Знайдено {count} товарів",
+  "forQuery": "за запитом",
+  "inCategory": "у категорії",
+  "noProductsFound": "Товари не знайдено",
+  "tryChangingSearch": "Спробуйте змінити умови пошуку",
+  "noProductsInCategory": "У цій категорії поки немає товарів"
+}
 
 }

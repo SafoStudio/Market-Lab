@@ -7,12 +7,14 @@ import { useTranslations } from 'next-intl';
 
 import {
   useLockScroll,
-  useCreateProduct, useUpdateProduct,
-  useParentCategories, useCategoryChildren,
+  useCreateSupplierProduct,
+  useUpdateSupplierProduct,
+  useParentCategories,
+  useCategoryChildren,
 } from '@/core/hooks';
 
 interface ProductFormModalProps {
-  product?: Product;
+  product?: Product | null;
   onCancel: () => void;
 }
 
@@ -31,21 +33,21 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
     categoryId: '',
     subcategoryId: '',
     stock: 0,
-    isActive: true,
+    status: 'draft' as ProductStatus,
   });
 
   // Load parent categories
-  const { data: parentCategories = [], isLoading: loadingParents } =
-    useParentCategories();
+  const { data: parentCategories = [], isLoading: loadingParents } = useParentCategories();
 
   // Load subcategories when a parent category is selected
   const { data: childCategories = [], isLoading: loadingChildren } =
     useCategoryChildren(formData.categoryId || undefined);
 
-  const createProductMutation = useCreateProduct();
-  const updateProductMutation = useUpdateProduct();
+  const createProductMutation = useCreateSupplierProduct();
+  const updateProductMutation = useUpdateSupplierProduct();
   const loading = createProductMutation.isPending || updateProductMutation.isPending;
 
+  // Initialize form with product data
   useEffect(() => {
     if (product) {
       setFormData({
@@ -55,7 +57,7 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
         categoryId: product.categoryId || '',
         subcategoryId: product.subcategoryId || '',
         stock: product.stock || 0,
-        isActive: product.status === 'active' || true,
+        status: product.status || 'draft',
       });
       if (product.images) setImagePreviews(product.images);
     } else {
@@ -66,107 +68,81 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
         categoryId: '',
         subcategoryId: '',
         stock: 0,
-        isActive: true,
+        status: 'draft',
       });
     }
   }, [product]);
 
+  // Cleanup image previews
   useEffect(() => {
     return () => imagePreviews.forEach((url) => URL.revokeObjectURL(url));
   }, [imagePreviews]);
 
-  const handleImageSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files) return;
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
 
-      const newImages = Array.from(files);
-      setSelectedImages((prev) => [...prev, ...newImages]);
+    const newImages = Array.from(files);
+    setSelectedImages((prev) => [...prev, ...newImages]);
 
-      const newPreviews = newImages.map((file) => URL.createObjectURL(file));
-      setImagePreviews((prev) => [...prev, ...newPreviews]);
-    },
-    []
-  );
+    const newPreviews = newImages.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  }, []);
 
-  const removeImage = useCallback(
-    (index: number, isNewImage: boolean) => {
-      if (isNewImage) setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  const removeImage = useCallback((index: number, isNewImage: boolean) => {
+    if (isNewImage) {
+      setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    }
 
-      setImagePreviews((prev) => {
-        const newPreviews = prev.filter((_, i) => i !== index);
-        URL.revokeObjectURL(prev[index]);
-        return newPreviews;
-      });
-    },
-    []
-  );
+    setImagePreviews((prev) => {
+      const newPreviews = prev.filter((_, i) => i !== index);
+      URL.revokeObjectURL(prev[index]);
+      return newPreviews;
+    });
+  }, []);
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      try {
-        const baseData = {
-          name: formData.name,
-          description: formData.description,
-          price: formData.price,
-          stock: formData.stock,
-          ...(formData.categoryId && { categoryId: formData.categoryId }),
-          ...(formData.subcategoryId && { subcategoryId: formData.subcategoryId }),
-        };
+    try {
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        price: formData.price,
+        stock: formData.stock,
+        status: formData.status,
+        ...(formData.categoryId && { categoryId: formData.categoryId }),
+        ...(formData.subcategoryId && { subcategoryId: formData.subcategoryId }),
+      };
 
-        if (product) {
-          const updateData: any = {};
-
-          if (formData.name !== product.name) updateData.name = formData.name;
-          if (formData.description !== product.description) updateData.description = formData.description;
-          if (formData.price !== product.price) updateData.price = formData.price;
-          if (formData.stock !== product.stock) updateData.stock = formData.stock;
-          if (formData.categoryId !== product.categoryId) updateData.categoryId = formData.categoryId || null;
-          if (formData.subcategoryId !== product.subcategoryId) updateData.subcategoryId = formData.subcategoryId || null;
-
-          const newStatus = formData.isActive ? 'active' : 'inactive';
-          if (newStatus !== product.status) updateData.status = newStatus;
-
-          await updateProductMutation.mutateAsync({
-            id: product.id,
-            data: updateData,
-            images: selectedImages,
-          });
-        } else {
-          await createProductMutation.mutateAsync({
-            data: {
-              ...baseData,
-              status: (formData.isActive ? 'active' : 'draft') as ProductStatus,
-            },
-            images: selectedImages,
-          });
-        }
-
-        setSelectedImages([]);
-        setImagePreviews([]);
-        onCancel();
-      } catch (error) {
-        console.error('Failed to save product:', error);
+      if (product) {
+        await updateProductMutation.mutateAsync({
+          id: product.id,
+          data: productData,
+          images: selectedImages,
+        });
+      } else {
+        await createProductMutation.mutateAsync({
+          data: productData,
+          images: selectedImages,
+        });
       }
-    },
-    [formData, selectedImages, product, createProductMutation, updateProductMutation, onCancel]
-  );
+
+      setSelectedImages([]);
+      setImagePreviews([]);
+      onCancel();
+    } catch (error) {
+      console.error('Failed to save product:', error);
+    }
+  }, [formData, selectedImages, product, createProductMutation, updateProductMutation, onCancel]);
 
   const handleCancel = useCallback(() => {
     imagePreviews.forEach(url => URL.revokeObjectURL(url));
     onCancel();
   }, [imagePreviews, onCancel]);
 
-  // Determine which images are new
-  const existingImagesCount = product?.images?.length || 0;
-  const newImagesCount = selectedImages.length;
-  const totalImages = existingImagesCount + newImagesCount;
-
   const getCategoryName = (category: any): string => {
     if (!category?.slug) return category?.name || '';
-
     return translateMainCategory(category.slug);
   };
 
@@ -179,18 +155,20 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
     return translateSubcategory(parentCategory.slug, subcategory.slug);
   };
 
+  const existingImagesCount = product?.images?.length || 0;
+  const newImagesCount = selectedImages.length;
+  const totalImages = existingImagesCount + newImagesCount;
+
   return (
     <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {product
-              ? t('ProductForm.editTitle')
-              : t('ProductForm.createTitle')
-            }
+            {product ? t('ProductForm.editTitle') : t('ProductForm.createTitle')}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('ProductForm.nameLabel')} *
@@ -206,6 +184,7 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
               />
             </div>
 
+            {/* Categories */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -213,7 +192,11 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
                 </label>
                 <select
                   value={formData.categoryId}
-                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value, subcategoryId: '' })}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    categoryId: e.target.value,
+                    subcategoryId: ''
+                  })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={loading || loadingParents}
                   required
@@ -262,9 +245,10 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
               </div>
             </div>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('ProductForm.descriptionLabel')}*
+                {t('ProductForm.descriptionLabel')} *
               </label>
               <textarea
                 required
@@ -277,6 +261,7 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
               />
             </div>
 
+            {/* Price and Stock */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -311,6 +296,24 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
               </div>
             </div>
 
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('ProductForm.statusLabel')}
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as ProductStatus })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              >
+                <option value="draft">{t('Product.status.draft')}</option>
+                <option value="active">{t('Product.status.active')}</option>
+                <option value="inactive">{t('Product.status.inactive')}</option>
+              </select>
+            </div>
+
+            {/* Images */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('ProductForm.imagesLabel', {
@@ -395,21 +398,7 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
               </div>
             </div>
 
-            <div>
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  disabled={loading}
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {t('ProductForm.statusLabel')}
-                </span>
-              </label>
-            </div>
-
+            {/* Actions */}
             <div className="flex justify-end gap-3 pt-6 border-t">
               <button
                 type="button"
@@ -427,10 +416,7 @@ export function ProductFormModal({ product, onCancel }: ProductFormModalProps) {
                 {loading && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 )}
-                {product
-                  ? t('ProductForm.updateButton')
-                  : t('ProductForm.createButton')
-                }
+                {product ? t('ProductForm.updateButton') : t('ProductForm.createButton')}
               </button>
             </div>
           </form>

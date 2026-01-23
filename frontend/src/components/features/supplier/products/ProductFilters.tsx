@@ -2,32 +2,40 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useProductStore } from '@/core/store/productStore';
-import { ProductStatus } from '@/core/types/productTypes';
+import { ProductStatus, Product } from '@/core/types/productTypes';
 import { useCategories } from '@/core/hooks';
 import { useCategoryTranslations, useStatusTranslations } from '@/core/utils/i18n';
 import { useTranslations } from 'next-intl';
 
+interface ProductFiltersProps {
+  products: Product[];
+}
 
-export function ProductFilters() {
+export function ProductFilters({ products }: ProductFiltersProps) {
   const {
+    searchQuery,
+    selectedCategory,
+    statusFilter,
+    sortBy,
+    sortOrder,
     setSearchQuery,
     setSelectedCategory,
     setStatusFilter,
-    applyFilters,
-    clearFilters,
-    searchQuery: storeSearchQuery,
-    selectedCategory: storeSelectedCategory,
-    statusFilter: storeStatusFilter
+    setSort,
+    resetFilters,
   } = useProductStore();
 
-  const products = useProductStore(state => state.products);
   const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
 
   const t = useTranslations();
   const { translateCategory } = useCategoryTranslations();
   const { translateStatus } = useStatusTranslations();
 
-  // Statistics for information
+  // Local state for debouncing
+  const [searchInput, setSearchInput] = useState(searchQuery);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
+
+  // Statistics based on filtered products
   const stats = useMemo(() => {
     const total = products.length;
     const active = products.filter(p => p.status === 'active').length;
@@ -64,60 +72,65 @@ export function ProductFilters() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [products, categories]);
 
-  // local state
-  const [search, setSearch] = useState(storeSearchQuery || '');
-  const [category, setCategory] = useState(storeSelectedCategory || 'all');
-  const [status, setStatus] = useState<ProductStatus | 'all'>(storeStatusFilter);
+  // Local UI state
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  // Synchronization
+  // Debounced search
   useEffect(() => {
-    setSearch(storeSearchQuery);
-    setCategory(storeSelectedCategory || 'all');
-    setStatus(storeStatusFilter);
-  }, [storeSearchQuery, storeSelectedCategory, storeStatusFilter]);
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
 
-  useEffect(() => {
-    applyFilters();
-  }, []);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    setSearchQuery(value);
-    const timeoutId = setTimeout(() => {
-      applyFilters();
+    const timeout = setTimeout(() => {
+      setSearchQuery(searchInput);
     }, 300);
-    return () => clearTimeout(timeoutId);
+
+    setSearchTimeout(timeout);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput, setSearchQuery]);
+
+  // Sync local state with store
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    setCategory(value);
     setSelectedCategory(value === 'all' ? null : value);
-    applyFilters();
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as ProductStatus | 'all';
-    setStatus(value);
     setStatusFilter(value);
-    applyFilters();
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    const [sortBy, sortOrder] = value.split('-');
+    setSort(
+      sortBy as 'name' | 'price' | 'stock' | 'createdAt',
+      sortOrder as 'asc' | 'desc'
+    );
   };
 
   const handleStockFilter = (filter: string) => {
     setStockFilter(filter);
-    //! добавить логику фильтрации по стоку
-    //! добавить соответствующее поле в store
   };
 
   const handleClearFilters = () => {
-    setSearch('');
-    setCategory('all');
-    setStatus('all');
+    setSearchInput('');
+    resetFilters();
     setStockFilter('all');
-    clearFilters();
+  };
+
+  const getSortValue = () => {
+    return `${sortBy}-${sortOrder}`;
   };
 
   return (
@@ -169,8 +182,8 @@ export function ProductFilters() {
           <div className="relative">
             <input
               type="text"
-              value={search}
-              onChange={handleSearch}
+              value={searchInput}
+              onChange={handleSearchChange}
               placeholder={t('ProductFilters.searchPlaceholder')}
               className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -187,7 +200,7 @@ export function ProductFilters() {
           </label>
           <div className="relative">
             <select
-              value={category}
+              value={selectedCategory || 'all'}
               onChange={handleCategoryChange}
               disabled={isLoadingCategories}
               className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white disabled:bg-gray-50 disabled:text-gray-500"
@@ -219,7 +232,7 @@ export function ProductFilters() {
           </label>
           <div className="relative">
             <select
-              value={status}
+              value={statusFilter}
               onChange={handleStatusChange}
               className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
             >
@@ -316,13 +329,17 @@ export function ProductFilters() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('ProductFilters.sortLabel')}
               </label>
-              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="newest">{t('ProductFilters.sortNewest')}</option>
-                <option value="oldest">{t('ProductFilters.sortOldest')}</option>
-                <option value="price-low">{t('ProductFilters.sortPriceLow')}</option>
-                <option value="price-high">{t('ProductFilters.sortPriceHigh')}</option>
-                <option value="stock-low">{t('ProductFilters.sortStockLow')}</option>
-                <option value="stock-high">{t('ProductFilters.sortStockHigh')}</option>
+              <select
+                value={getSortValue()}
+                onChange={handleSortChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="createdAt-desc">{t('ProductFilters.sortNewest')}</option>
+                <option value="createdAt-asc">{t('ProductFilters.sortOldest')}</option>
+                <option value="price-asc">{t('ProductFilters.sortPriceLow')}</option>
+                <option value="price-desc">{t('ProductFilters.sortPriceHigh')}</option>
+                <option value="stock-asc">{t('ProductFilters.sortStockLow')}</option>
+                <option value="stock-desc">{t('ProductFilters.sortStockHigh')}</option>
                 <option value="name-asc">{t('ProductFilters.sortNameAsc')}</option>
                 <option value="name-desc">{t('ProductFilters.sortNameDesc')}</option>
               </select>
@@ -332,24 +349,20 @@ export function ProductFilters() {
       )}
 
       {/* Active filters */}
-      {(storeSearchQuery || storeSelectedCategory || storeStatusFilter !== 'all') && (
+      {(searchQuery || selectedCategory || statusFilter !== 'all') && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-gray-700">
               {t('ProductFilters.activeFilters')}:
             </span>
 
-            {storeSearchQuery && (
+            {searchQuery && (
               <div className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
                 <span>
-                  {t('ProductFilters.searchFilter', { query: storeSearchQuery })}
+                  {t('ProductFilters.searchFilter', { query: searchQuery })}
                 </span>
                 <button
-                  onClick={() => {
-                    setSearch('');
-                    setSearchQuery('');
-                    applyFilters();
-                  }}
+                  onClick={() => setSearchInput('')}
                   className="ml-1 text-blue-700 hover:text-blue-900"
                 >
                   ✕
@@ -357,17 +370,13 @@ export function ProductFilters() {
               </div>
             )}
 
-            {storeSelectedCategory && (
+            {selectedCategory && (
               <div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
                 <span>
-                  {t('ProductFilters.categoryFilter', { category: getCategoryName(storeSelectedCategory) })}
+                  {t('ProductFilters.categoryFilter', { category: getCategoryName(selectedCategory) })}
                 </span>
                 <button
-                  onClick={() => {
-                    setCategory('all');
-                    setSelectedCategory(null);
-                    applyFilters();
-                  }}
+                  onClick={() => setSelectedCategory(null)}
                   className="ml-1 text-green-700 hover:text-green-900"
                 >
                   ✕
@@ -375,17 +384,13 @@ export function ProductFilters() {
               </div>
             )}
 
-            {storeStatusFilter !== 'all' && (
+            {statusFilter !== 'all' && (
               <div className="inline-flex items-center gap-1 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm">
                 <span>
-                  {t('ProductFilters.statusFilter', { status: translateStatus(storeStatusFilter as ProductStatus) })}
+                  {t('ProductFilters.statusFilter', { status: translateStatus(statusFilter as ProductStatus) })}
                 </span>
                 <button
-                  onClick={() => {
-                    setStatus('all');
-                    setStatusFilter('all');
-                    applyFilters();
-                  }}
+                  onClick={() => setStatusFilter('all')}
                   className="ml-1 text-purple-700 hover:text-purple-900"
                 >
                   ✕

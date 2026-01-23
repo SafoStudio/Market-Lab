@@ -51,7 +51,7 @@ export interface PurchaseProductDto {
 }
 
 export interface ProductsResponse {
-  products: Product[];
+  data: Product[];
   total: number;
   page: number;
   limit: number;

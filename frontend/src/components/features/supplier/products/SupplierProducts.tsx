@@ -6,12 +6,18 @@ import { ProductFormModal } from './ProductFormModal';
 import { ProductStats } from './ProductStats';
 import { ProductFilters } from './ProductFilters';
 import { useProductStore } from '@/core/store/productStore';
+import { useSupplierProducts } from '@/core/hooks';
+import { Product } from '@/core/types/productTypes';
 
 export function SupplierProducts() {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const loading = useProductStore(state => state.loading);
+  const { data: products = [], isLoading: productsLoading } = useSupplierProducts();
+
+  const { loading: uiLoading } = useProductStore();
+
+  const loading = productsLoading || uiLoading;
 
   const handleOpenAddModal = useCallback(() => {
     setIsAddingProduct(true);
@@ -22,7 +28,7 @@ export function SupplierProducts() {
     setEditingProduct(null);
   }, []);
 
-  const handleEditProduct = useCallback((product: any) => {
+  const handleEditProduct = useCallback((product: Product) => {
     setEditingProduct(product);
   }, []);
 
@@ -31,9 +37,10 @@ export function SupplierProducts() {
       <ProductStats
         onAddProduct={handleOpenAddModal}
         loading={loading}
+        products={products}
       />
 
-      <ProductFilters />
+      <ProductFilters products={products} />
 
       {(isAddingProduct || editingProduct) && (
         <ProductFormModal
@@ -44,6 +51,8 @@ export function SupplierProducts() {
 
       <ProductsList
         onEditProduct={handleEditProduct}
+        products={products}
+        loading={loading}
       />
     </div>
   );

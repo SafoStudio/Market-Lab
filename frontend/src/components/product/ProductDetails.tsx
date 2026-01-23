@@ -1,160 +1,225 @@
-import { ProductItem } from '@/core/mocks/productsData'
+'use client';
+
+import { usePublicProduct } from '@/core/hooks';
+import { useLocale, useTranslations } from 'next-intl';
+import { useState } from 'react';
+import Link from 'next/link';
 
 interface ProductDetailsProps {
-  product: ProductItem
+  productId: string;
+  onAddToCart?: (quantity: number) => void;
+  onSave?: () => void;
 }
 
-export function ProductDetails({ product }: ProductDetailsProps) {
+export function ProductDetails({
+  productId,
+  onAddToCart,
+  onSave
+}: ProductDetailsProps) {
+  const locale = useLocale();
+  const t = useTranslations('Product');
+  const tCommon = useTranslations('Common');
+  const { data: product, isLoading } = usePublicProduct(productId);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+
+  if (isLoading) return <p>Loading...</p>
+  if (!product) return <p>Product not found</p>;
+
+  const hasStock = product.stock > 0;
+  const isLowStock = product.stock <= 10 && product.stock > 0;
+  const images = product.images || [];
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    if (newQuantity > product.stock) return;
+    setQuantity(newQuantity);
+  };
+
+  const handleAddToCart = () => {
+    if (onAddToCart && hasStock) {
+      onAddToCart(quantity);
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('uk-UA', {
+      style: 'currency',
+      currency: 'UAH',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+
   return (
-    <div className="grid md:grid-cols-2 gap-8">
-      {/* Image */}
-      <div className="relative">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="w-full h-auto rounded-2xl object-cover shadow-lg"
-        />
-        {product.organic && (
-          <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-            🌿 Organic
-          </div>
-        )}
-        {product.isPopular && (
-          <div className="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-            🏆 Popular
-          </div>
-        )}
+    <>
+      {/* Back button */}
+      <div className="mb-6">
+        <Link
+          href={`/${locale}/products`}
+          className="text-green-600 hover:text-green-700 hover:underline inline-flex items-center gap-2"
+        >
+          ← {t('backToCatalog')}
+        </Link>
       </div>
 
-      {/* Details */}
-      <div>
-        {/* Category */}
-        <div className="mb-4">
-          <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-            {product.category}
-          </span>
-        </div>
-
-        {/* Title and Description */}
-        <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-        <p className="text-gray-600 mb-6 text-lg">{product.description}</p>
-
-        {/* Price and Rating */}
-        <div className="flex items-center gap-6 mb-6">
-          <div className="text-3xl font-bold text-green-600">
-            {product.price}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-yellow-500 text-xl">⭐</span>
-            <div>
-              <div className="font-medium">{product.rating}/5</div>
-              <div className="text-sm text-gray-500">{product.reviewsCount} reviews</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Farmer Information */}
-        <div className="bg-green-50 rounded-xl p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            👨‍🌾 Farmer Information
-          </h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Farm:</span>
-              <span className="font-medium">{product.farmerName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Region:</span>
-              <span className="font-medium">{product.farmerLocation}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Origin:</span>
-              <span className="font-medium">{product.origin}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Details */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Product Details</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Weight:</span>
-              <span className="font-medium">{product.weight} {product.unit}</span>
-            </div>
-            {product.harvestDate && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Harvest Date:</span>
-                <span className="font-medium">{product.harvestDate}</span>
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Left Column - Images */}
+        <div className="space-y-4">
+          {/* Main Image */}
+          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-gray-100 aspect-square">
+            {images.length > 0 ? (
+              <img
+                src={images[selectedImage]}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-gray-400 text-6xl">📦</span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-gray-600">Standard:</span>
-              <span className="font-medium">{product.organic ? 'Organic' : 'Conventional'}</span>
-            </div>
-          </div>
-        </div>
 
-        {/* Nutritional Value */}
-        {product.nutrients && (
-          <div className="bg-blue-50 rounded-xl p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">Nutritional Value</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {product.nutrients.calories && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-800">{product.nutrients.calories}</div>
-                  <div className="text-sm text-gray-600">Calories</div>
-                </div>
-              )}
-              {product.nutrients.protein && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-800">{product.nutrients.protein}</div>
-                  <div className="text-sm text-gray-600">Protein</div>
-                </div>
-              )}
-              {product.nutrients.carbs && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-800">{product.nutrients.carbs}</div>
-                  <div className="text-sm text-gray-600">Carbs</div>
-                </div>
-              )}
-              {product.nutrients.fat && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-800">{product.nutrients.fat}</div>
-                  <div className="text-sm text-gray-600">Fat</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Tags */}
-        {product.tags && product.tags.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Characteristics</h3>
-            <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full text-sm"
-                >
-                  {tag}
+            {/* Stock Badge */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2">
+              {!hasStock && (
+                <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-medium">
+                  {t('outOfStock')}
                 </span>
+              )}
+              {isLowStock && hasStock && (
+                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm font-medium">
+                  {t('lowStock')}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Thumbnails */}
+          {images.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`rounded-lg overflow-hidden cursor-pointer transition-all ${selectedImage === index
+                    ? 'ring-2 ring-green-500 ring-offset-2'
+                    : 'hover:opacity-80'
+                    }`}
+                >
+                  <img
+                    src={image}
+                    alt={`${product.name} - ${index + 1}`}
+                    className="w-full h-20 object-cover"
+                  />
+                </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <button className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
-            🛒 Add to Cart
-          </button>
-          <button className="px-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition">
-            💖 Save
-          </button>
+        {/* Right Column - Details */}
+        <div className="space-y-6">
+          {/* Category */}
+          <div>
+            {/* <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+              {product.categoryId ? `${t('category')}: ${product.categoryId.slice(0, 8)}...` : t('noCategory')}
+            </span> */}
+          </div>
+
+          {/* Title and Description */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              {product.name}
+            </h1>
+            <p className="text-gray-600 text-lg leading-relaxed">
+              {product.description}
+            </p>
+          </div>
+
+          {/* Price and Stock */}
+          <div className="flex items-center justify-between bg-green-50 p-4 rounded-xl">
+            <div className="text-3xl font-bold text-green-600">
+              {formatPrice(product.price)}
+            </div>
+            <div className={`text-lg font-medium ${hasStock ? 'text-green-700' : 'text-red-700'}`}>
+              {hasStock ? `${t('inStock')}: ${product.stock}` : t('outOfStock')}
+            </div>
+          </div>
+
+          {/* Tags */}
+          {product.tags && product.tags.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-3">{tCommon('tags')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-full text-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            {/* Quantity Selector and Add to Cart */}
+            {hasStock && (
+              <div className="flex gap-4 items-center">
+                <div className="flex items-center border border-gray-300 rounded-lg">
+                  <button
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                    className="px-4 py-2 text-gray-600 disabled:opacity-50 hover:bg-gray-100 transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-2 font-medium min-w-10 text-center">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= product.stock}
+                    className="px-4 py-2 text-gray-600 disabled:opacity-50 hover:bg-gray-100 transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!hasStock}
+                >
+                  🛒 {tCommon('addToCart')}
+                </button>
+              </div>
+            )}
+
+            {/* Other Actions */}
+            <div className="flex gap-4">
+              {onSave && (
+                <button
+                  onClick={onSave}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  💖 {t('save')}
+                </button>
+              )}
+              {!hasStock && (
+                <button
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors opacity-75 cursor-not-allowed"
+                  disabled
+                >
+                  🔔 {t('notifyWhenAvailable')}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    </>
+  );
 }
