@@ -69,38 +69,8 @@ export class PostgresCategoryRepository extends DomainCategoryRepository {
     return entities.map(this.toDomainEntity);
   }
 
-  // UtilityRepository methods
   async exists(id: string): Promise<boolean> {
     return await this.repository.existsBy({ id });
-  }
-
-  // PaginableRepository methods
-  async findWithPagination(
-    page: number,
-    limit: number,
-    filter?: Partial<CategoryDomainEntity>
-  ): Promise<{
-    data: CategoryDomainEntity[];
-    total: number;
-    page: number;
-    totalPages: number;
-  }> {
-    const skip = (page - 1) * limit;
-    const where = filter ? this.buildWhereConditions(filter) : {};
-
-    const [entities, total] = await this.repository.findAndCount({
-      where,
-      skip,
-      take: limit,
-      order: { order: 'ASC', name: 'ASC' }
-    });
-
-    return {
-      data: entities.map(this.toDomainEntity),
-      total,
-      page,
-      totalPages: Math.ceil(total / limit)
-    };
   }
 
   // Category-specific methods

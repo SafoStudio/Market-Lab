@@ -1,4 +1,5 @@
-import { CategoryStatus } from "./category.type";
+import { CategoryStatus, TranslatableCategoryField } from "./category.type";
+import { LanguageCode } from "@domain/translations/types";
 
 export interface CreateCategoryDto {
   name: string;
@@ -10,6 +11,7 @@ export interface CreateCategoryDto {
   order?: number;
   metaTitle?: string;
   metaDescription?: string;
+  translations?: Record<LanguageCode, Partial<Record<TranslatableCategoryField, string>>>;
 }
 
 export interface UpdateCategoryDto extends Partial<CreateCategoryDto> { }
