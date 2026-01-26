@@ -1,5 +1,6 @@
 import { ProductDomainEntity } from './product.entity';
 import { ProductStatus } from './types';
+import { LanguageCode } from '@domain/translations/types';
 
 import {
   BaseRepository,
@@ -16,14 +17,14 @@ export abstract class ProductRepository implements
 
   // BaseRepository methods
   abstract create(data: Partial<ProductDomainEntity>): Promise<ProductDomainEntity>;
-  abstract findById(id: string): Promise<ProductDomainEntity | null>;
+  abstract findById(id: string, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
   abstract update(id: string, data: Partial<ProductDomainEntity>): Promise<ProductDomainEntity | null>;
   abstract delete(id: string): Promise<void>;
 
   // QueryableRepository methods
-  abstract findOne(filter: Partial<ProductDomainEntity>): Promise<ProductDomainEntity | null>;
-  abstract findMany(filter: Partial<ProductDomainEntity>): Promise<ProductDomainEntity[]>;
-  abstract findAll(): Promise<ProductDomainEntity[]>;
+  abstract findOne(filter: Partial<ProductDomainEntity>, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract findMany(filter: Partial<ProductDomainEntity>, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findAll(languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
 
   // UtilityRepository methods
   abstract exists(id: string): Promise<boolean>;
@@ -32,7 +33,8 @@ export abstract class ProductRepository implements
   abstract findWithPagination(
     page: number,
     limit: number,
-    filter?: Partial<ProductDomainEntity>
+    filter?: Partial<ProductDomainEntity>,
+    languageCode?: LanguageCode
   ): Promise<{
     data: ProductDomainEntity[];
     total: number;
@@ -42,80 +44,30 @@ export abstract class ProductRepository implements
   }>;
 
   // Product-specific methods
-
-  // Search by supplier
-  abstract findBySupplierId(supplierId: string): Promise<ProductDomainEntity[]>;
-
-  // Search by status
-  abstract findByStatus(status: ProductStatus): Promise<ProductDomainEntity[]>;
-
-  // Search for active products
-  abstract findActive(): Promise<ProductDomainEntity[]>;
-
-  // Search by price range
-  abstract findByPriceRange(min: number, max: number): Promise<ProductDomainEntity[]>;
-
-  // Search by tags
-  abstract findByTags(tags: string[]): Promise<ProductDomainEntity[]>;
-
-  // Search by name
-  abstract findByName(name: string): Promise<ProductDomainEntity | null>;
-
-  // Search by part of the name
-  abstract searchByName(name: string): Promise<ProductDomainEntity[]>;
-
-  // Search by text in the title and description
-  abstract searchByText(text: string): Promise<ProductDomainEntity[]>;
-
-  // Check if the product exists at the supplier's location
+  abstract findBySupplierId(supplierId: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByStatus(status: ProductStatus, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findActive(languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByPriceRange(min: number, max: number, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByTags(tags: string[], languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByName(name: string, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract searchByName(name: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract searchByText(text: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
   abstract existsBySupplierAndName(supplierId: string, name: string): Promise<boolean>;
-
-  // Get the number of products from the supplier
   abstract countBySupplier(supplierId: string): Promise<number>;
-
-  // Get status statistics
   abstract countByStatus(status: ProductStatus): Promise<number>;
+  abstract findSorted(sortBy: keyof ProductDomainEntity, order: 'ASC' | 'DESC', languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract updateStatus(id: string, status: ProductStatus, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract updateStock(id: string, stock: number, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract increaseStock(id: string, quantity: number, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract decreaseStock(id: string, quantity: number, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract updatePrice(id: string, price: number, languageCode?: LanguageCode): Promise<ProductDomainEntity | null>;
+  abstract findLowStock(threshold?: number, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByIds(ids: string[], languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByCategoryId(categoryId: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findBySubcategoryId(subcategoryId: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
+  abstract findByCategoryAndSubcategory(categoryId: string, subcategoryId?: string, languageCode?: LanguageCode): Promise<ProductDomainEntity[]>;
 
-  // Getting products with sorting
-  abstract findSorted(
-    sortBy: keyof ProductDomainEntity,
-    order: 'ASC' | 'DESC'
-  ): Promise<ProductDomainEntity[]>;
-
-  // Update product status
-  abstract updateStatus(id: string, status: ProductStatus): Promise<ProductDomainEntity | null>;
-
-  // Update inventory
-  abstract updateStock(id: string, stock: number): Promise<ProductDomainEntity | null>;
-
-  // Increase inventory
-  abstract increaseStock(id: string, quantity: number): Promise<ProductDomainEntity | null>;
-
-  // Decrease inventory
-  abstract decreaseStock(id: string, quantity: number): Promise<ProductDomainEntity | null>;
-
-  // Update price
-  abstract updatePrice(id: string, price: number): Promise<ProductDomainEntity | null>;
-
-  // Get products with low stock
-  abstract findLowStock(threshold?: number): Promise<ProductDomainEntity[]>;
-
-  // Getting products by ID array
-  abstract findByIds(ids: string[]): Promise<ProductDomainEntity[]>;
-
-  // Search by category ID
-  abstract findByCategoryId(categoryId: string): Promise<ProductDomainEntity[]>;
-
-  // Search by subcategory ID
-  abstract findBySubcategoryId(subcategoryId: string): Promise<ProductDomainEntity[]>;
-
-  // Search by category and subcategory
-  abstract findByCategoryAndSubcategory(
-    categoryId: string,
-    subcategoryId?: string
-  ): Promise<ProductDomainEntity[]>;
-
-  // Getting statistics
+  // Statistics
   abstract getStatistics(): Promise<{
     total: number;
     active: number;

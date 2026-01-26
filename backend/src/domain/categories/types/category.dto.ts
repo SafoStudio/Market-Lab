@@ -1,17 +1,103 @@
-import { CategoryStatus, TranslatableCategoryField } from "./category.type";
-import { LanguageCode } from "@domain/translations/types";
+import {
+  IsString, IsOptional, IsEnum, IsUUID,
+  IsNotEmpty, Min, Max, IsUrl, IsObject
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CategoryStatusEnum } from './category.type';
+import { LanguageCode, TranslatableCategoryFields } from '@domain/translations/types';
 
-export interface CreateCategoryDto {
+
+export class CreateCategoryDto {
+  @IsString({ message: 'Category name must be a string' })
+  @IsNotEmpty({ message: 'Category name is required' })
   name: string;
+
+  @IsOptional()
+  @IsString({ message: 'Slug must be a string' })
+  @IsNotEmpty({ message: 'Slug cannot be empty' })
   slug?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
   description?: string;
-  status?: CategoryStatus;
+
+  @IsOptional()
+  @IsEnum(CategoryStatusEnum, { message: 'Invalid status' })
+  status?: CategoryStatusEnum;
+
+  @IsOptional()
+  @IsUrl({}, { message: 'Image URL must be a valid URL' })
   imageUrl?: string;
+
+  @IsOptional()
+  @IsUUID()
   parentId?: string | null;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0, { message: 'Order cannot be negative' })
+  @Max(1000, { message: 'Order cannot exceed 1000' })
   order?: number;
+
+  @IsOptional()
+  @IsString({ message: 'Meta title must be a string' })
+  @IsNotEmpty({ message: 'Meta title cannot be empty' })
   metaTitle?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Meta description must be a string' })
+  @IsNotEmpty({ message: 'Meta description cannot be empty' })
   metaDescription?: string;
-  translations?: Record<LanguageCode, Partial<Record<TranslatableCategoryField, string>>>;
+
+  @IsOptional()
+  @IsObject({ message: 'Translations must be an object' })
+  translations?: Record<LanguageCode, Partial<Record<TranslatableCategoryFields, string>>>;
 }
 
-export interface UpdateCategoryDto extends Partial<CreateCategoryDto> { }
+export class UpdateCategoryDto {
+  @IsOptional()
+  @IsString({ message: 'Category name must be a string' })
+  @IsNotEmpty({ message: 'Category name cannot be empty' })
+  name?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Slug must be a string' })
+  @IsNotEmpty({ message: 'Slug cannot be empty' })
+  slug?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @IsOptional()
+  @IsEnum(CategoryStatusEnum, { message: 'Invalid status' })
+  status?: CategoryStatusEnum;
+
+  @IsOptional()
+  @IsUrl({}, { message: 'Image URL must be a valid URL' })
+  imageUrl?: string;
+
+  @IsOptional()
+  @IsUUID()
+  parentId?: string | null;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0, { message: 'Order cannot be negative' })
+  @Max(1000, { message: 'Order cannot exceed 1000' })
+  order?: number;
+
+  @IsOptional()
+  @IsString({ message: 'Meta title must be a string' })
+  @IsNotEmpty({ message: 'Meta title cannot be empty' })
+  metaTitle?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Meta description must be a string' })
+  @IsNotEmpty({ message: 'Meta description cannot be empty' })
+  metaDescription?: string;
+
+  @IsOptional()
+  @IsObject({ message: 'Translations must be an object' })
+  translations?: Record<LanguageCode, Partial<Record<TranslatableCategoryFields, string>>>;
+}

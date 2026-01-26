@@ -2,7 +2,8 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  BadRequestException
+  BadRequestException,
+  Inject
 } from "@nestjs/common";
 
 import { ProductCoreService } from "./product-core.service";
@@ -17,6 +18,8 @@ import {
   ProductStatus
 } from "../types";
 import { Role } from '@shared/types';
+import { LanguageCode, DEFAULT_LANGUAGE, TranslatableProductFields } from "@domain/translations/types";
+import { TranslationService } from "@domain/translations/translation.service";
 
 
 @Injectable()
@@ -24,7 +27,9 @@ export class ProductManagementService {
   constructor(
     private readonly productCore: ProductCoreService,
     private readonly productOwner: ProductOwnerService,
-    private readonly productFileService: ProductFileService
+    private readonly productFileService: ProductFileService,
+    @Inject(TranslationService)
+    private readonly translationService: TranslationService
   ) { }
 
   async create(
@@ -35,6 +40,14 @@ export class ProductManagementService {
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
     const product = await this.productCore.createProductEntity(dto, supplierId);
     const savedProduct = await this.productCore.saveProduct(product);
+
+    if (dto.translations) {
+      await this.translationService.saveTranslations(
+        savedProduct.id,
+        'product',
+        dto.translations
+      );
+    }
 
     if (images?.length) await this._uploadAndAttachImages(savedProduct, images, companyName);
     return savedProduct;
@@ -51,6 +64,14 @@ export class ProductManagementService {
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'update');
+
+    if (dto.translations) {
+      await this.translationService.saveTranslations(
+        id,
+        'product',
+        dto.translations
+      );
+    }
 
     if (newImages?.length) {
       const uploadedUrls = await this._uploadImages(newImages, companyName, product.name);
@@ -69,6 +90,8 @@ export class ProductManagementService {
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'delete');
+
+    await this.translationService.deleteTranslations(id, 'product');
 
     try {
       await this.productFileService.deleteProductImages(companyName, product.name);
@@ -129,7 +152,8 @@ export class ProductManagementService {
   async getSupplierProducts(
     userId: string,
     currentUserId: string,
-    userRoles: string[]
+    userRoles: string[],
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
   ): Promise<ProductDomainEntity[]> {
     const requestedSupplierId = await this.productOwner.getSupplierIdFromUserId(userId);
     const currentSupplierId = await this.productOwner.getSupplierIdFromUserId(currentUserId);
@@ -138,7 +162,7 @@ export class ProductManagementService {
       throw new ForbiddenException('You can only view your own products');
     }
 
-    return this.productCore.getSupplierProductsOperation(requestedSupplierId);
+    return this.productCore.getSupplierProductsOperation(requestedSupplierId, languageCode);
   }
 
   async restockProduct(

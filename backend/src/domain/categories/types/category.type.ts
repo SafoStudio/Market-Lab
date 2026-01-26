@@ -1,5 +1,5 @@
 import { Entity } from "@shared/types";
-import { LanguageCode } from "@domain/translations/types";
+import { WithTranslations } from "@domain/translations/types";
 
 export const CATEGORY_STATUS = {
   ACTIVE: 'active',
@@ -7,19 +7,17 @@ export const CATEGORY_STATUS = {
   ARCHIVED: 'archived'
 } as const;
 
+// for class-validator
+export enum CategoryStatusEnum {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  ARCHIVED = 'archived'
+}
+
 export type CategoryStatus = typeof CATEGORY_STATUS[keyof typeof CATEGORY_STATUS];
 export const DEFAULT_CATEGORY_STATUS = CATEGORY_STATUS.ACTIVE;
 
-export const TRANSLATABLE_CATEGORY_FIELDS = [
-  'name',
-  'description',
-  'metaTitle',
-  'metaDescription'
-] as const;
-
-export type TranslatableCategoryField = typeof TRANSLATABLE_CATEGORY_FIELDS[number];
-
-export interface CategoryModel extends Entity {
+export interface CategoryModel extends Entity, WithTranslations<'category'> {
   name: string;
   slug: string;
   description: string;
@@ -29,7 +27,6 @@ export interface CategoryModel extends Entity {
   order: number;
   metaTitle?: string;
   metaDescription?: string;
-  translations?: Record<LanguageCode, Partial<Record<TranslatableCategoryField, string>>>;
 }
 
 export interface CategoryTreeItem extends CategoryModel {
@@ -39,10 +36,6 @@ export interface CategoryTreeItem extends CategoryModel {
 export type SubcategoryModel = CategoryModel & {
   parentId: string;
 };
-
-export interface LocalizedCategory extends Omit<CategoryModel, 'translations'> {
-  languageCode: LanguageCode;
-}
 
 export interface CategoryValidationResult {
   category?: CategoryModel;

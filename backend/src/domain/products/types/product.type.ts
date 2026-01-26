@@ -1,5 +1,7 @@
 // Use only within the domain, internal typing..
 import { Entity } from "@shared/types/entity.interface";
+import { WithTranslations } from "@domain/translations/types";
+
 
 export const PRODUCT_STATUS = {
   ACTIVE: 'active',
@@ -23,9 +25,10 @@ export const MIN_STOCK_QUANTITY = 0;
 export const MAX_IMAGES_PER_PRODUCT = 10;
 export const MAX_TAGS_PER_PRODUCT = 20;
 
-export interface ProductModel extends Entity {
+export interface ProductModel extends Entity, WithTranslations<'product'> {
   name: string;
   description: string;
+  shortDescription?: string;
   price: number;
   supplierId: string;
   categoryId?: string,
@@ -34,6 +37,8 @@ export interface ProductModel extends Entity {
   stock: number;
   status: ProductStatus;
   tags: string[];
+  unit: Unit;
+  currency: Currency;
 }
 
 export interface PaginatedResult<T> {
@@ -57,4 +62,38 @@ export interface ProductStatistics {
   draft: number;
   totalStock: number;
   averagePrice: number;
+}
+
+export const UNITS = {
+  KILOGRAM: 'kg',
+  GRAM: 'g',
+  LITER: 'l',
+  MILLILITER: 'ml',
+  PIECE: 'pcs'
+} as const;
+
+export type Unit = typeof UNITS[keyof typeof UNITS];
+
+export const CURRENCIES = {
+  UAH: 'UAH',
+  USD: 'USD',
+  EUR: 'EUR'
+} as const;
+
+export type Currency = typeof CURRENCIES[keyof typeof CURRENCIES];
+
+// enums for class-validator
+
+export enum UnitEnum {
+  KILOGRAM = 'kg',
+  GRAM = 'g',
+  LITER = 'l',
+  MILLILITER = 'ml',
+  PIECE = 'pcs'
+}
+
+export enum CurrencyEnum {
+  UAH = 'UAH',
+  USD = 'USD',
+  EUR = 'EUR'
 }

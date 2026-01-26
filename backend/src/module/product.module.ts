@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { TranslationsModule } from './translations.module';
 
 // Domain services
 import {
@@ -39,6 +40,7 @@ import { CategoriesModule } from '@module/categories.module';
     ConfigModule.forRoot(),
     S3StorageModule,
     CategoriesModule,
+    TranslationsModule,
   ],
   controllers: [
     ProductPublicController,
