@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useProductStore } from '@/core/store/productStore';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/core/store/authStore';
+import { useProductStore } from '@/core/store/productStore';
 import { productApi } from '@/core/api/product-api';
 
 import {
@@ -8,33 +8,41 @@ import {
   UpdateProductDto,
   RestockProductDto,
   ProductStatus,
+  Product,
 } from '@/core/types/productTypes';
 
-// Query keys
-export const productKeys = {
-  all: ['products'] as const,
-  lists: () => [...productKeys.all, 'list'] as const,
-  list: (filters?: any) => [...productKeys.lists(), filters] as const,
-  details: () => [...productKeys.all, 'detail'] as const,
-  detail: (id: string) => [...productKeys.details(), id] as const,
-  supplierProducts: () => [...productKeys.all, 'supplier'] as const,
-  ownership: (id: string) => [...productKeys.detail(id), 'ownership'] as const,
+// Query keys for supplier products
+export const supplierProductKeys = {
+  all: ['supplier-products'] as const,
+  lists: () => [...supplierProductKeys.all, 'list'] as const,
+  list: (filters?: any) => [...supplierProductKeys.lists(), filters] as const,
+  details: () => [...supplierProductKeys.all, 'detail'] as const,
+  detail: (id: string) => [...supplierProductKeys.details(), id] as const,
+  ownership: (id: string) => [...supplierProductKeys.detail(id), 'ownership'] as const,
+} as const;
+
+// Public product keys (for public catalog)
+export const publicProductKeys = {
+  all: ['public-products'] as const,
+  lists: () => [...publicProductKeys.all, 'list'] as const,
+  list: (filters?: any) => [...publicProductKeys.lists(), filters] as const,
+  detail: (id: string) => [...publicProductKeys.all, 'detail', id] as const,
 } as const;
 
 /**
- * Hook for getting supplier's products
+ * Hook for getting supplier's products (React Query only)
  */
-export const useMyProducts = () => {
-  const { token } = useAuthStore();
-  const { setProducts, setLoading, setError } = useProductStore();
 
-  return useQuery({
-    queryKey: productKeys.supplierProducts(),
-    queryFn: async () => {
+export const useSupplierProducts = () => {
+  const { token } = useAuthStore();
+  const { setLoading, setError } = useProductStore();
+
+  return useQuery<Product[]>({
+    queryKey: supplierProductKeys.lists(),
+    queryFn: async (): Promise<Product[]> => {
       setLoading(true);
       try {
         const products = await productApi.getMyProducts(token!);
-        setProducts(products);
         return products;
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Failed to load products');
@@ -44,17 +52,17 @@ export const useMyProducts = () => {
       }
     },
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
 /**
  * Hook for creating a new product
  */
-export const useCreateProduct = () => {
+export const useCreateSupplierProduct = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { addProduct, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (payload: { data: CreateProductDto; images: File[] }) => {
@@ -65,7 +73,6 @@ export const useCreateProduct = () => {
           payload.images,
           token!
         );
-        addProduct(product);
         setSuccessMessage('Product created successfully');
         return product;
       } catch (error) {
@@ -76,7 +83,7 @@ export const useCreateProduct = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.supplierProducts() });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.lists() });
     },
   });
 };
@@ -84,10 +91,10 @@ export const useCreateProduct = () => {
 /**
  * Hook for updating a product
  */
-export const useUpdateProduct = () => {
+export const useUpdateSupplierProduct = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { updateProduct, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (payload: {
@@ -103,7 +110,6 @@ export const useUpdateProduct = () => {
           payload.images || [],
           token!
         );
-        updateProduct(payload.id, product);
         setSuccessMessage('Product updated successfully');
         return product;
       } catch (error) {
@@ -114,8 +120,8 @@ export const useUpdateProduct = () => {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: productKeys.supplierProducts() });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.lists() });
     },
   });
 };
@@ -123,17 +129,16 @@ export const useUpdateProduct = () => {
 /**
  * Hook for deleting a product
  */
-export const useDeleteProduct = () => {
+export const useDeleteSupplierProduct = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { deleteProduct, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (id: string) => {
       setLoading(true);
       try {
         await productApi.deleteProduct(id, token!);
-        deleteProduct(id);
         setSuccessMessage('Product deleted successfully');
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Failed to delete product');
@@ -143,7 +148,7 @@ export const useDeleteProduct = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.supplierProducts() });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.lists() });
     },
   });
 };
@@ -151,10 +156,10 @@ export const useDeleteProduct = () => {
 /**
  * Hook for updating product status
  */
-export const useUpdateProductStatus = () => {
+export const useUpdateSupplierProductStatus = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { toggleProductStatus, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (payload: { id: string; status: ProductStatus }) => {
@@ -165,8 +170,8 @@ export const useUpdateProductStatus = () => {
           payload.status,
           token!
         );
-        toggleProductStatus(payload.id, payload.status);
-        setSuccessMessage(`Product ${payload.status === 'active' ? 'activated' : 'deactivated'}`);
+        const action = payload.status === 'active' ? 'activated' : 'deactivated';
+        setSuccessMessage(`Product ${action}`);
         return product;
       } catch (error) {
         setError(error instanceof Error ? error.message : 'Failed to update product status');
@@ -176,8 +181,8 @@ export const useUpdateProductStatus = () => {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: productKeys.supplierProducts() });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.lists() });
     },
   });
 };
@@ -185,10 +190,10 @@ export const useUpdateProductStatus = () => {
 /**
  * Hook for restocking a product
  */
-export const useRestockProduct = () => {
+export const useRestockSupplierProduct = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { restockProduct, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (payload: { id: string; data: RestockProductDto }) => {
@@ -199,7 +204,6 @@ export const useRestockProduct = () => {
           payload.data,
           token!
         );
-        restockProduct(payload.id, payload.data.quantity);
         setSuccessMessage(`Restocked ${payload.data.quantity} units`);
         return product;
       } catch (error) {
@@ -210,8 +214,8 @@ export const useRestockProduct = () => {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
-      queryClient.invalidateQueries({ queryKey: productKeys.supplierProducts() });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.lists() });
     },
   });
 };
@@ -219,10 +223,10 @@ export const useRestockProduct = () => {
 /**
  * Hook for adding images to product
  */
-export const useAddProductImages = () => {
+export const useAddSupplierProductImages = () => {
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { updateProduct, setLoading, setError, setSuccessMessage } = useProductStore();
+  const { setLoading, setError, setSuccessMessage } = useProductStore();
 
   return useMutation({
     mutationFn: async (payload: { id: string; images: File[] }) => {
@@ -233,16 +237,6 @@ export const useAddProductImages = () => {
           payload.images,
           token!
         );
-
-        // Update product images in store
-        const { products } = useProductStore.getState();
-        const product = products.find(p => p.id === payload.id);
-        if (product) {
-          updateProduct(payload.id, {
-            images: [...product.images, ...result.urls]
-          });
-        }
-
         setSuccessMessage(`${result.urls.length} image(s) added successfully`);
         return result;
       } catch (error) {
@@ -253,7 +247,135 @@ export const useAddProductImages = () => {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: supplierProductKeys.detail(variables.id) });
     },
+  });
+};
+
+/**
+ * Hook for getting product by ID (supplier)
+ */
+export const useSupplierProduct = (id: string) => {
+  const { token } = useAuthStore();
+  const { setLoading, setError } = useProductStore();
+
+  return useQuery<Product>({
+    queryKey: supplierProductKeys.detail(id),
+    queryFn: async () => {
+      setLoading(true);
+      try {
+        const product = await productApi.getProductById(id);
+        return product;
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to load product');
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    enabled: !!token && !!id,
+  });
+};
+
+/**
+ * Hook for checking product ownership
+ */
+export const useCheckProductOwnership = (id: string) => {
+  const { token } = useAuthStore();
+
+  return useQuery({
+    queryKey: supplierProductKeys.ownership(id),
+    queryFn: async () => {
+      return await productApi.checkOwnership(id, token!);
+    },
+    enabled: !!token && !!id,
+  });
+};
+
+// PUBLIC PRODUCT HOOKS
+
+/**
+ * Hook for getting public active products
+ */
+export const usePublicActiveProducts = (
+  options: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    search?: string;
+  } = {}
+) => {
+  const { page = 1, limit = 12, category, search } = options;
+
+  return useQuery({
+    queryKey: publicProductKeys.list({ page, limit, category, search, status: 'active' }),
+    queryFn: async () => {
+      const response = await productApi.getAllProducts({
+        status: 'active',
+        page,
+        limit,
+        category,
+        search,
+      });
+
+      return {
+        products: response.data || [],
+        total: response.total,
+        page: response.page,
+        limit: response.limit,
+        totalPages: response.totalPages,
+      };
+    },
+  });
+};
+
+/**
+ * Hook for getting a single public product
+ */
+export const usePublicProduct = (id: string) => {
+  return useQuery({
+    queryKey: publicProductKeys.detail(id),
+    queryFn: async () => {
+      const product = await productApi.getProductById(id);
+      return product;
+    },
+    enabled: !!id,
+  });
+};
+
+/**
+ * Hook for searching public products
+ */
+export const useSearchPublicProducts = (
+  params: {
+    search: string;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    page?: number;
+    limit?: number;
+  }
+) => {
+  return useQuery({
+    queryKey: publicProductKeys.list(params),
+    queryFn: async () => {
+      const response = await productApi.searchProducts(
+        params.search,
+        params.category,
+        params.minPrice,
+        params.maxPrice,
+        params.page,
+        params.limit
+      );
+
+      return {
+        products: response.data || [],
+        total: response.total,
+        page: response.page,
+        limit: response.limit,
+        totalPages: response.totalPages,
+      };
+    },
+    enabled: !!params.search || !!params.category,
   });
 };

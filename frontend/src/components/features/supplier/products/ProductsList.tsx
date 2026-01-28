@@ -1,25 +1,95 @@
 'use client';
 
-import { memo } from 'react';
-import { ProductCard } from './ProductCard';
-import { useProductStore } from '@/core/store/productStore';
-import { useDeleteProduct, useUpdateProductStatus } from '@/core/hooks/useProducts';
+import { memo, useMemo } from 'react';
+import { ProductCard } from '@/components/product';
 import { Product } from '@/core/types/productTypes';
+import { useProductStore } from '@/core/store/productStore';
 import { useTranslations } from 'next-intl';
 
+import {
+  useDeleteSupplierProduct,
+  useUpdateSupplierProductStatus
+} from '@/core/hooks';
+
 interface ProductsListProps {
+  products: Product[];
   onEditProduct: (product: Product) => void;
+  loading?: boolean;
 }
 
 export const ProductsList = memo(function ProductsList({
-  onEditProduct
+  products,
+  onEditProduct,
+  loading = false
 }: ProductsListProps) {
   const t = useTranslations();
-  const filteredProducts = useProductStore(state => state.filteredProducts);
-  const loading = useProductStore(state => state.loading);
 
-  const deleteProductMutation = useDeleteProduct();
-  const updateStatusMutation = useUpdateProductStatus();
+  const {
+    searchQuery,
+    selectedCategory,
+    statusFilter,
+    sortBy,
+    sortOrder,
+  } = useProductStore();
+
+  const deleteProductMutation = useDeleteSupplierProduct();
+  const updateStatusMutation = useUpdateSupplierProductStatus();
+
+  // Apply filters and sorting locally
+  const filteredProducts = useMemo(() => {
+    let filtered = [...products];
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(query) ||
+        product.description?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(product => product.categoryId === selectedCategory);
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(product => product.status === statusFilter);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+
+      switch (sortBy) {
+        case 'price':
+          aValue = a.price;
+          bValue = b.price;
+          break;
+        case 'stock':
+          aValue = a.stock;
+          bValue = b.stock;
+          break;
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'createdAt':
+        default:
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return filtered;
+  }, [products, searchQuery, selectedCategory, statusFilter, sortBy, sortOrder]);
 
   const handleDeleteProduct = async (productId: string) => {
     if (!window.confirm(t('Product.deleteConfirmation'))) return;
@@ -61,6 +131,7 @@ export const ProductsList = memo(function ProductsList({
             onEdit={() => onEditProduct(product)}
             onDelete={() => handleDeleteProduct(product.id)}
             onToggleStatus={() => handleToggleStatus(product)}
+            showStatus={true}
           />
         ))}
       </div>

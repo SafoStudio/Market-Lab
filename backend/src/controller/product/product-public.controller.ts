@@ -1,4 +1,6 @@
 import { ProductService } from '@domain/products/services/product.service';
+import type { LanguageCode } from '@domain/translations/types';
+import { Locale } from '@shared/decorators';
 
 import {
   Controller, Get, Param,
@@ -33,19 +35,20 @@ export class ProductPublicController {
   @ApiQuery({ name: 'id', required: false, description: 'Category ID for filtering' })
   @ApiResponse({ status: 200, type: ProductsListResponseDtoSwagger })
   async findAll(
+    @Locale() locale: LanguageCode,
     @Query('id') id?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string
   ) {
-    if (search) return this.productService.searchByText(search);
-    if (id) return this.productService.findByCategoryId(id);
+    if (search) return this.productService.searchByText(search, locale);
+    if (id) return this.productService.findByCategoryId(id, locale);
     if (page || limit) {
       const pageNum = parseInt(page || '1');
       const limitNum = parseInt(limit || '10');
-      return this.productService.getPaginated(pageNum, limitNum);
+      return this.productService.getPaginated(pageNum, limitNum, locale);
     }
-    return this.productService.findAll();
+    return this.productService.findAll(locale);
   }
 
   @Get(':id')

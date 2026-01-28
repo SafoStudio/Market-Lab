@@ -13,7 +13,7 @@ import {
   PaginatedResult,
   ProductStatistics
 } from "../types";
-import { LanguageCode } from "@domain/translations/types";
+import { LanguageCode, DEFAULT_LANGUAGE } from "@domain/translations/types";
 
 
 @Injectable()
@@ -25,30 +25,25 @@ export class ProductService {
   ) { }
 
   // Public methods
-  findAll(): Promise<ProductDomainEntity[]> {
-    return this.productCore.findAll();
+  findAll(languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productCore.findAll(languageCode);
   }
 
-  findById(id: string): Promise<ProductDomainEntity> {
-    return this.productCore.findById(id);
+  findById(id: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    return this.productCore.findById(id, languageCode);
   }
 
-  searchByText(text: string): Promise<ProductDomainEntity[]> {
-    return this.productCore.searchByText(text);
+  searchByText(text: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productCore.searchByText(text, languageCode);
   }
 
-  findByCategoryId(id: string): Promise<ProductDomainEntity[]> {
-    return this.productCore.findByCategoryId(id);
+  findByCategoryId(categoryId: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productCore.findByCategoryId(categoryId, languageCode);
   }
 
-  getPaginated(
-    page: number = 1,
-    limit: number = 10,
-    filter?: Partial<ProductDomainEntity>
-  ): Promise<PaginatedResult<ProductDomainEntity>> {
-    return this.productCore.getPaginated(page, limit, filter);
+  getPaginated(page: number, limit: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<PaginatedResult<ProductDomainEntity>> {
+    return this.productCore.getPaginated(page, limit, languageCode);
   }
-
 
   // Supplier methods
   create(

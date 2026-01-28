@@ -1,24 +1,43 @@
-import { ProductItem } from '@/core/mocks/productsData'
-import { ProductCard } from './card/ProductCard'
-import Link from 'next/link'
+'use client';
 
-interface ProductGridProps {
-  products: ProductItem[]
-  className?: string
+import { useRouter } from 'next/navigation';
+import { ProductCard } from './ProductCard';
+import { Product } from '@/core/types/productTypes';
+import { Spinner } from '../ui';
+
+interface ProductListProps {
+  products: Product[];
+  isLoading: boolean;
+  limit: number;
+  locale: string;
 }
 
-export function ProductList({ products, className = '' }: ProductGridProps) {
+export function ProductList({ products, isLoading, limit, locale }: ProductListProps) {
+  const router = useRouter();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: limit }).map((_, i) => (
+          <Spinner key={i} />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
-        <Link
+        <ProductCard
           key={product.id}
-          href={`/products/${product.id}`}
-          className="block hover:no-underline"
-        >
-          <ProductCard product={product} />
-        </Link>
+          product={product}
+          showSupplier={true}
+          showStatus={false}
+          showActions={false}
+          onClick={() => router.push(`/${locale}/products/${product.id}`)}
+          compact={false}
+        />
       ))}
     </div>
-  )
+  );
 }

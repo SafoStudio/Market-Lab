@@ -61,6 +61,8 @@ export class ProductManagementService {
     newImages?: Express.Multer.File[]
   ): Promise<ProductDomainEntity> {
     const product = await this.productCore.findById(id);
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'update');
@@ -87,6 +89,8 @@ export class ProductManagementService {
     userRoles: string[]
   ): Promise<void> {
     const product = await this.productCore.findById(id);
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'delete');
@@ -109,6 +113,8 @@ export class ProductManagementService {
     images: Express.Multer.File[]
   ): Promise<string[]> {
     const product = await this.productCore.findById(productId);
+    if (!product) throw new NotFoundException(`Product with ID ${productId} not found`);
+
     const { supplierId, companyName } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'add images');
@@ -130,13 +136,12 @@ export class ProductManagementService {
     imageUrl: string
   ): Promise<void> {
     const product = await this.productCore.findById(productId);
+    if (!product) throw new NotFoundException(`Product with ID ${productId} not found`);
+
     const { supplierId } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'remove image');
-
-    if (!product.images.includes(imageUrl)) {
-      throw new NotFoundException('Image not found for this product');
-    }
+    if (!product.images.includes(imageUrl)) throw new NotFoundException('Image not found for this product');
 
     try {
       await this.productFileService.deleteImageByUrl(imageUrl);
@@ -172,6 +177,10 @@ export class ProductManagementService {
     userRoles: string[]
   ): Promise<ProductDomainEntity | null> {
     const product = await this.productCore.findById(id);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
     const { supplierId } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'restock');
@@ -188,6 +197,8 @@ export class ProductManagementService {
     userRoles: string[]
   ): Promise<ProductDomainEntity | null> {
     const product = await this.productCore.findById(id);
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+
     const { supplierId } = await this.productOwner.getSupplierInfo(userId);
 
     this.productCore.checkProductOwnership(product, supplierId, userRoles, 'change status');

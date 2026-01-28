@@ -119,31 +119,37 @@ export const buildHeaders = (
 ): HeadersInit => {
   const headers: HeadersInit = {};
 
+  // Get language from URL path (e.g., /en/products -> 'en')
+  const getLanguageFromPath = (): string => {
+    if (typeof window !== 'undefined') {
+      const pathLang = window.location.pathname.split('/')[1];
+      if (['en', 'uk'].includes(pathLang)) {
+        return pathLang;
+      }
+    }
+    return 'uk';
+  };
+
+  const currentLanguage = getLanguageFromPath();
+
+  // Always include Accept-Language header from URL path
+  headers['Accept-Language'] = currentLanguage;
+
   // Set Content-Type
-  switch (options.contentType) {
-    case 'json':
-      headers['Content-Type'] = CONTENT_TYPES.JSON;
-      break;
-    case 'form-data':
-      // Don't set Content-Type for FormData (browser will set it with boundary)
-      break;
-    case 'text':
-      headers['Content-Type'] = 'text/plain';
-      break;
-    default:
-      headers['Content-Type'] = CONTENT_TYPES.JSON;
+  if (options.contentType !== 'form-data') {
+    headers['Content-Type'] = options.contentType === 'text'
+      ? 'text/plain'
+      : CONTENT_TYPES.JSON;
   }
 
-  // Set Authorization header
+  // Add Authorization if token provided
   if (options.token) {
     headers['Authorization'] = `Bearer ${options.token}`;
   }
 
-  // Add additional headers
+  // Add any additional headers
   if (options.additionalHeaders) {
-    Object.entries(options.additionalHeaders).forEach(([key, value]) => {
-      headers[key] = value;
-    });
+    Object.assign(headers, options.additionalHeaders);
   }
 
   return headers;
@@ -192,6 +198,7 @@ const withRetry = async <T>(
   throw new ApiError(500, 'Max retries exceeded');
 };
 
+
 /**
  * Generic fetch wrapper with timeout, retry, and error handling
  */
@@ -232,7 +239,23 @@ export const apiFetch = async <T>(
     },
   };
 
-  const url = endpoint.startsWith('http') ? endpoint : buildApiUrl(endpoint);
+  let url = endpoint.startsWith('http') ? endpoint : buildApiUrl(endpoint);
+  const isGetRequest = !options.method || options.method === 'GET';
+
+  if (isGetRequest && typeof window !== 'undefined') {
+    const langChangedTimestamp = localStorage.getItem('lang_changed');
+
+    if (langChangedTimestamp) {
+      const separator = url.includes('?') ? '&' : '?';
+      url = `${url}${separator}lang=${langChangedTimestamp}`;
+
+      const timestamp = parseInt(langChangedTimestamp);
+      const now = Date.now();
+      if (now - timestamp > 5 * 60 * 1000) {
+        localStorage.removeItem('lang_changed');
+      }
+    }
+  }
 
   const executeRequest = async (): Promise<T> => {
     const controller = new AbortController();
@@ -262,6 +285,7 @@ export const apiFetch = async <T>(
 
   return retry ? withRetry(executeRequest) : executeRequest();
 };
+
 
 /**
  * Creates FormData for customer registration with correct structure

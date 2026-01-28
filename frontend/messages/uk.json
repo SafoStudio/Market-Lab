@@ -177,7 +177,8 @@
     "inStock": "В наявності",
     "lowStock": "Закінчується",
     "outOfStock": "Немає в наявності",
-    "deleteConfirmation": "Ви впевнені, що хочете видалити цей продукт?"
+    "deleteConfirmation": "Ви впевнені, що хочете видалити цей продукт?",
+    "backToCatalog": "Назад до каталогу"
   },
 
 
@@ -293,7 +294,21 @@
     "page": "Сторінка",
     "of": "з",
     "yes": "Так",
-    "no": "Ні"
+    "no": "Ні",
+    "backToProducts": "Назад до товарів",
+    "productNotFound": "Товар не знайдено",
+    "productNotFoundDescription": "На жаль, товар, який ви шукаєте, не існує або був видалений.",
+    "category": "Категорія",
+    "noCategory": "Без категорії",
+    "details": "Деталі",
+    "sku": "Артикул",
+    "status": "Статус",
+    "addedDate": "Дата додавання",
+    "subcategory": "Підкатегорія",
+    "tags": "Теги",
+    "notifyWhenAvailable": "Повідомити про наявність",
+    "allProducts": "Всі продукти",
+    "allCategories": "Всі категорії"
   },
 
 
@@ -619,7 +634,43 @@
     "creatingButton": "Створення...",
     "successMessage": "Адміністратора успішно створено!",
     "errorMessage": "Не вдалося створити адміністратора"
+  },
+
+
+  "Catalog": {
+  "activeProductsFromAllSuppliers": "Активні товари від усіх постачальників",
+  "foundProducts": "Знайдено {count} товарів",
+  "forQuery": "за запитом",
+  "inCategory": "у категорії",
+  "noProductsFound": "Товари не знайдено",
+  "tryChangingSearch": "Спробуйте змінити умови пошуку",
+  "noProductsInCategory": "У цій категорії поки немає товарів",
+  "filtersTitle": "Фільтри товарів",
+  "filtersSubtitle": "Знайдено {total} товарів, {inStock} в наявності, {lowStock} майже закінчились",
+  "searchLabel": "Пошук товарів",
+  "searchPlaceholder": "Введіть назву товару...",
+  "categoryLabel": "Категорія",
+  "allCategories": "Всі категорії",
+  "sortLabel": "Сортування",
+  "sortNewest": "Спочатку нові",
+  "sortOldest": "Спочатку старі",
+  "sortPriceLow": "Ціна: від низької до високої",
+  "sortPriceHigh": "Ціна: від високої до низької",
+  "sortNameAsc": "Назва: від А до Я",
+  "sortNameDesc": "Назва: від Я до А",
+  "showAdvanced": "Розширені фільтри",
+  "hideAdvanced": "Приховати розширені",
+  "clearAll": "Очистити все",
+  "advancedTitle": "Розширені фільтри",
+  "stockLabel": "Статус наявності",
+  "stockAll": "Всі",
+  "stockInStock": "В наявності ({count})",
+  "stockLowWithCount": "Майже закінчились ({count})",
+  "stockOutWithCount": "Немає в наявності ({count})",
+  "activeFilters": "Активні фільтри",
+  "searchFilter": "Пошук: \"{query}\"",
+  "categoryFilter": "Категорія: {category}",
+  "sortFilter": "Сортування: {sort}"
   }
-  
 
 }

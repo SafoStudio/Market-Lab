@@ -1,4 +1,3 @@
-export { ProductCard } from './card/ProductCard'
-export { ProductList } from './ProductList'
+export { ProductCard } from './ProductCard'
 export { ProductDetails } from './ProductDetails'
-// export { ProductFilters } from './ProductFilters'
+export { ProductCatalog } from './ProductCatalog'
