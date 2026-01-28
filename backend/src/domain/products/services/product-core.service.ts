@@ -14,6 +14,7 @@ import {
   ProductStatistics
 } from "../types";
 import { Role } from '@shared/types';
+import { LanguageCode, DEFAULT_LANGUAGE } from "@domain/translations/types";
 
 import { ProductRepository } from "../product.repository";
 import { ProductDomainEntity } from "../product.entity";
@@ -155,8 +156,11 @@ export class ProductCoreService {
     return this.productRepository.updateStatus(id, status);
   }
 
-  async getSupplierProductsOperation(supplierId: string): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findBySupplierId(supplierId);
+  async getSupplierProductsOperation(
+    supplierId: string,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
+  ): Promise<ProductDomainEntity[]> {
+    return this.productRepository.findBySupplierId(supplierId, languageCode);
   }
 
   // Check ownership

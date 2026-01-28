@@ -1,6 +1,7 @@
-import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsUUID, Min, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsUUID, Min, IsNotEmpty, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ProductStatusEnum } from './product.type';
+import { ProductStatusEnum, UnitEnum, CurrencyEnum } from './product.type';
+import { LanguageCode, TranslatableProductFields } from '@domain/translations/types';
 
 
 export class CreateProductDto {
@@ -11,6 +12,10 @@ export class CreateProductDto {
   @IsString({ message: 'Description must be a string' })
   @IsNotEmpty({ message: 'Description is required' })
   description: string;
+
+  @IsOptional()
+  @IsString({ message: 'Short description must be a string' })
+  shortDescription?: string;
 
   @IsNumber({}, { message: 'Price must be a number' })
   @Min(0, { message: 'Price cannot be negative' })
@@ -42,6 +47,18 @@ export class CreateProductDto {
   @IsArray({ message: 'Tags must be an array' })
   @IsString({ each: true, message: 'Each tag must be a string' })
   tags?: string[];
+
+  @IsOptional()
+  @IsEnum(UnitEnum, { message: 'Invalid unit' })
+  unit: UnitEnum = UnitEnum.PIECE;
+
+  @IsOptional()
+  @IsEnum(CurrencyEnum, { message: 'Invalid currency' })
+  currency: CurrencyEnum = CurrencyEnum.UAH;
+
+  @IsOptional()
+  @IsObject({ message: 'Translations must be an object' })
+  translations?: Record<LanguageCode, Partial<Record<TranslatableProductFields, string>>>;
 }
 
 export class UpdateProductDto {
@@ -54,6 +71,10 @@ export class UpdateProductDto {
   @IsString({ message: 'Description must be a string' })
   @IsNotEmpty({ message: 'Description cannot be empty' })
   description?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Short description must be a string' })
+  shortDescription?: string;
 
   @IsOptional()
   @IsNumber({}, { message: 'Price must be a number' })
@@ -86,6 +107,18 @@ export class UpdateProductDto {
   @IsArray({ message: 'Tags must be an array' })
   @IsString({ each: true, message: 'Each tag must be a string' })
   tags?: string[];
+
+  @IsOptional()
+  @IsEnum(UnitEnum, { message: 'Invalid unit' })
+  unit?: UnitEnum;
+
+  @IsOptional()
+  @IsEnum(CurrencyEnum, { message: 'Invalid currency' })
+  currency?: CurrencyEnum;
+
+  @IsOptional()
+  @IsObject({ message: 'Translations must be an object' })
+  translations?: Record<LanguageCode, Partial<Record<TranslatableProductFields, string>>>;
 }
 
 export class RestockProductDto {

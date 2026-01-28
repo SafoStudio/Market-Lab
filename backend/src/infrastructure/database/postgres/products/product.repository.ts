@@ -4,7 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProductRepository as DomainProductRepository } from '@domain/products/product.repository';
 import { ProductOrmEntity } from './product.entity';
 import { ProductDomainEntity } from '@domain/products/product.entity';
-import { ProductStatus } from '@domain/products/types';
+import { ProductStatus, Unit, Currency } from '@domain/products/types';
+import { TranslationService } from '@domain/translations/translation.service';
+import { LanguageCode, TranslatableProductFields, DEFAULT_LANGUAGE } from '@domain/translations/types';
 
 
 @Injectable()
@@ -12,21 +14,23 @@ export class PostgresProductRepository extends DomainProductRepository {
   constructor(
     @InjectRepository(ProductOrmEntity)
     private readonly repository: Repository<ProductOrmEntity>,
+    private readonly translationService: TranslationService
   ) { super() }
 
   // BaseRepository
   async create(data: Partial<ProductDomainEntity>): Promise<ProductDomainEntity> {
     const entity = this._toOrmEntity(data as ProductDomainEntity);
     const saved = await this.repository.save(entity);
-    return this._toDomainEntity(saved);
+    return this._toDomainEntity(saved, DEFAULT_LANGUAGE);
   }
 
-  async findById(id: string): Promise<ProductDomainEntity | null> {
+  async findById(id: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
     const entity = await this.repository.findOne({
       where: { id },
       relations: ['category', 'subcategory']
     });
-    return entity ? this._toDomainEntity(entity) : null;
+
+    return entity ? this._toDomainEntity(entity, languageCode) : null;
   }
 
   async update(id: string, data: Partial<ProductDomainEntity>): Promise<ProductDomainEntity | null> {
@@ -38,7 +42,7 @@ export class PostgresProductRepository extends DomainProductRepository {
       relations: ['category', 'subcategory']
     });
 
-    return updated ? this._toDomainEntity(updated) : null;
+    return updated ? this._toDomainEntity(updated, DEFAULT_LANGUAGE) : null;
   }
 
   async delete(id: string): Promise<void> {
@@ -46,23 +50,55 @@ export class PostgresProductRepository extends DomainProductRepository {
   }
 
   // QueryableRepository methods
-  async findOne(filter: Partial<ProductDomainEntity>): Promise<ProductDomainEntity | null> {
+  async findOne(filter: Partial<ProductDomainEntity>, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
     const query = this._buildWhereQuery(filter);
     const entity = await query.getOne();
-    return entity ? this._toDomainEntity(entity) : null;
+
+    return entity ? this._toDomainEntity(entity, languageCode) : null;
   }
 
-  async findMany(filter: Partial<ProductDomainEntity>): Promise<ProductDomainEntity[]> {
+  async findMany(
+    filter: Partial<ProductDomainEntity>,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
+  ): Promise<ProductDomainEntity[]> {
     const query = this._buildWhereQuery(filter);
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    if (languageCode === DEFAULT_LANGUAGE || entities.length === 0) {
+      return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
+    }
+
+    // Batch request for all translations
+    const entityIds = entities.map(e => e.id);
+    const translations = await this.translationService.getTranslationsForEntities(
+      entityIds,
+      'product',
+      languageCode
+    );
+
+    const translate = new Map<string, Map<string, string>>();
+
+    for (const translation of translations) {
+      const { entityId, fieldName, translationText } = translation;
+
+      let fieldMap = translate.get(entityId);
+      if (!fieldMap) {
+        fieldMap = new Map<string, string>();
+        translate.set(entityId, fieldMap);
+      }
+
+      fieldMap.set(fieldName, translationText);
+    }
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode, translate)));
   }
 
-  async findAll(): Promise<ProductDomainEntity[]> {
+  async findAll(languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const entities = await this.repository.find({
       relations: ['category', 'subcategory']
     });
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
   // UtilityRepository methods
@@ -74,7 +110,8 @@ export class PostgresProductRepository extends DomainProductRepository {
   async findWithPagination(
     page: number,
     limit: number,
-    filter?: Partial<ProductDomainEntity>
+    filter?: Partial<ProductDomainEntity>,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
   ): Promise<{
     data: ProductDomainEntity[];
     total: number;
@@ -89,8 +126,10 @@ export class PostgresProductRepository extends DomainProductRepository {
 
     const [entities, total] = await query.getManyAndCount();
 
+    const data = await Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
+
     return {
-      data: entities.map(this._toDomainEntity),
+      data,
       total,
       page,
       limit,
@@ -99,48 +138,50 @@ export class PostgresProductRepository extends DomainProductRepository {
   }
 
   // Category methods
-  async findByCategoryId(categoryId: string): Promise<ProductDomainEntity[]> {
-    return this.findMany({ categoryId, status: 'active' });
+  async findByCategoryId(categoryId: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ categoryId, status: 'active' }, languageCode);
   }
 
-  async findBySubcategoryId(subcategoryId: string): Promise<ProductDomainEntity[]> {
-    return this.findMany({ subcategoryId, status: 'active' });
+  async findBySubcategoryId(subcategoryId: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ subcategoryId, status: 'active' }, languageCode);
   }
 
   async findByCategoryAndSubcategory(
     categoryId: string,
-    subcategoryId?: string
+    subcategoryId?: string,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
   ): Promise<ProductDomainEntity[]> {
     const filter: Partial<ProductDomainEntity> = { categoryId, status: 'active' };
     if (subcategoryId) filter.subcategoryId = subcategoryId;
-    return this.findMany(filter);
+    return this.findMany(filter, languageCode);
   }
 
   // Supplier methods
-  async findBySupplierId(supplierId: string): Promise<ProductDomainEntity[]> {
-    return this.findMany({ supplierId });
+  async findBySupplierId(supplierId: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ supplierId }, languageCode);
   }
 
   // Status methods
-  async findByStatus(status: ProductStatus): Promise<ProductDomainEntity[]> {
-    return this.findMany({ status });
+  async findByStatus(status: ProductStatus, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ status }, languageCode);
   }
 
-  async findActive(): Promise<ProductDomainEntity[]> {
-    return this.findByStatus('active');
+  async findActive(languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findByStatus('active', languageCode);
   }
 
   // Search methods
-  async findByPriceRange(min: number, max: number): Promise<ProductDomainEntity[]> {
+  async findByPriceRange(min: number, max: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const query = this._buildBaseQuery()
       .andWhere('product.price BETWEEN :min AND :max', { min, max })
       .orderBy('product.price', 'ASC');
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
-  async findByTags(tags: string[]): Promise<ProductDomainEntity[]> {
+  async findByTags(tags: string[], languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const query = this._buildBaseQuery();
 
     tags.forEach((tag, index) => {
@@ -148,22 +189,24 @@ export class PostgresProductRepository extends DomainProductRepository {
     });
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
-  async findByName(name: string): Promise<ProductDomainEntity | null> {
-    return this.findOne({ name });
+  async findByName(name: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    return this.findOne({ name }, languageCode);
   }
 
-  async searchByName(name: string): Promise<ProductDomainEntity[]> {
+  async searchByName(name: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const query = this._buildBaseQuery()
       .andWhere('LOWER(product.name) LIKE LOWER(:name)', { name: `%${name}%` });
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
-  async searchByText(text: string): Promise<ProductDomainEntity[]> {
+  async searchByText(text: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const query = this._buildBaseQuery()
       .andWhere(
         '(LOWER(product.name) LIKE LOWER(:text) OR LOWER(product.description) LIKE LOWER(:text))',
@@ -171,7 +214,8 @@ export class PostgresProductRepository extends DomainProductRepository {
       );
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
   async existsBySupplierAndName(supplierId: string, name: string): Promise<boolean> {
@@ -190,26 +234,36 @@ export class PostgresProductRepository extends DomainProductRepository {
   // Sort methods
   async findSorted(
     sortBy: keyof ProductDomainEntity,
-    order: 'ASC' | 'DESC'
+    order: 'ASC' | 'DESC',
+    languageCode: LanguageCode = DEFAULT_LANGUAGE
   ): Promise<ProductDomainEntity[]> {
     const entities = await this.repository.find({
       where: { status: 'active' },
       relations: ['category', 'subcategory'],
       order: { [sortBy]: order }
     });
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
   // Update methods
-  async updateStatus(id: string, status: ProductStatus): Promise<ProductDomainEntity | null> {
-    return this.update(id, { status });
+  async updateStatus(id: string, status: ProductStatus, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    const updated = await this.update(id, { status });
+    if (!updated) return null;
+
+    const entity = await this.repository.findOne({ where: { id } });
+    return entity ? this._toDomainEntity(entity, languageCode) : null;
   }
 
-  async updateStock(id: string, stock: number): Promise<ProductDomainEntity | null> {
-    return this.update(id, { stock });
+  async updateStock(id: string, stock: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    const updated = await this.update(id, { stock });
+    if (!updated) return null;
+
+    const entity = await this.repository.findOne({ where: { id } });
+    return entity ? this._toDomainEntity(entity, languageCode) : null;
   }
 
-  async increaseStock(id: string, quantity: number): Promise<ProductDomainEntity | null> {
+  async increaseStock(id: string, quantity: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
     if (!await this.exists(id)) return null;
 
     await this.repository
@@ -219,10 +273,10 @@ export class PostgresProductRepository extends DomainProductRepository {
       .where('id = :id', { id })
       .execute();
 
-    return this.findById(id);
+    return this.findById(id, languageCode);
   }
 
-  async decreaseStock(id: string, quantity: number): Promise<ProductDomainEntity | null> {
+  async decreaseStock(id: string, quantity: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
     if (!await this.exists(id)) return null;
 
     const product = await this.findById(id);
@@ -236,93 +290,47 @@ export class PostgresProductRepository extends DomainProductRepository {
       .andWhere('stock >= :quantity', { quantity })
       .execute();
 
-    return this.findById(id);
+    return this.findById(id, languageCode);
   }
 
-  async updatePrice(id: string, price: number): Promise<ProductDomainEntity | null> {
-    return this.update(id, { price });
+  async updatePrice(id: string, price: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    const updated = await this.update(id, { price });
+    if (!updated) return null;
+
+    const entity = await this.repository.findOne({ where: { id } });
+    return entity ? this._toDomainEntity(entity, languageCode) : null;
   }
 
   // Filter methods
-  async findLowStock(threshold: number = 10): Promise<ProductDomainEntity[]> {
+  async findLowStock(threshold: number = 10, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     const query = this._buildBaseQuery()
       .andWhere('product.stock <= :threshold', { threshold });
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
   }
 
-  async findByIds(ids: string[]): Promise<ProductDomainEntity[]> {
+  async findByIds(ids: string[], languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
     if (ids.length === 0) return [];
 
     const query = this._buildBaseQuery()
       .andWhere('product.id IN (:...ids)', { ids });
 
     const entities = await query.getMany();
-    return entities.map(this._toDomainEntity);
+
+    return Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
+  }
+
+  async findByUnit(unit: Unit, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ unit, status: 'active' }, languageCode);
+  }
+
+  async findByCurrency(currency: Currency, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.findMany({ currency, status: 'active' }, languageCode);
   }
 
   // Statistics methods
-  async getCategoriesWithCount(): Promise<Array<{ category: string; count: number }>> {
-    const detailed = await this.getDetailedCategoriesWithCount();
-
-    return detailed.map(item => ({
-      category: item.subcategoryName
-        ? `${item.categoryName || item.categoryId} > ${item.subcategoryName || item.subcategoryId}`
-        : item.categoryName || item.categoryId || 'Without category',
-      count: item.count
-    }));
-  }
-
-  async getDetailedCategoriesWithCount(): Promise<
-    Array<{
-      categoryId?: string;
-      categoryName?: string;
-      subcategoryId?: string;
-      subcategoryName?: string;
-      count: number;
-    }>
-  > {
-    const result = await this.repository
-      .createQueryBuilder('product')
-      .leftJoin('product.category', 'category')
-      .leftJoin('product.subcategory', 'subcategory')
-      .select('product.categoryId', 'categoryId')
-      .addSelect('category.name', 'categoryName')
-      .addSelect('product.subcategoryId', 'subcategoryId')
-      .addSelect('subcategory.name', 'subcategoryName')
-      .addSelect('COUNT(*)', 'count')
-      .where('product.status = :status', { status: 'active' })
-      .groupBy('product.categoryId, category.name, product.subcategoryId, subcategory.name')
-      .orderBy('count', 'DESC')
-      .getRawMany();
-
-    return result.map(row => ({
-      categoryId: row.categoryId || undefined,
-      categoryName: row.categoryName || undefined,
-      subcategoryId: row.subcategoryId || undefined,
-      subcategoryName: row.subcategoryName || undefined,
-      count: parseInt(row.count)
-    }));
-  }
-
-  async getPopularTags(limit: number = 20): Promise<Array<{ tag: string; count: number }>> {
-    const result = await this.repository
-      .createQueryBuilder('product')
-      .select('unnest(product.tags)', 'tag')
-      .addSelect('COUNT(*)', 'count')
-      .where('product.status = :status', { status: 'active' })
-      .groupBy('tag')
-      .orderBy('count', 'DESC')
-      .limit(limit)
-      .getRawMany();
-
-    return result.map(row => ({
-      tag: row.tag,
-      count: parseInt(row.count)
-    }));
-  }
-
   async getStatistics(): Promise<{
     total: number;
     active: number;
@@ -331,7 +339,6 @@ export class PostgresProductRepository extends DomainProductRepository {
     draft: number;
     totalStock: number;
     averagePrice: number;
-    categoriesCount: number;
   }> {
     const total = await this.repository.count();
     const active = await this.countByStatus('active');
@@ -349,17 +356,14 @@ export class PostgresProductRepository extends DomainProductRepository {
       .select('COALESCE(AVG(product.price), 0)', 'averagePrice')
       .getRawOne();
 
-    const categories = await this.getDetailedCategoriesWithCount();
-
     return {
       total,
       active,
       inactive,
       archived,
       draft,
-      totalStock: parseFloat(stockResult.totalStock) || 0,
-      averagePrice: parseFloat(priceResult.averagePrice) || 0,
-      categoriesCount: categories.filter(c => c.categoryId).length
+      totalStock: parseFloat(stockResult?.totalStock || '0') || 0,
+      averagePrice: parseFloat(priceResult?.averagePrice || '0') || 0
     };
   }
 
@@ -391,6 +395,8 @@ export class PostgresProductRepository extends DomainProductRepository {
     if (filter.name) query.andWhere('product.name = :name', { name: filter.name });
     if (filter.description) query.andWhere('product.description = :description', { description: filter.description });
     if (filter.price !== undefined) query.andWhere('product.price = :price', { price: filter.price });
+    if (filter.unit !== undefined) query.andWhere('product.unit = :unit', { unit: filter.unit });
+    if (filter.currency !== undefined) query.andWhere('product.currency = :currency', { currency: filter.currency });
     if (filter.categoryId !== undefined) query.andWhere('product.categoryId = :categoryId', { categoryId: filter.categoryId });
     if (filter.subcategoryId !== undefined) query.andWhere('product.subcategoryId = :subcategoryId', { subcategoryId: filter.subcategoryId });
     if (filter.images !== undefined) this._applyImagesFilter(query, filter.images);
@@ -426,6 +432,8 @@ export class PostgresProductRepository extends DomainProductRepository {
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.price !== undefined) updateData.price = data.price;
+    if (data.unit !== undefined) updateData.unit = data.unit;
+    if (data.currency !== undefined) updateData.currency = data.currency;
     if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
     if (data.subcategoryId !== undefined) updateData.subcategoryId = data.subcategoryId;
     if (data.images !== undefined) updateData.images = data.images;
@@ -436,21 +444,79 @@ export class PostgresProductRepository extends DomainProductRepository {
     return updateData;
   }
 
-  private _toDomainEntity(ormEntity: ProductOrmEntity): ProductDomainEntity {
+  private async _toDomainEntity(
+    ormEntity: ProductOrmEntity,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE,
+    preTranslate?: Map<string, Map<string, string>>
+  ): Promise<ProductDomainEntity> {
+
+    const {
+      id, supplierId, name, description, shortDescription, unit, currency,
+      categoryId, subcategoryId, images, stock, status, tags,
+      createdAt, updatedAt
+    } = ormEntity;
+
+    const price = typeof ormEntity.price === 'string' ? parseFloat(ormEntity.price) : ormEntity.price;
+
+    let translatedName = name;
+    let translatedDescription = description;
+    let translatedShortDescription = shortDescription || undefined;
+    let translationsData: Partial<Record<LanguageCode, Partial<Record<TranslatableProductFields, string>>>> | undefined;
+
+    if (languageCode !== DEFAULT_LANGUAGE) {
+      let translationsForLanguage: Partial<Record<TranslatableProductFields, string>> = {};
+      let hasTranslations = false;
+
+      if (preTranslate && preTranslate.has(id)) {
+        const translationMap = preTranslate.get(id)!;
+        hasTranslations = translationMap.size > 0;
+
+        if (hasTranslations) {
+          translationMap.forEach((text, fieldName) => {
+            translationsForLanguage[fieldName as TranslatableProductFields] = text;
+          });
+        }
+      } else {
+        const translations = await this.translationService.getTranslationsForEntities(
+          [id],
+          'product',
+          languageCode
+        );
+
+        hasTranslations = translations.length > 0;
+        if (hasTranslations) {
+          translations.forEach(t => {
+            translationsForLanguage[t.fieldName as TranslatableProductFields] = t.translationText;
+          });
+        }
+      }
+
+      if (hasTranslations) {
+        translatedName = translationsForLanguage.name || name;
+        translatedDescription = translationsForLanguage.description || description;
+        translatedShortDescription = translationsForLanguage.shortDescription || shortDescription || undefined;
+        translationsData = { [languageCode]: translationsForLanguage };
+      }
+    }
+
     return new ProductDomainEntity(
-      ormEntity.id,
-      ormEntity.supplierId,
-      ormEntity.name,
-      ormEntity.description,
-      typeof ormEntity.price === 'string' ? parseFloat(ormEntity.price) : ormEntity.price,
-      ormEntity.categoryId || undefined,
-      ormEntity.subcategoryId || undefined,
-      ormEntity.images || [],
-      ormEntity.stock,
-      ormEntity.status as ProductStatus,
-      ormEntity.tags || [],
-      ormEntity.createdAt,
-      ormEntity.updatedAt
+      id,
+      supplierId,
+      translatedName,
+      translatedDescription,
+      price,
+      unit as Unit,
+      currency as Currency,
+      translatedShortDescription,
+      categoryId || undefined,
+      subcategoryId || undefined,
+      images || [],
+      stock,
+      status as ProductStatus,
+      tags || [],
+      translationsData,
+      createdAt,
+      updatedAt
     );
   }
 
@@ -462,6 +528,8 @@ export class PostgresProductRepository extends DomainProductRepository {
     entity.name = domainEntity.name;
     entity.description = domainEntity.description;
     entity.price = domainEntity.price;
+    entity.unit = domainEntity.unit;
+    entity.currency = domainEntity.currency;
     entity.categoryId = domainEntity.categoryId || null;
     entity.subcategoryId = domainEntity.subcategoryId || null;
     entity.images = domainEntity.images;

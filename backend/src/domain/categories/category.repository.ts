@@ -1,8 +1,8 @@
-import { FullRepository } from '@shared/types';
+import { MinimalRepository } from '@shared/types';
 import { CategoryDomainEntity } from './category.entity';
 import { CategoryTreeItem, CategoryStatus } from './types/category.type';
 
-export abstract class CategoryRepository implements FullRepository<CategoryDomainEntity> {
+export abstract class CategoryRepository implements MinimalRepository<CategoryDomainEntity> {
   // BaseRepository methods
   abstract create(data: Partial<CategoryDomainEntity>): Promise<CategoryDomainEntity>;
   abstract findById(id: string): Promise<CategoryDomainEntity | null>;
@@ -13,21 +13,6 @@ export abstract class CategoryRepository implements FullRepository<CategoryDomai
   abstract findOne(filter: Partial<CategoryDomainEntity>): Promise<CategoryDomainEntity | null>;
   abstract findMany(filter: Partial<CategoryDomainEntity>): Promise<CategoryDomainEntity[]>;
   abstract findAll(): Promise<CategoryDomainEntity[]>;
-
-  // UtilityRepository methods
-  abstract exists(id: string): Promise<boolean>;
-
-  // PaginableRepository methods
-  abstract findWithPagination(
-    page: number,
-    limit: number,
-    filter?: Partial<CategoryDomainEntity>
-  ): Promise<{
-    data: CategoryDomainEntity[];
-    total: number;
-    page: number;
-    totalPages: number;
-  }>;
 
   // Category-specific methods
   abstract findBySlug(slug: string): Promise<CategoryDomainEntity | null>;
@@ -51,4 +36,6 @@ export abstract class CategoryRepository implements FullRepository<CategoryDomai
   }>>;
 
   abstract countProductsInCategory(categoryId: string): Promise<number>;
+
+  abstract exists(id: string): Promise<boolean>;
 }

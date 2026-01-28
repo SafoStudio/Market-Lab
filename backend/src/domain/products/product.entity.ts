@@ -1,4 +1,7 @@
+import { LanguageCode, TranslatableProductFields } from '@domain/translations/types';
+
 import {
+  Unit, Currency, UNITS, CURRENCIES,
   ProductModel, PRODUCT_STATUS,
   ProductStatus, MIN_STOCK_QUANTITY,
   CreateProductDto, UpdateProductDto
@@ -7,18 +10,22 @@ import {
 
 export class ProductDomainEntity implements ProductModel {
   constructor(
-    public id: string,
-    public supplierId: string,
+    public readonly id: string,
+    public readonly supplierId: string,
     public name: string,
     public description: string,
     public price: number,
+    public unit: Unit,
+    public currency: Currency,
+    public shortDescription?: string,
     public categoryId?: string,
     public subcategoryId?: string,
     public images: string[] = [],
     public stock: number = 0,
     public status: ProductStatus = PRODUCT_STATUS.ACTIVE,
     public tags: string[] = [],
-    public createdAt: Date = new Date(),
+    public translations?: Partial<Record<LanguageCode, Partial<Record<TranslatableProductFields, string>>>>,
+    public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) { }
 
@@ -29,6 +36,9 @@ export class ProductDomainEntity implements ProductModel {
       createDto.name,
       createDto.description,
       createDto.price,
+      createDto.unit || UNITS.PIECE,
+      createDto.currency || CURRENCIES.UAH,
+      createDto.shortDescription,
       createDto.categoryId,
       createDto.subcategoryId,
       createDto.images || [],
@@ -42,6 +52,9 @@ export class ProductDomainEntity implements ProductModel {
     if (updateDto.name) this.name = updateDto.name;
     if (updateDto.description) this.description = updateDto.description;
     if (updateDto.price) this.price = updateDto.price;
+    if (updateDto.unit) this.unit = updateDto.unit;
+    if (updateDto.currency) this.currency = updateDto.currency;
+    if (updateDto.shortDescription) this.shortDescription = updateDto.shortDescription;
     if (updateDto.categoryId !== undefined) this.categoryId = updateDto.categoryId;
     if (updateDto.subcategoryId !== undefined) this.subcategoryId = updateDto.subcategoryId;
     if (updateDto.images) this.images = updateDto.images;
@@ -172,9 +185,9 @@ export class ProductDomainEntity implements ProductModel {
     if (!this.description.trim()) errors.push('Product description is required');
     if (this.price <= 0) errors.push('Product price must be positive');
     if (this.stock < 0) errors.push('Stock cannot be negative');
-    if (this.subcategoryId && !this.categoryId) {
-      errors.push('Category must be specified when subcategory is set');
-    }
+    if (this.subcategoryId && !this.categoryId) errors.push('Category must be specified when subcategory is set');
+    if (!Object.values(UNITS).includes(this.unit)) errors.push(`Invalid unit: ${this.unit}`);
+    if (!Object.values(CURRENCIES).includes(this.currency)) errors.push(`Invalid currency: ${this.currency}`);
 
     return errors;
   }

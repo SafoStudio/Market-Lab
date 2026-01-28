@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AddressModule } from './address.module';
 import { AuthModule } from '@auth/auth.module';
 import { UsersModule } from './users.module';
+import { TranslationsModule } from './translations.module';
 
 // Domain services
 import {
@@ -40,6 +41,7 @@ import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-doc.adapter
     AddressModule,
     S3StorageModule,
     UsersModule,
+    TranslationsModule,
   ],
   controllers: [
     SupplierPublicController,
