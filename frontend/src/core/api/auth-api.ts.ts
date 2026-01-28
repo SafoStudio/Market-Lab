@@ -5,8 +5,6 @@ import {
   User,
   AuthResponse,
   LoginFormData,
-  RegisterFormData,
-  RequestSupplierDto,
   RegisterInitialDto,
   RegisterCompleteDto,
 } from '@/core/types/authType';

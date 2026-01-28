@@ -644,7 +644,33 @@
   "inCategory": "у категорії",
   "noProductsFound": "Товари не знайдено",
   "tryChangingSearch": "Спробуйте змінити умови пошуку",
-  "noProductsInCategory": "У цій категорії поки немає товарів"
-}
+  "noProductsInCategory": "У цій категорії поки немає товарів",
+  "filtersTitle": "Фільтри товарів",
+  "filtersSubtitle": "Знайдено {total} товарів, {inStock} в наявності, {lowStock} майже закінчились",
+  "searchLabel": "Пошук товарів",
+  "searchPlaceholder": "Введіть назву товару...",
+  "categoryLabel": "Категорія",
+  "allCategories": "Всі категорії",
+  "sortLabel": "Сортування",
+  "sortNewest": "Спочатку нові",
+  "sortOldest": "Спочатку старі",
+  "sortPriceLow": "Ціна: від низької до високої",
+  "sortPriceHigh": "Ціна: від високої до низької",
+  "sortNameAsc": "Назва: від А до Я",
+  "sortNameDesc": "Назва: від Я до А",
+  "showAdvanced": "Розширені фільтри",
+  "hideAdvanced": "Приховати розширені",
+  "clearAll": "Очистити все",
+  "advancedTitle": "Розширені фільтри",
+  "stockLabel": "Статус наявності",
+  "stockAll": "Всі",
+  "stockInStock": "В наявності ({count})",
+  "stockLowWithCount": "Майже закінчились ({count})",
+  "stockOutWithCount": "Немає в наявності ({count})",
+  "activeFilters": "Активні фільтри",
+  "searchFilter": "Пошук: \"{query}\"",
+  "categoryFilter": "Категорія: {category}",
+  "sortFilter": "Сортування: {sort}"
+  }
 
 }

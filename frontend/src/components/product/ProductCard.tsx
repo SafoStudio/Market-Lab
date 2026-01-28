@@ -6,8 +6,8 @@ import { useCategoryById } from '@/core/hooks';
 import { useTranslations, useLocale } from 'next-intl';
 
 import {
-  useStatusTranslations,
   useProductUnits,
+  useStatusTranslations,
   useCategoryTranslations
 } from '@/core/utils/i18n';
 
@@ -132,7 +132,7 @@ export const ProductCard = memo(function ProductCard({
 
         {!compact && (
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {product.description}
+            {product.shortDescription}
           </p>
         )}
 

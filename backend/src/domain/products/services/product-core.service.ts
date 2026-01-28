@@ -28,30 +28,24 @@ export class ProductCoreService {
   ) { }
 
   // Public methods
-  async findAll(): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findActive();
+  async findAll(languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productRepository.findAll(languageCode);
   }
 
-  async findById(id: string): Promise<ProductDomainEntity> {
-    const product = await this.productRepository.findById(id);
-    if (!product) throw new NotFoundException(`Product ${id} not found`);
-    return product;
+  async findById(id: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity | null> {
+    return this.productRepository.findById(id, languageCode);
   }
 
-  async searchByText(text: string): Promise<ProductDomainEntity[]> {
-    return this.productRepository.searchByText(text);
+  async searchByText(text: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productRepository.searchByText(text, languageCode);
   }
 
-  async findByCategoryId(id: string): Promise<ProductDomainEntity[]> {
-    return this.productRepository.findByCategoryId(id);
+  async findByCategoryId(categoryId: string, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<ProductDomainEntity[]> {
+    return this.productRepository.findByCategoryId(categoryId, languageCode);
   }
 
-  async getPaginated(
-    page: number = 1,
-    limit: number = 10,
-    filter?: Partial<ProductDomainEntity>
-  ) {
-    return this.productRepository.findWithPagination(page, limit, filter);
+  async getPaginated(page: number, limit: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<any> {
+    return this.productRepository.findWithPagination(page, limit, undefined, languageCode);
   }
 
   // Methods for Customer

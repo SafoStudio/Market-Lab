@@ -261,6 +261,7 @@
     "createButton": "Add Product"
   },
 
+
   "Common": {
     "per": "per",
     "price": "Price",
@@ -333,12 +334,13 @@
     "maxLength": "Maximum {max} characters"
   },
 
-  
+
   "NotFound": {
     "title": "Page Not Found",
     "description": "Sorry, but the page you are looking for does not exist.",
     "backHome": "Back to home"
   },
+
 
   "Auth": {
     "login": "Login",
@@ -433,13 +435,14 @@
     }
   },
 
+
   "NavigationButtons": {
     "back": "Back",
     "next": "Next",
     "submitApplication": "Submit Application",
     "submitting": "Submitting..."
   },
-  
+
 
   "FileUpload": {
     "dragDrop": "Drag & drop files here",
@@ -645,7 +648,33 @@
     "inCategory": "in category",
     "noProductsFound": "No products found",
     "tryChangingSearch": "Try changing your search criteria",
-    "noProductsInCategory": "No products in this category yet"
+    "noProductsInCategory": "No products in this category yet",
+    "filtersTitle": "Product Filters",
+    "filtersSubtitle": "Found {total} products, {inStock} in stock, {lowStock} running low",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Enter product name...",
+    "categoryLabel": "Category",
+    "allCategories": "All categories",
+    "sortLabel": "Sorting",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortPriceLow": "Price: Low to High",
+    "sortPriceHigh": "Price: High to Low",
+    "sortNameAsc": "Name: A to Z",
+    "sortNameDesc": "Name: Z to A",
+    "showAdvanced": "Advanced filters",
+    "hideAdvanced": "Hide advanced",
+    "clearAll": "Clear all",
+    "advancedTitle": "Advanced filters",
+    "stockLabel": "Stock status",
+    "stockAll": "All",
+    "stockInStock": "In stock ({count})",
+    "stockLowWithCount": "Running low ({count})",
+    "stockOutWithCount": "Out of stock ({count})",
+    "activeFilters": "Active filters",
+    "searchFilter": "Search: \"{query}\"",
+    "categoryFilter": "Category: {category}",
+    "sortFilter": "Sort: {sort}"
   }
 
 
