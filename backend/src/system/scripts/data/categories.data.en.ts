@@ -1,4 +1,4 @@
-export const mainCategoriesData = [
+export const mainCategoriesDataEn = [
   {
     name: 'Vegetables',
     slug: 'vegetables',
@@ -129,7 +129,7 @@ export const mainCategoriesData = [
   }
 ];
 
-export const subcategoriesData = {
+export const subcategoriesDataEn = {
   // Subcategories for Vegetables
   'vegetables': [
     { name: 'Root Vegetables', slug: 'root-vegetables', order: 1 },

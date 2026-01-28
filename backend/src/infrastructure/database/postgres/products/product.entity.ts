@@ -25,6 +25,9 @@ export class ProductOrmEntity {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'text', nullable: true })
+  shortDescription: string | null;
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
@@ -64,6 +67,20 @@ export class ProductOrmEntity {
 
   @Column({ type: 'jsonb', default: [] })
   tags: string[];
+
+  @Column({
+    type: 'enum',
+    enum: ['kg', 'g', 'l', 'ml', 'pcs'],
+    default: 'pcs'
+  })
+  unit: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['UAH', 'USD', 'EUR'],
+    default: 'UAH'
+  })
+  currency: string;
 
   @CreateDateColumn()
   createdAt: Date;
