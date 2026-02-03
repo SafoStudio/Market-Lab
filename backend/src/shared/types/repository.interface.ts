@@ -25,11 +25,15 @@ export interface PaginableRepository<T> {
   findWithPagination(
     page: number,
     limit: number,
-    filter?: Partial<T>
+    filter?: Partial<T>,
+    languageCode?: string,
+    sortBy?: keyof T,
+    sortOrder?: 'ASC' | 'DESC'
   ): Promise<{
     data: T[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }>;
 }

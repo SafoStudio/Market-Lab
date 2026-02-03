@@ -17,10 +17,8 @@ export function ProductList({ products, isLoading, limit, locale }: ProductListP
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: limit }).map((_, i) => (
-          <Spinner key={i} />
-        ))}
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Spinner size="lg" />
       </div>
     );
   }

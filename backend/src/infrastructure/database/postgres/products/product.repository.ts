@@ -111,7 +111,9 @@ export class PostgresProductRepository extends DomainProductRepository {
     page: number,
     limit: number,
     filter?: Partial<ProductDomainEntity>,
-    languageCode: LanguageCode = DEFAULT_LANGUAGE
+    languageCode: LanguageCode = DEFAULT_LANGUAGE,
+    sortBy?: keyof ProductDomainEntity,
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
   ): Promise<{
     data: ProductDomainEntity[];
     total: number;
@@ -122,17 +124,19 @@ export class PostgresProductRepository extends DomainProductRepository {
     const skip = (page - 1) * limit;
     const query = this._buildWhereQuery(filter);
 
-    query.skip(skip).take(limit).orderBy('product.createdAt', 'DESC');
+    query.skip(skip).take(limit);
+
+    const allowedSortFields = ['price', 'name', 'createdAt', 'stock', 'updatedAt'];
+    const fieldToSortBy = allowedSortFields.includes(sortBy as string) ? sortBy : 'createdAt';
+
+    query.orderBy(`product.${fieldToSortBy}`, sortOrder);
 
     const [entities, total] = await query.getManyAndCount();
 
     const data = await Promise.all(entities.map(ormEntity => this._toDomainEntity(ormEntity, languageCode)));
 
     return {
-      data,
-      total,
-      page,
-      limit,
+      data, total, page, limit,
       totalPages: Math.ceil(total / limit)
     };
   }

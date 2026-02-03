@@ -41,8 +41,15 @@ export class ProductService {
     return this.productCore.findByCategoryId(categoryId, languageCode);
   }
 
-  getPaginated(page: number, limit: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<PaginatedResult<ProductDomainEntity>> {
-    return this.productCore.getPaginated(page, limit, languageCode);
+  getPaginated(
+    page: number,
+    limit: number,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE,
+    filter?: Partial<ProductDomainEntity>,
+    sortBy?: 'price' | 'name' | 'createdAt' | 'stock',
+    sortOrder?: 'ASC' | 'DESC'
+  ): Promise<PaginatedResult<ProductDomainEntity>> {
+    return this.productCore.getPaginated(page, limit, languageCode, filter || { status: 'active' }, sortBy, sortOrder);
   }
 
   // Supplier methods

@@ -303,12 +303,14 @@ export const usePublicActiveProducts = (
     limit?: number;
     category?: string;
     search?: string;
+    sortBy?: 'price' | 'name' | 'createdAt' | 'stock';
+    sortOrder?: 'ASC' | 'DESC';
   } = {}
 ) => {
-  const { page = 1, limit = 12, category, search } = options;
+  const { page = 1, limit = 12, category, search, sortBy, sortOrder } = options;
 
   return useQuery({
-    queryKey: publicProductKeys.list({ page, limit, category, search, status: 'active' }),
+    queryKey: publicProductKeys.list({ page, limit, category, search, sortBy, sortOrder, status: 'active' }),
     queryFn: async () => {
       const response = await productApi.getAllProducts({
         status: 'active',
@@ -316,6 +318,8 @@ export const usePublicActiveProducts = (
         limit,
         category,
         search,
+        sortBy,
+        sortOrder,
       });
 
       return {

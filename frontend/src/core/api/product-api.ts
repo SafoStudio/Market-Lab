@@ -36,6 +36,8 @@ export const productApi = {
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.search) searchParams.append('search', params.search);
     if (params?.status) searchParams.append('status', params.status);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
 
     const url = params ?
       `${PRODUCT_ENDPOINTS.GET_ALL_PUBLIC}?${searchParams.toString()}` :

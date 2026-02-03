@@ -141,33 +141,45 @@ export class PostgresSupplierRepository extends DomainSupplierRepository {
     page: number,
     limit: number,
     filter?: Partial<SupplierDomainEntity>,
-    languageCode: LanguageCode = DEFAULT_LANGUAGE
+    languageCode: LanguageCode = DEFAULT_LANGUAGE,
+    sortBy?: keyof SupplierDomainEntity,
+    sortOrder?: 'ASC' | 'DESC'
   ): Promise<{
     data: SupplierDomainEntity[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }> {
     const skip = (page - 1) * limit;
     const queryBuilder = this._buildBaseQuery();
 
-    if (filter) {
-      this._applyFilters(queryBuilder, filter);
-    }
+    if (filter) this._applyFilters(queryBuilder, filter);
 
     const total = await queryBuilder.getCount();
+
+    const fieldToSortBy = sortBy || 'createdAt';
+    const order = sortOrder || 'DESC';
+
+    const allowedSortFields = ['createdAt', 'updatedAt', 'name', 'status'];
+    const safeSortBy = allowedSortFields.includes(fieldToSortBy as string)
+      ? fieldToSortBy
+      : 'createdAt';
 
     queryBuilder
       .skip(skip)
       .take(limit)
-      .orderBy('supplier.createdAt', 'DESC');
+      .orderBy(`supplier.${safeSortBy}`, order);
 
-    const data = await this.findMany({} as any, languageCode);
+    const entities = await queryBuilder.getMany();
+
+    const data = await Promise.all(entities.map(entity => this._toDomainEntity(entity, languageCode)));
 
     return {
       data,
       total,
       page,
+      limit,
       totalPages: Math.ceil(total / limit)
     };
   }

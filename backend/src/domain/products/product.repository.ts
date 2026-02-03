@@ -34,7 +34,9 @@ export abstract class ProductRepository implements
     page: number,
     limit: number,
     filter?: Partial<ProductDomainEntity>,
-    languageCode?: LanguageCode
+    languageCode?: LanguageCode,
+    sortBy?: keyof ProductDomainEntity,
+    sortOrder?: 'ASC' | 'DESC'
   ): Promise<{
     data: ProductDomainEntity[];
     total: number;

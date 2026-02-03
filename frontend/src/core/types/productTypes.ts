@@ -97,7 +97,7 @@ export interface ProductSearchParams {
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'price' | 'name' | 'createdAt' | 'stock';
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: 'ASC' | 'DESC';
 }
 
 export interface CategoryInfo {

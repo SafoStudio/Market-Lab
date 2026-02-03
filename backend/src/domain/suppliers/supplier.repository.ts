@@ -34,11 +34,14 @@ export abstract class SupplierRepository implements
     page: number,
     limit: number,
     filter?: Partial<SupplierDomainEntity>,
-    languageCode?: LanguageCode
+    languageCode?: LanguageCode,
+    sortBy?: keyof SupplierDomainEntity,
+    sortOrder?: 'ASC' | 'DESC'
   ): Promise<{
     data: SupplierDomainEntity[];
     total: number;
     page: number;
+    limit: number;
     totalPages: number;
   }>;
 }

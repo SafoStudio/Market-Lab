@@ -35,12 +35,31 @@ export function ProductCatalog() {
 
   const { data: categories = [] } = useCategories();
 
+  const SORT_MAPPING = {
+    newest: { sortBy: 'createdAt' as const, sortOrder: 'DESC' as const },
+    oldest: { sortBy: 'createdAt' as const, sortOrder: 'ASC' as const },
+    'price-low': { sortBy: 'price' as const, sortOrder: 'ASC' as const },
+    'price-high': { sortBy: 'price' as const, sortOrder: 'DESC' as const },
+    'name-asc': { sortBy: 'name' as const, sortOrder: 'ASC' as const },
+    'name-desc': { sortBy: 'name' as const, sortOrder: 'DESC' as const },
+  } as const;
+
+  const getSortParams = (sortValue: string) => {
+    const key = Object.keys(SORT_MAPPING).includes(sortValue)
+      ? sortValue as keyof typeof SORT_MAPPING
+      : 'newest';
+    return SORT_MAPPING[key];
+  };
+
+  const sortParams = getSortParams(sort);
+
   const { data, isLoading, error } = usePublicActiveProducts({
     page,
     limit,
     category: category || undefined,
     search: debouncedSearch || undefined,
-    // sort params
+    sortBy: sortParams.sortBy,
+    sortOrder: sortParams.sortOrder,
   });
 
   const products = data?.products || [];
@@ -57,7 +76,6 @@ export function ProductCatalog() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Обновление URL параметров
   const updateUrl = useCallback((updates: {
     page?: number;
     search?: string;

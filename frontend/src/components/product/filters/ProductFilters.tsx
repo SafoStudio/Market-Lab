@@ -53,13 +53,6 @@ export function ProductFilters({
           <h2 className="text-xl font-bold text-gray-900">
             {t('Catalog.filtersTitle')}
           </h2>
-          <p className="text-gray-600 mt-1">
-            {t('Catalog.filtersSubtitle', {
-              total: stats.total,
-              inStock: stats.inStock,
-              lowStock: stats.lowStock
-            })}
-          </p>
         </div>
 
         <FilterControls

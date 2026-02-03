@@ -44,8 +44,28 @@ export class ProductCoreService {
     return this.productRepository.findByCategoryId(categoryId, languageCode);
   }
 
-  async getPaginated(page: number, limit: number, languageCode: LanguageCode = DEFAULT_LANGUAGE): Promise<any> {
-    return this.productRepository.findWithPagination(page, limit, undefined, languageCode);
+  async getPaginated(
+    page: number,
+    limit: number,
+    languageCode: LanguageCode = DEFAULT_LANGUAGE,
+    filter?: Partial<ProductDomainEntity>,
+    sortBy?: keyof ProductDomainEntity,
+    sortOrder?: 'ASC' | 'DESC'
+  ): Promise<{
+    data: ProductDomainEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    return this.productRepository.findWithPagination(
+      page,
+      limit,
+      filter,
+      languageCode,
+      sortBy,
+      sortOrder
+    );
   }
 
   // Methods for Customer
