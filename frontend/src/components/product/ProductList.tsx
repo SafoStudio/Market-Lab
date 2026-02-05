@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/core/types/productTypes';
-import { Spinner } from '../ui';
+import { useColdStart } from '@/core/hooks/useColdStart';
+import { Spinner, ColdStartBanner } from '@/components/ui';
 
 interface ProductListProps {
   products: Product[];
@@ -14,11 +15,15 @@ interface ProductListProps {
 
 export function ProductList({ products, isLoading, limit, locale }: ProductListProps) {
   const router = useRouter();
+  const { showBanner, countdown } = useColdStart(isLoading, 5000);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Spinner size="lg" />
+      <div className="space-y-4">
+        <ColdStartBanner isVisible={showBanner} countdown={countdown} />
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Spinner size="lg" />
+        </div>
       </div>
     );
   }
