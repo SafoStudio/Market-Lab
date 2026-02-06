@@ -10,8 +10,11 @@ BACKEND
 │   │   ├── 📁 database/                          # Database configuration
 │   │   │   └── 📄 database.module.ts             # Database connection module
 │   │   ├── 📁 scripts/                           # DEPLOYMENT & BUILD SCRIPTS
-│   │   │   ├── 📄 seed.ts                        # Database seeding
-│   │   │   ├── 📄 migrate.ts                     # Database migrations
+│   │   │   ├── 📁 data/                          # Data for seeds
+│   │   │   ├── 📄 seed-categories.ts             # Categories seeding
+│   │   │   ├── 📄 seed-suppliers.ts              # Suppliers seeding
+│   │   │   ├── 📄 seed-products.ts               # Products seeding
+│   │   │   ├── 📄 seed-runner.ts                 # Seed runner
 │   │   │   └── 📄 super-admin.init.ts            # Super admin initializer service
 │   │   └── 📁 cache/                             # Cache configuration
 │   │       └── 📄 cache.module.ts                # Cache module
@@ -57,17 +60,34 @@ BACKEND
 │   │   └── 📄 auth.module.ts                     # Organization of authentication components
 │   │
 │   ├── 📁 shared/                                # SHARED UTILITIES
-│   │   ├── 📁 interfaces/
+│   │   ├── 📁 decorators/
+│   │   │   ├── 📄 locale.decorator.ts            # Setup locale
+│   │   │   ├── 📄 parse-data.decorator.ts        # Parse incoming data
+│   │   │   └── 📄 index.ts                       # Export of decorators
+│   │   ├── 📁 types/
 │   │   │   ├── 📄 repository.interface.ts        # Universal repository contracts
 │   │   │   ├── 📄 product-item.interface.ts      # Universal product interface
-│   │   │   └── 📄 entity.interface.ts            # Entity interfaces
-│   │   ├── 📁 utils/
-│   │   │   └── 📄 mapper.ts                      # Data mapping utilities
+│   │   │   ├── 📄 permission.enum.ts             # Permission enum
+│   │   │   ├── 📄 storage.interface.ts           # File storage interface
+│   │   │   ├── 📄 role.enum.ts                   # Role enum
+│   │   │   ├── 📄 address.interface.ts           # Base address interface
+│   │   │   ├── 📄 entity.interface.ts            # Entity interfaces
+│   │   │   └── 📄 index.ts                       # Export of types
+│   │   ├── 📁 swagger/
+│   │   │   └── 📄 swagger.config.ts              # Swagger settings
 │   │   ├── 📁 filters/                           # Exception filters
 │   │   │   └── 📄 all-exceptions.filter.ts       # Global exception handler
 │   │   └── 📁 pipes/                             # Custom pipes
 │   │
 │   ├── 📁 domain/                                # DOMAIN LAYER (business logic)
+│   │   ├── 📁 addresses/                         # Address domain
+│   │   ├── 📁 categories/                        # Category domain
+│   │   ├── 📁 notifications/                     # Notification domain
+│   │   ├── 📁 translations/                      # Translation domain
+│   │   ├── 📁 cart/                              # Cart domain
+│   │   ├── 📁 order/                             # Orders domain
+│   │   ├── 📁 payment/                           # Payments domain
+│   │   ├── 📁 admin/                             # Admin domain
 │   │   ├── 📁 users/                             # Users domain
 │   │   │   ├── 📄 user.entity.ts                 # User business entity
 │   │   │   ├── 📄 user.repository.ts             # User repository interface
@@ -102,6 +122,13 @@ BACKEND
 │   │   │   ├── 📁 mongodb/                       # MongoDB implementation
 │   │   │   │   └── 📄 ...                        # MongoDB files
 │   │   │   └── 📁 postgres/                      # PostgreSQL implementation
+│   │   │       ├── 📁 address/                     
+│   │   │       ├── 📁 admin/                     
+│   │   │       ├── 📁 cart/                     
+│   │   │       ├── 📁 categories/                     
+│   │   │       ├── 📁 order/                     
+│   │   │       ├── 📁 payment/                     
+│   │   │       ├── 📁 translations/                                        
 │   │   │       ├── 📁 users/                     
 │   │   │       │   ├── 📄 user.entity.ts         # TypeORM user entity
 │   │   │       │   └── 📄 user.repository.ts     # PostgreSQL user repository
@@ -116,15 +143,22 @@ BACKEND
 │   │   │           └── 📄 supplier.repository.ts # PostgreSQL supplier repository
 │   │   │
 │   │   ├── 📁 mail/                              # Mail providers
-│   │   │   ├── 📄 mail.module.ts                 # Mail module
+│   │   │   ├── 📄 mail.adapter.ts                # Mail adapter
 │   │   │   └── 📄 mail.service.ts/               # Mail service
+│   │   │
+│   │   ├── 📁 storage/                           # Storage providers
+│   │   │   ├── 📄 s3-doc.adapter.ts              # Document adapter
+│   │   │   ├── 📄 s3-product-img.adapter.ts      # Products image adapter
+│   │   │   ├── 📄 s3-storage.service.ts          # S3 service
+│   │   │   ├── 📄 s3.config.ts                   # S3 settings
+│   │   │   └── 📄 transliteration.util.ts/       # Translating words when saving to s3 storage
 │   │   │
 │   │   ├── 📁 oauth/                             # OAuth providers
 │   │   │   ├── 📁 facebook/                      # Facebook OAuth implementation
 │   │   │   │   └── 📄 ...                        # Facebook OAuth files
 │   │   │   └── 📁 google/                        # Google OAuth implementation
 │   │   │       ├── 📄 google-oauth.service.ts    # Google OAuth service implementation
-│   │   │       ├── 📄 google-oauth.module.ts     # NestJS module for Google OAuth
+│   │   │       ├── 📄 google-oauth.adapter.ts    # Google OAuth adapter
 │   │   │       ├── 📄 google-oauth.config.ts     # Configuration for Google OAuth
 │   │   │       ├── 📄 google-user.mapper.ts      # Mapper: Google user ↔ Domain user
 │   │   │       ├── 📄 google-user.type.ts        # TypeScript types for Google OAuth
@@ -135,6 +169,13 @@ BACKEND
 │   │
 │   ├── 📁 module/                                # FEATURE MODULES
 │   │   ├── 📄 admin.module.ts                    # Admin module
+│   │   ├── 📄 address.module.ts                  # Address module
+│   │   ├── 📄 categories.module.ts               # Categories module
+│   │   ├── 📄 google-oauth.module.ts             # Google module
+│   │   ├── 📄 mail.module.ts                     # Mail module
+│   │   ├── 📄 notification.module.ts             # Notification module
+│   │   ├── 📄 s3-storage.module.ts               # Storage s3 module
+│   │   ├── 📄 translations.module.ts             # Translations module
 │   │   ├── 📄 cart.module.ts                     # Cart module
 │   │   ├── 📄 order.module.ts                    # Order module
 │   │   ├── 📄 payment.module.ts                  # Payment module
@@ -146,9 +187,13 @@ BACKEND
 │   └── 📁 controller/                            # API CONTROLLERS
 │       ├── 📁 admin/                             # REST API for admin panel
 │       ├── 📁 payment/                           # REST API for payments
-│       ├── 📄 products.controller.ts             # REST API for products
-│       ├── 📄 suppliers.controller.ts            # REST API for Suppliers
-│       ├── 📄 customers.controller.ts            # REST API for Customers
+│       ├── 📁 product/                           # REST API for products
+│       ├── 📁 suppliers/                         # REST API for suppliers
+│       ├── 📄 cart.controller.ts                 # REST API for cart
+│       ├── 📄 categories.controller.ts           # REST API for categories
+│       ├── 📄 orders.controller.ts               # REST API for orders
+│       ├── 📄 translations.controller.ts         # REST API for translations
+│       ├── 📄 customers.controller.ts            # REST API for customers
 │       └── 📄 health.controller.ts               # Health check controller
 │
 ├── 📁 test/                                     # TEST FILES

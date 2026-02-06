@@ -27,7 +27,7 @@ import { PostgresProductRepository } from '@infrastructure/database/postgres/pro
 import { UserOrmEntity } from '@infrastructure/database/postgres/users/user.entity';
 
 // S3 Storage
-import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
+import { S3StorageModule } from '@module/s3-storage.module';
 import { S3ProductImageStorageAdapter } from '@infrastructure/storage/s3-product-img.adapter';
 
 // Categories Module

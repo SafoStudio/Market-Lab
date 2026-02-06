@@ -8,11 +8,11 @@ export function ColdStartBanner({ isVisible, countdown }: { isVisible: boolean, 
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
-    if (countdown > 50) setStage(0);
-    else if (countdown > 40) setStage(1);
-    else if (countdown > 30) setStage(2);
-    else if (countdown > 20) setStage(3);
-    else if (countdown > 10) setStage(4);
+    if (countdown > 100) setStage(0);
+    else if (countdown > 80) setStage(1);
+    else if (countdown > 60) setStage(2);
+    else if (countdown > 40) setStage(3);
+    else if (countdown > 20) setStage(4);
     else setStage(5);
   }, [countdown]);
 

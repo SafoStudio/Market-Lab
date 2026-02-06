@@ -27,7 +27,7 @@ import { SupplierProfileOrmEntity } from '@infrastructure/database/postgres/supp
 import { PostgresSupplierRepository } from '@infrastructure/database/postgres/suppliers/supplier.repository';
 
 // S3 Storage
-import { S3StorageModule } from '@infrastructure/storage/s3-storage.module';
+import { S3StorageModule } from '@module/s3-storage.module';
 import { S3DocumentStorageAdapter } from '@infrastructure/storage/s3-doc.adapter';
 
 

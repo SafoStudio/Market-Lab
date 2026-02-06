@@ -5,13 +5,13 @@ import { useState, useEffect } from 'react';
 export function useColdStart(isLoading: boolean, threshold = 5000) {
   const [showBanner, setShowBanner] = useState(false);
   const [loadingStartTime, setLoadingStartTime] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(120);
 
   useEffect(() => {
     if (isLoading && !loadingStartTime) {
       setLoadingStartTime(Date.now());
       setShowBanner(false);
-      setCountdown(60);
+      setCountdown(120);
     } else if (!isLoading) {
       setLoadingStartTime(null);
       if (showBanner) {
