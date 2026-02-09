@@ -31,7 +31,7 @@ export function GoogleCallbackHandler({ code, error }: GoogleCallbackHandlerProp
       }
 
       try {
-        const result = await authApi.googleCallback(code, locale);
+        const result = await authApi.googleCallback(code);
         setAuth(result.user, result.access_token);
 
         if (!result.user.regComplete) {
