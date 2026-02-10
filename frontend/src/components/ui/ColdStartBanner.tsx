@@ -21,7 +21,7 @@ export function ColdStartBanner({ isVisible, countdown }: { isVisible: boolean, 
   const translations = {
     uk: {
       title: 'Сервер прокидається',
-      description: 'На безкоштовному Render.com хостингу серверу потрібно ~30-60 секунд для запуску після періоду бездіяльності.',
+      description: 'На безкоштовному Render.com хостингу серверу потрібно ~60-120 секунд для запуску після періоду бездіяльності.',
       waitingTime: 'Тривалість приготування:',
       tip: '⚡ Миттєва робота після запуску',
       seconds: 'сек',
@@ -36,7 +36,7 @@ export function ColdStartBanner({ isVisible, countdown }: { isVisible: boolean, 
     },
     en: {
       title: 'Server is waking up',
-      description: 'On free Render.com hosting, the server needs ~30-60 seconds to start after a period of inactivity.',
+      description: 'On free Render.com hosting, the server needs ~60-120 seconds to start after a period of inactivity.',
       waitingTime: 'Preparation duration:',
       tip: '⚡ Instant operation after startup',
       seconds: 'sec',
