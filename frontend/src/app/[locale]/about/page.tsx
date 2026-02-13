@@ -1,3 +1,5 @@
+import About from "@/components/about/about"
+
 export default function AboutPage() {
-  return <p>the page is under development</p>
+  return <About />
 }

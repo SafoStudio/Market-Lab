@@ -831,5 +831,70 @@
       "description": "Leave a request and we'll notify you when the map is ready",
       "button": "Notify me"
     }
+  },
+  "About": {
+    "title": "About Greenly",
+    "subtitle": "From farm to table — with love",
+    "badge": "Farmers Marketplace",
+    "story": {
+      "badge": "Our Story",
+      "title": "With love for land and people",
+      "paragraph1": "Greenly was born from a simple idea — to make fresh farm products accessible to everyone, and to give farmers a fair sales channel without middlemen.",
+      "paragraph2": "We started as a small project in 2024, uniting local producers from Kyiv region. Today we are growing to cover all of Ukraine."
+    },
+    "stats": {
+      "farmers": "farmers",
+      "products": "products",
+      "customers": "happy customers"
+    },
+    "values": {
+      "badge": "Our Values",
+      "title": "Why you can trust us",
+      "0": {
+        "title": "Freshness",
+        "desc": "Products are harvested on order and delivered within 24 hours"
+      },
+      "1": {
+        "title": "Honesty",
+        "desc": "Direct communication with farmers and transparent pricing without markups"
+      },
+      "2": {
+        "title": "Sustainability",
+        "desc": "Supporting local producers and eco-friendly packaging"
+      }
+    },
+    "team": {
+      "badge": "Our Team",
+      "title": "People who make Greenly",
+      "description": "We are a team of enthusiasts united by love for quality food and desire to support Ukrainian farming",
+      "members": [
+        {
+          "name": "Oleksandr",
+          "role": "Founder",
+          "desc": "Third generation farmer"
+        },
+        {
+          "name": "Mariia",
+          "role": "Product Manager",
+          "desc": "10+ years in e-commerce"
+        },
+        {
+          "name": "Andriy",
+          "role": "UX/UI Designer",
+          "desc": "Creates beauty"
+        },
+        {
+          "name": "Kateryna",
+          "role": "Logistician",
+          "desc": "Optimizes routes"
+        }
+      ]
+    },
+    "future": {
+      "title": "Lots of exciting things ahead",
+      "description": "We are constantly developing and adding new features",
+      "roadmap": "Roadmap",
+      "contact": "Contact us"
+    }
   }
 }
