@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { DesktopNav } from './navigation/DesktopNav';
 import { UserMenu } from './UserMenu';
 import { CartIcon } from '../cart/CartIcon';
@@ -18,7 +19,9 @@ export function Header() {
             <span className="text-gray-300">⟶</span>
             <CartIcon />
           </div>
-          <LanguageSwitcher />
+          <Suspense fallback={<div className="w-12 h-12" />}>
+            <LanguageSwitcher />
+          </Suspense>
         </div>
       </div>
     </header>
