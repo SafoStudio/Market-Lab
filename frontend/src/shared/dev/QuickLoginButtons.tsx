@@ -43,7 +43,7 @@ export function QuickLoginButtons({ className = '', onSuccess }: QuickLoginButto
     );
   };
 
-  if (process.env.NODE_ENV !== 'development') return null;
+  // if (process.env.NODE_ENV !== 'development') return null;
 
   return (
     <div className={`space-y-3 ${className}`}>
