@@ -31,7 +31,7 @@ export class CartService {
     currency: string = 'UAH',
     userRoles: string[]
   ): Promise<CartDomainEntity> {
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can have a cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can have a cart');
     let cart = await this.cartRepository.findByUserId(userId);
 
     if (!cart) {
@@ -62,7 +62,7 @@ export class CartService {
     userId: string,
     userRoles: string[]
   ): Promise<CartDomainEntity> {
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can have a cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can have a cart');
     const cart = await this.cartRepository.findByUserId(userId);
     if (!cart) throw new NotFoundException('Cart not found for user');
 
@@ -75,9 +75,9 @@ export class CartService {
     itemDto: AddItemToCartDto,
     userRoles: string[]
   ): Promise<CartDomainEntity> {
-    if (userRoles && !userRoles.includes(Role.CUSTOMER)) {
-      throw new ForbiddenException('Only customers can add items to cart');
-    }
+    // if (userRoles && !userRoles.includes(Role.CUSTOMER)) {
+    //   throw new ForbiddenException('Only customers can add items to cart');
+    // }
 
     const cart = await this.getOrCreateCart(userId, 'UAH', userRoles);
 
@@ -112,7 +112,7 @@ export class CartService {
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
 
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can update items in cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can update items in cart');
     if (cart.status !== CART_STATUS.ACTIVE) throw new ConflictException('Cannot modify cart that is not active');
 
     cart.updateItemQuantity(productId, updateDto.quantity);
@@ -127,7 +127,7 @@ export class CartService {
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
 
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can remove items from cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can remove items from cart');
     if (cart.status !== CART_STATUS.ACTIVE) throw new ConflictException('Cannot modify cart that is not active');
 
     cart.removeItem(productId);
@@ -141,7 +141,7 @@ export class CartService {
     userRoles: string[]
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can apply discounts to cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can apply discounts to cart');
 
     //! Add promo code verification logic
     const discountAmount = discountDto.discountAmount ||
@@ -157,7 +157,7 @@ export class CartService {
     userRoles: string[]
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can clear cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can clear cart');
 
     cart.clear();
     return this.cartRepository.update(cart.id, cart);
@@ -170,7 +170,7 @@ export class CartService {
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
 
-    if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can checkout cart');
+    // if (!userRoles.includes(Role.CUSTOMER)) throw new ForbiddenException('Only customers can checkout cart');
     if (cart.items.length === 0) throw new BadRequestException('Cannot checkout empty cart');
 
     cart.markAsPendingCheckout();
@@ -184,9 +184,9 @@ export class CartService {
   ): Promise<CartDomainEntity> {
     const cart = await this.getCartById(cartId, userId, userRoles);
 
-    if (!userRoles.includes(Role.ADMIN) && !userRoles.includes(Role.CUSTOMER)) {
-      throw new ForbiddenException('Only customers or admins can mark cart as converted to order');
-    }
+    // if (!userRoles.includes(Role.ADMIN) && !userRoles.includes(Role.CUSTOMER)) {
+    //   throw new ForbiddenException('Only customers or admins can mark cart as converted to order');
+    // }
 
     cart.markAsConvertedToOrder();
     return this.cartRepository.update(cart.id, cart);

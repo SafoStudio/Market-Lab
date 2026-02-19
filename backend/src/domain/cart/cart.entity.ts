@@ -48,7 +48,7 @@ export class CartDomainEntity implements CartModel {
   constructor(
     id: string,
     userId: string,
-    currency: string = 'USD',
+    currency: string = 'UAH',
     status: CartStatus = CART_STATUS.ACTIVE,
     items: CartItem[] = [],
     expiresAt?: Date,
@@ -83,7 +83,7 @@ export class CartDomainEntity implements CartModel {
     return new CartDomainEntity(
       crypto.randomUUID(),
       createDto.userId,
-      createDto.currency || 'USD',
+      createDto.currency || 'UAH',
       CART_STATUS.ACTIVE,
       items,
       expiresAt
