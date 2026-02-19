@@ -625,10 +625,12 @@ export class AuthController {
    * @private Internal method for cookie management
    */
   private _setAuthCookie(res: Response, token: string): void {
+    const isProduction = process.env.NODE_ENV === 'production'
+
     res.cookie('authToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
   }
