@@ -49,6 +49,7 @@ export function QuickLoginButtons({ className = '', onSuccess }: QuickLoginButto
     <div className={`space-y-3 ${className}`}>
       <div className="text-sm font-medium text-gray-500 mb-2">
         🔧 Quick login (development mode)
+        cold start ~ 60-120 sec
       </div>
 
       {(Object.keys(devCredentials) as DevUserRole[]).map((role) => {

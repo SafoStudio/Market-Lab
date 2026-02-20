@@ -1,9 +1,11 @@
 'use client'
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import Link from 'next/link';
 import { useActiveSuppliers } from '@/core/hooks';
+import { ErrorState } from '../ui/ErrorState';
+import { CardSkeleton } from '../ui/CardSkeleton';
 
 export function Sellers() {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,23 +30,16 @@ export function Sellers() {
     : ['all'];
 
   const filteredSuppliers = suppliers?.filter(supplier => {
-    const matchesSearch = supplier.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.primaryAddress?.city?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCity = selectedCity === 'all' || supplier.primaryAddress?.city === selectedCity;
+    const companyName = supplier.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+    const address = supplier.primaryAddress?.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = companyName || address;
+    const all = selectedCity === 'all'
+    const city = supplier.primaryAddress?.city === selectedCity;
+    const matchesCity = all || city;
     return matchesSearch && matchesCity;
   });
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-green-50 via-amber-50 to-white flex items-center justify-center p-4">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-12 text-center border border-red-100">
-          <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('error.title')}</h2>
-          <p className="text-gray-600">{t('error.description')}</p>
-        </div>
-      </div>
-    );
-  }
+  if (error) return <ErrorState error={error} />;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-green-50 via-amber-50 to-white">
@@ -125,24 +120,7 @@ export function Sellers() {
 
         {/* Sellers list */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 animate-pulse">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-xl"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CardSkeleton />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSuppliers?.map((supplier, index) => (

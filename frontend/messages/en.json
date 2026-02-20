@@ -679,7 +679,7 @@
     "errorMessage": "Failed to create admin"
   },
   "Catalog": {
-    "activeProductsFromAllSuppliers": "Active products from all suppliers",
+    "mainDescription": "Active products from all suppliers",
     "foundProducts": "Found {count} products",
     "forQuery": "for query",
     "inCategory": "in category",

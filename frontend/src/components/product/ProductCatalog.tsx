@@ -5,14 +5,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { usePublicActiveProducts } from '@/core/hooks';
 import { useCategories } from '@/core/hooks';
 import { useTranslations, useLocale } from 'next-intl';
-import { CatalogHeader } from './CatalogHeader';
 import { ProductFilters } from './filters/ProductFilters';
 import { ProductStatistics } from './Statistics';
 import { ActiveFilters } from './filters/ActiveFilters';
 import { ProductList } from './ProductList';
 import { Pagination } from '../ui/Pagination';
-import { ErrorState } from './ErrorState';
-import { EmptyState } from './EmptyState';
+import { ErrorState } from '../ui/ErrorState';
+import { EmptyState } from './filters/EmptyState';
 
 
 export function ProductCatalog() {
@@ -145,16 +144,14 @@ export function ProductCatalog() {
     })).sort((a, b) => a.slug.localeCompare(b.slug));
   }, [categories]);
 
-  if (error) {
-    return <ErrorState error={error} />;
-  }
+  if (error) return <ErrorState error={error} />;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <CatalogHeader
-        title={t('Common.allProducts')}
-        description={t('Catalog.activeProductsFromAllSuppliers')}
-      />
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">{t('Common.allProducts')}</h1>
+        <p className="text-gray-600 mt-2">{t('Catalog.mainDescription')}</p>
+      </div>
 
       <ProductFilters
         stats={stats}

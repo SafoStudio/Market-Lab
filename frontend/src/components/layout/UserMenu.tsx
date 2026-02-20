@@ -30,7 +30,7 @@ export function UserMenu() {
 
   if (!isAuthenticated || !user) {
     return (
-      <Button variant="outline" size="sm">
+      <Button variant="custom" size="sm">
         <Link href={`/${locale}/login`}>{t('Auth.login')}</Link>
       </Button>
     );

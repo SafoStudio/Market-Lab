@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/core/types/productTypes';
 import { useColdStart } from '@/core/hooks/useColdStart';
-import { Spinner, ColdStartBanner } from '@/components/ui';
+import { CardSkeleton, ColdStartBanner } from '@/components/ui';
 
 interface ProductListProps {
   products: Product[];
@@ -21,9 +21,7 @@ export function ProductList({ products, isLoading, limit, locale }: ProductListP
     return (
       <div className="space-y-4">
         <ColdStartBanner isVisible={showBanner} countdown={countdown} />
-        <div className="flex justify-center items-center min-h-[400px]">
-          <Spinner size="lg" />
-        </div>
+        <CardSkeleton />
       </div>
     );
   }

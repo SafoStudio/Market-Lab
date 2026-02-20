@@ -27,9 +27,9 @@ export function DesktopNav() {
         <Link
           key={`${item.key}-${locale}`}
           href={`/${locale}/${item.path}`}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
-            ? 'bg-green-100 text-green-700'
-            : 'text-gray-700 hover:bg-green-100 hover:text-gray-900'
+          className={`px-2 py-[5px] border border-gray-300 rounded-lg text-sm font-medium transition-colors ${isActive(item.path)
+            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+            : 'text-gray-700 hover:bg-green-200 hover:text-gray-900'
             }`}
         >
           {item.label}

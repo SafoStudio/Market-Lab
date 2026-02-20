@@ -675,7 +675,7 @@
     "errorMessage": "Не вдалося створити адміністратора"
   },
   "Catalog": {
-    "activeProductsFromAllSuppliers": "Активні товари від усіх постачальників",
+    "mainDescription": "Активні товари від усіх постачальників",
     "foundProducts": "Знайдено {count} товарів",
     "forQuery": "за запитом",
     "inCategory": "у категорії",

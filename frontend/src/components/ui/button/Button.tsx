@@ -3,7 +3,7 @@ import { cn } from '@/core/utils/cn';
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning' | 'custom';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }
@@ -24,7 +24,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={cn(
           'inline-flex items-center justify-center rounded-lg font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
           {
             // Primary variant
@@ -47,6 +47,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
             // Warning variant
             'bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700': variant === 'warning',
+
+            // Custom variant
+            'border border-gray-300 text-gray-700 bg-green-100 hover:bg-green-200': variant === 'custom',
           },
           {
             'h-8 px-3 text-sm': size === 'sm',
